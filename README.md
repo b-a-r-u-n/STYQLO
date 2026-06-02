@@ -8,7 +8,7 @@ The project is designed with scalability in mind and can be extended into a **hy
 
 ## 🚀 Live Demo
 
-🔗 **Live Project:** https://your-live-link.com
+🔗 **Live Project:** https://odishalokalkart.onrender.com
 
 ---
 
