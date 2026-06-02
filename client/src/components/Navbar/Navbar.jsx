@@ -63,7 +63,7 @@ function Navbar() {
                 <Sparkles size={18} className="text-[#2C1810]" />
               </div>
               <span className="text-xl font-semibold text-[#2C1810] tracking-wider font-['Outfit']">
-                Local<span className="text-[#E7A9A2] font-bold">Kart</span>
+                STY<span className="text-[#E7A9A2] font-bold">QLO</span>
               </span>
             </Link>
 

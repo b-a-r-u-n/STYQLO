@@ -16,7 +16,7 @@ const PublicLayout = () => {
             <Sparkles size={28} className="text-white" />
           </div>
           <div className="spinner-luxury mx-auto mb-3" />
-          <p className="text-sm text-[#9B7B75] font-medium">Loading LocalKart...</p>
+          <p className="text-sm text-[#9B7B75] font-medium">Loading STYQLO...</p>
         </div>
       </div>
     );

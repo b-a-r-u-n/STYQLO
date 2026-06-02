@@ -14,7 +14,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="max-w-2xl">
             <h1 className="text-5xl mb-6">
-              Welcome to LocalKart
+              Welcome to STYQLO
             </h1>
             <p className="text-xl mb-8 text-blue-100">
               Discover amazing products at unbeatable prices. Shop from thousands of products across all categories.

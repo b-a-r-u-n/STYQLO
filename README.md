@@ -1,6 +1,6 @@
-# 🛒 LocalKart – MERN Stack E-commerce Application
+# 🛒 STYQLO – MERN Stack E-commerce Application
 
-**LocalKart** is a full-stack e-commerce web application built using the **MERN stack (MongoDB, Express.js, React.js, Node.js)**. It enables users to browse products, manage carts, add delivery addresses, and place orders seamlessly.
+**STYQLO** is a full-stack e-commerce web application built using the **MERN stack (MongoDB, Express.js, React.js, Node.js)**. It enables users to browse products, manage carts, add delivery addresses, and place orders seamlessly.
 
 The project is designed with scalability in mind and can be extended into a **hyperlocal marketplace**, connecting nearby vendors with customers.
 
@@ -49,7 +49,7 @@ The project is designed with scalability in mind and can be extended into a **hy
 ## 📁 Project Structure
 
 ```bash
-LocalKart/
+STYQLO/
 │
 ├── client/                  # Frontend (React + Vite)
 │   ├── public/
@@ -81,8 +81,8 @@ LocalKart/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/b-a-r-u-n/LocalKart.git
-cd LocalKart
+git clone https://github.com/b-a-r-u-n/STYQLO.git
+cd STYQLO
 ```
 
 ---
@@ -165,7 +165,7 @@ http://localhost:5173
 
 ## 🎯 Project Objective
 
-The primary objective of LocalKart is to build a **production-ready e-commerce platform** with robust backend architecture and efficient frontend state management.
+The primary objective of STYQLO is to build a **production-ready e-commerce platform** with robust backend architecture and efficient frontend state management.
 
 It also serves as a foundation for building:
 

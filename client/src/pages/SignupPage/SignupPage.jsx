@@ -60,7 +60,7 @@ const SignupPage = () => {
             <Sparkles size={28} className="text-[#2C1810]" />
           </div>
           <h2 className="text-3xl font-medium tracking-wide text-white mb-3 leading-tight font-['Outfit']">
-            Join LocalKart<br />Today
+            Join STYQLO<br />Today
           </h2>
           <p className="text-[#D4A398] leading-relaxed text-sm mb-8 font-light">
             Create your account and start exploring premium local products at the best prices.

@@ -22,7 +22,7 @@ const AdminSidebar = () => {
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#8A6B65]">Admin Panel</p>
-            <p className="text-sm font-bold text-[#2C1810] font-['Outfit']">LocalKart</p>
+            <p className="text-sm font-bold text-[#2C1810] font-['Outfit']">STYQLO</p>
           </div>
         </div>
       </div>
@@ -62,7 +62,7 @@ const AdminSidebar = () => {
       {/* Footer */}
       <div className="px-4 py-4 border-t border-[#E8D4D0]/60">
         <div className="bg-[#FBF8F5] rounded-2xl p-3 text-center border border-[#E8D4D0]/30">
-          <p className="text-xs text-[#8A6B65] font-semibold">LocalKart Admin</p>
+          <p className="text-xs text-[#8A6B65] font-semibold">STYQLO Admin</p>
           <p className="text-[10px] text-[#D4A398] mt-0.5 font-light">v1.0.0</p>
         </div>
       </div>

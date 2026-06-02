@@ -113,7 +113,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3 text-sm text-[#C4A09A]">
                 <Mail size={15} className="flex-shrink-0 text-[#D4A398]" />
-                <span>support@localkart.com</span>
+                <span>support@STYQLO.com</span>
               </li>
             </ul>
           </div>
@@ -122,7 +122,7 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-[#9B7B75] flex items-center gap-1.5">
-            &copy; {new Date().getFullYear()} LocalKart. Made with{' '}
+            &copy; {new Date().getFullYear()} STYQLO. Made with{' '}
             <Heart size={12} className="text-[#C8756A] fill-[#C8756A]" />
             {' '}in India
           </p>

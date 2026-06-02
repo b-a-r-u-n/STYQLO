@@ -50,7 +50,7 @@ const LoginPage = () => {
             <Sparkles size={28} className="text-[#2C1810]" />
           </div>
           <h2 className="text-3xl font-medium tracking-wide text-white mb-3 leading-tight font-['Outfit']">
-            Welcome to<br />LocalKart
+            Welcome to<br />STYQLO
           </h2>
           <p className="text-[#D4A398] leading-relaxed text-sm font-light">
             Your curated destination for premium local products. Quality, elegance, and trust — delivered to your door.
