@@ -8,30 +8,43 @@ import asyncHandler from "../utils/asyncHandler.js";
 const addToCart = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
-    const {productId, quantity, size} = req.body;
-    if(!productId)
+    const { productId, quantity, size } = req.body;
+    if (!productId)
         throw new apiError(400, "Product id is required");
 
-    let cart = await Cart.findOne({userId});
+    let cart = await Cart.findOne({ userId });
 
-    if(!cart){
-        cart = await Cart.create({userId});
-        if(!cart)
+    if (!cart) {
+        cart = await Cart.create({ userId });
+        if (!cart)
             throw new apiError(400, "Error while creating cart");
     }
 
-    let item = await CartItem.findOne({
-        cartId: cart._id,
-        productId,
-        size: size
-    })
-    console.log(item);
-    
+    let item;
 
-    if(item){
+    if (size) {
+        item = await CartItem.findOne({
+            cartId: cart._id,
+            productId,
+            size: size
+        })
+        console.log("inside if");
+        
+    } else {
+        item = await CartItem.findOne({
+            cartId: cart._id,
+            productId
+        })
+        console.log("inside else");
+    }
+
+    console.log("item", item);
+
+
+    if (item) {
         item.quantity += quantity || 1;
-        await item.save({validateBeforeSave: false})
-    }else {
+        await item.save({ validateBeforeSave: false })
+    } else {
         item = await CartItem.create({
             cartId: cart._id,
             productId,
@@ -42,30 +55,30 @@ const addToCart = asyncHandler(async (req, res) => {
 
     item = await item.populate("productId");
 
-    if(!item)
+    if (!item)
         throw new apiError(400, "Error while creating cart item");
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Item added successfully", item)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Item added successfully", item)
+        )
 })
 
 const deleteFromCart = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
-    const {productId} = req.params;
-    const {size} = req.body;
-    if(!productId)
+    const { productId } = req.params;
+    const { size } = req.body;
+    if (!productId)
         throw new apiError(400, "Product id is required");
 
     const cart = await Cart.findOne({
         userId
     })
 
-    if(!cart)
-        throw new apiError(404, "Cart not found"); 
+    if (!cart)
+        throw new apiError(404, "Cart not found");
 
     const item = await CartItem.findOneAndDelete({
         cartId: cart._id,
@@ -73,35 +86,35 @@ const deleteFromCart = asyncHandler(async (req, res) => {
         size
     }).populate("productId")
     console.log(item);
-    
 
-    if(!item)
+
+    if (!item)
         throw new apiError(404, "Item not found in cart");
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Item deleted successfully", item)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Item deleted successfully", item)
+        )
 })
 
 const updateCartItem = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
-    const {productId} = req.params;
-    if(!productId)
+    const { productId } = req.params;
+    if (!productId)
         throw new apiError(400, "Product id is required");
 
     // console.log(req.body);
-    const {quantity, size} = req.body;
-    
-    if(!quantity || quantity < 1)
+    const { quantity, size } = req.body;
+
+    if (!quantity || quantity < 1)
         throw new apiError(400, "Quantity must be at least 1");
-    if(quantity > 100)
+    if (quantity > 100)
         throw new apiError(400, "Max quantity is 100");
 
-    const cart = await Cart.findOne({userId});
-    if(!cart)
+    const cart = await Cart.findOne({ userId });
+    if (!cart)
         throw new apiError(404, "Cart not found");
 
     const item = await CartItem.findOneAndUpdate(
@@ -119,37 +132,37 @@ const updateCartItem = asyncHandler(async (req, res) => {
             returnDocument: 'after'
         }
     )
-    if(!item)
+    if (!item)
         throw new apiError(404, "Item not found");
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Quantity update successfully", item)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Quantity update successfully", item)
+        )
 })
 
 const getCart = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
-    const cart = await Cart.findOne({userId});
-    if(!cart)
+    const cart = await Cart.findOne({ userId });
+    if (!cart)
         throw new apiError(404, "Cart not found");
 
     const items = await CartItem.find({
         cartId: cart._id
     }).populate("productId");
-    if(!items)
+    if (!items)
         throw new apiError(400, "Items not found");
 
     // console.log(items);
-    
+
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Cart items fetched successfully", items)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Cart items fetched successfully", items)
+        )
 })
 
 const clearCart = asyncHandler(async (req, res) => {
@@ -164,10 +177,10 @@ const clearCart = asyncHandler(async (req, res) => {
         throw new apiError(400, "Error while clearing cart");
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Cart cleared successfully", result)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Cart cleared successfully", result)
+        )
 })
 
 

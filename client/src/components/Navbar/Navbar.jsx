@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { logOutUser } from "../../features/authSlice";
 import toast from "react-hot-toast";
 
+// import logo from "../../image/logo.png";
+
 function Navbar() {
   const { isLoggedIn, user } = useSelector(state => state.auth);
   const { cartData } = useSelector(state => state.cart);
@@ -58,13 +60,21 @@ function Navbar() {
           <div className="flex items-center justify-between h-16 md:h-18">
 
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-[0_4px_12px_rgba(231,169,162,0.25)] group-hover:shadow-[0_6px_20px_rgba(231,169,162,0.4)] transition-all duration-300">
+            <Link to="/" className="flex items-center gap-2.5 group h-full">
+              {/* <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-[0_4px_12px_rgba(231,169,162,0.25)] group-hover:shadow-[0_6px_20px_rgba(231,169,162,0.4)] transition-all duration-300">
                 <Sparkles size={18} className="text-[#2C1810]" />
-              </div>
-              <span className="text-xl font-semibold text-[#2C1810] tracking-wider font-['Outfit']">
+              </div> */}
+              {/* <span className="text-xl font-semibold text-[#2C1810] tracking-wider font-['Outfit']">
                 STY<span className="text-[#E7A9A2] font-bold">QLO</span>
-              </span>
+              </span> */}
+              
+              <div
+                style={{ backgroundImage: "url('/image/logo.png')" }}
+                className="h-[80%] w-48 bg-center bg-cover bg-no-repeat"
+              >
+
+              </div>
+
             </Link>
 
             {/* Desktop Right */}
