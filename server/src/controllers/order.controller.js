@@ -1,4 +1,67 @@
+import { Order } from "../models/order.model.js";
+import apiError from "../utils/apiError.js";
+import apiResponse from "../utils/apiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js";
 
 
-const createOrder = asyncHandler(async (req, res) => {})
+const createOrder = asyncHandler(async (req, res) => {
+    const {} = req.body;
+
+    const order = await Order.create({
+        user: req.user._id,
+        products,
+        shippingAddress,
+        subTotal,
+        tax,
+        shippingCharges,
+        totalAmount,
+        orderStatus: "Pending",
+        paymentStatus: "Pending"
+    })
+
+    if(!order)
+        throw new apiError(500, "Order creation failed");
+
+    res
+    .status(200)
+    .json(
+        new apiResponse(200, "Order created successfully", order)
+    )
+})
+
+const getUserOrders = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+
+    const orders = await Order.find({
+        user: userId
+    }).select("-paymentStatus -payment -razorpayOrderId -createdAt -updatedAt")
+
+    if(!orders)
+        throw new apiError(404, "No orders found for this user");
+
+    res
+    .status(200)
+    .json(
+        new apiResponse(200, "User orders fetched successfully", orders)
+    )
+})
+
+const getOrderById = asyncHandler(async (req, res) => {
+    const {orderId} = req.params;
+
+    if(!orderId)
+        throw new apiError(400, "Order id not found");
+
+    const order = await Order.findById(orderId).select("-paymentStatus -payment -razorpayOrderId -createdAt -updatedAt")
+
+    if(!order)
+        throw new apiError(404, "Order not found");
+
+    res
+    .status(200)
+    .json(
+        new apiResponse(200, "Order fetched successfully", order)
+    )
+})
+
+export {createOrder, getUserOrders, getOrderById}
