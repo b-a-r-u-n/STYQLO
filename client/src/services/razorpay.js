@@ -54,9 +54,12 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
 
 
           if (verify.success) {
-            navigate("/payment/success")
+            navigate("/payment/success");
+
+            await dispatch(clearCart()).unwrap();
+            await dispatch(clearBuy()).unwrap();
           } else {
-            navigate("/payment/pending")
+            navigate("/payment/pending");
           }
 
         } catch (error) {
