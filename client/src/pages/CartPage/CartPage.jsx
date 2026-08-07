@@ -4,10 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button/Button';
 import { ArrowLeft, ShoppingBag, Tag, Truck } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { handlePrice } from '../../features/cartSlice';
+import { clearBuy, handlePrice } from '../../features/cartSlice';
 
 const CartPage = () => {
-  const { loading, cartData, totalPrice, totalSubPrice, shippingPrice } = useSelector(state => state.cart);
+  const { loading, cartData, totalPrice, totalSubPrice, shippingPrice} = useSelector(state => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -15,8 +15,13 @@ const CartPage = () => {
     if (!cartData.length) return;
     const subTotal = cartData.reduce((acc, item) => acc + item.quantity * item.productId.discountPrice, 0);
     const shipping = subTotal < 500 ? 99 : 0;
-    dispatch(handlePrice({ subTotal, shipping }));
+    const tax = Math.round(subTotal * 0.05)
+    dispatch(handlePrice({ subTotal, shipping, tax }));
   }, [cartData, dispatch]);
+
+  useEffect(() => {
+    dispatch(clearBuy());
+  }, [])
 
   if (loading && !cartData.length) {
     return (
@@ -25,6 +30,8 @@ const CartPage = () => {
       </div>
     );
   }
+
+  const tax = Number((totalSubPrice * 0.05).toFixed(0));
 
   return (
     <div className="min-h-screen bg-[#FBF8F5]">
@@ -93,6 +100,10 @@ const CartPage = () => {
                     <span className="font-semibold text-[#2C1810] font-['Outfit']">₹{totalSubPrice?.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
+                    <span className="text-[#8A6B65]">Tax</span>
+                    <span className="font-semibold text-[#2C1810] font-['Outfit']">₹{tax}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
                     <span className="text-[#8A6B65] flex items-center gap-1.5">
                       <Truck size={14} /> Shipping
                     </span>
@@ -110,7 +121,7 @@ const CartPage = () => {
 
                   <div className="border-t border-[#E8D4D0]/60 pt-3 flex justify-between">
                     <span className="font-bold text-[#2C1810]">Total</span>
-                    <span className="text-xl font-bold text-[#2C1810] font-['Outfit']">₹{totalPrice?.toFixed(2)}</span>
+                    <span className="text-xl font-bold text-[#2C1810] font-['Outfit']">₹{totalPrice + tax}</span>
                   </div>
                 </div>
 

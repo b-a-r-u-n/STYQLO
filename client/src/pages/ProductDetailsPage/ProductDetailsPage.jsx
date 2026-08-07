@@ -82,7 +82,11 @@ const ProductDetailsPage = () => {
       return;
     }
     if (product?.sizes?.length > 0 && !selectedSize) { toast.error("Please select a size"); return; }
-    dispatch(handleBuy({ product, quantity, size: selectedSize }));
+    
+    const buyItemData = {product, quantity, size: selectedSize}
+
+    dispatch(handleBuy(buyItemData));
+    sessionStorage.setItem("buyNow", JSON.stringify(buyItemData))
     navigate("/checkout");
   };
 

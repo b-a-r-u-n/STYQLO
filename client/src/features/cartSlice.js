@@ -63,7 +63,8 @@ const initialState = {
     success: false,
     totalPrice: 0,
     totalSubPrice: 0,
-    shippingPrice: 0
+    shippingPrice: 0,
+    tax: 0
 }
 
 const cartSlice = createSlice({
@@ -78,10 +79,12 @@ const cartSlice = createSlice({
         },
         handleBuy: (state, action) => {
             const {product, quantity, size} = action.payload;
+            
             state.buyItem = {...product, quantity, size}
         },
         clearBuy: (state, _) => {
             state.buyItem = null;
+            sessionStorage.removeItem("buyNow");
         }
     },
     extraReducers: (builder) => {

@@ -34,6 +34,7 @@ const verifyRazorpayPayment = asyncHandler(async (req, res) => {
     const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body;
 
     const verify = await verifyRazorpayPaymentSignature(razorpay_order_id, razorpay_payment_id, razorpay_signature)
+    
 
     if(!verify)
         throw new apiError(400, "Razorpay payment verification failed");

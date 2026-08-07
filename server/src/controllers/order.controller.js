@@ -5,7 +5,9 @@ import asyncHandler from "../utils/asyncHandler.js";
 
 
 const createOrder = asyncHandler(async (req, res) => {
-    const {} = req.body;
+    const {products, shippingAddress, subTotal, tax, shippingCharges, totalAmount} = req.body;
+
+    // console.log(req.body);
 
     const order = await Order.create({
         user: req.user._id,
@@ -22,10 +24,12 @@ const createOrder = asyncHandler(async (req, res) => {
     if(!order)
         throw new apiError(500, "Order creation failed");
 
+    const createdOrder = await Order.findById(order._id).select("-user -products -shippingAddress -subTotal -tax -shippingCharges -totalAmount -orderStatus -paymentStatus -createdAt -updatedAt -razorpayOrderId")
+
     res
     .status(200)
     .json(
-        new apiResponse(200, "Order created successfully", order)
+        new apiResponse(200, "Order created successfully", createdOrder)
     )
 })
 

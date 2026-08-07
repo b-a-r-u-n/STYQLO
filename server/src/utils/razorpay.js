@@ -26,7 +26,7 @@ const razorpayOrder = async (totalAmount, currency, orderId) => {
     }
 }
 
-const verifyRazorpayPaymentSignature = async ({razorpayOrderId, razorpayPaymentId, razorpaySignature}) => {
+const verifyRazorpayPaymentSignature = async (razorpayOrderId, razorpayPaymentId, razorpaySignature) => {
     try {
         const generated_signature = crypto
             .createHmac("sha256", process.env.RAZORPAY_SECRET)
@@ -35,7 +35,7 @@ const verifyRazorpayPaymentSignature = async ({razorpayOrderId, razorpayPaymentI
 
         if (!generated_signature)
             throw new apiError(500, "Failed to generate signature for verification");
-
+        
         return generated_signature === razorpaySignature;
     } catch (error) {
         throw new apiError(500, "Error verifying Razorpay payment signature");

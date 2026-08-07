@@ -20,21 +20,25 @@ import { checkAuth } from './features/authSlice.js'
 import { getCartData } from './features/cartSlice.js'
 
 // Lazy-loaded pages
-const ProductsPage        = lazy(() => import("./pages/ProductsPage/ProductsPage.jsx"))
-const ProductDetailsPage  = lazy(() => import("./pages/ProductDetailsPage/ProductDetailsPage.jsx"))
-const ProfilePage         = lazy(() => import("./pages/ProfilePage/ProfilePage.jsx"))
-const EditAndAddAddress   = lazy(() => import("./pages/EditAndAddAddress/EditAndAddAddress.jsx"))
-const CartPage            = lazy(() => import("./pages/CartPage/CartPage.jsx"))
-const CheckoutPage        = lazy(() => import("./pages/CheckoutPage/CheckoutPage.jsx"))
-const SignupPage          = lazy(() => import("./pages/SignupPage/SignupPage.jsx"))
-const LoginPage           = lazy(() => import("./pages/LoginPage/LoginPage.jsx"))
-const NotFoundPage        = lazy(() => import("./pages/NotFoundPage/NotFoundPage.jsx"))
+const ProductsPage = lazy(() => import("./pages/ProductsPage/ProductsPage.jsx"))
+const ProductDetailsPage = lazy(() => import("./pages/ProductDetailsPage/ProductDetailsPage.jsx"))
+const ProfilePage = lazy(() => import("./pages/ProfilePage/ProfilePage.jsx"))
+const EditAndAddAddress = lazy(() => import("./pages/EditAndAddAddress/EditAndAddAddress.jsx"))
+const CartPage = lazy(() => import("./pages/CartPage/CartPage.jsx"))
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage/CheckoutPage.jsx"))
+const SignupPage = lazy(() => import("./pages/SignupPage/SignupPage.jsx"))
+const LoginPage = lazy(() => import("./pages/LoginPage/LoginPage.jsx"))
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage/NotFoundPage.jsx"))
 const UpdateUserProfilePage = lazy(() => import("./pages/UpdateUserProfilePage/UpdateUserProfilePage.jsx"))
-const DashboardPage       = lazy(() => import("./pages/ADMIN/DashboardPage/DashboardPage.jsx"))
-const AddProductPage      = lazy(() => import("./pages/ADMIN/AddProductPage/AddProductPage.jsx"))
-const ManageProductsPage  = lazy(() => import("./pages/ADMIN/ManageProductsPage/ManageProductsPage.jsx"))
-const ManageUsersPage     = lazy(() => import("./pages/ADMIN/ManageUsersPage/ManageUsersPage.jsx"))
-const UpdateProductPage   = lazy(() => import("./pages/ADMIN/UpdateProductPage/UpdateProductPage.jsx"))
+const OrderSuccessPage = lazy(() => import("./pages/OrderSuccess/OrderSuccess.jsx"))
+const PaymentVerificationFailedPage = lazy(() => import("./pages/PaymentVerificationFailed/PaymentVerificationFailed.jsx"))
+const PaymentPending = lazy(() => import("./pages/PaymentPending/PaymentPending.jsx"))
+
+const DashboardPage = lazy(() => import("./pages/ADMIN/DashboardPage/DashboardPage.jsx"))
+const AddProductPage = lazy(() => import("./pages/ADMIN/AddProductPage/AddProductPage.jsx"))
+const ManageProductsPage = lazy(() => import("./pages/ADMIN/ManageProductsPage/ManageProductsPage.jsx"))
+const ManageUsersPage = lazy(() => import("./pages/ADMIN/ManageUsersPage/ManageUsersPage.jsx"))
+const UpdateProductPage = lazy(() => import("./pages/ADMIN/UpdateProductPage/UpdateProductPage.jsx"))
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -58,11 +62,22 @@ const router = createBrowserRouter(
         </Route>
         <Route path="cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
         <Route path="checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+
+        <Route path="/payment/success" element={<ProtectedRoute><OrderSuccessPage /></ProtectedRoute>} />
+        <Route
+          path="/payment/verification-failed"
+          element={<ProtectedRoute><PaymentVerificationFailedPage /></ProtectedRoute>}
+        />
+        <Route path="/payment/pending" element={<ProtectedRoute><PaymentPending /></ProtectedRoute>} />
+
+        {/* <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+        <Route path="/orders/:orderId" element={<ProtectedRoute><OrderDetailsPage /></ProtectedRoute>} /> */}
+
       </Route>
 
       {/* AUTH */}
       <Route path="/signup" element={<GuestRoute><SignupPage /></GuestRoute>} />
-      <Route path="/login"  element={<GuestRoute><LoginPage /></GuestRoute>} />
+      <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
 
       {/* ADMIN */}
       <Route

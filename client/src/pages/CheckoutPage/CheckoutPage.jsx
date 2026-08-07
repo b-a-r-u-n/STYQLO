@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Badge, Button, Input } from '../../components';
 import { ArrowLeft, MapPin, Phone, ShoppingBag, Truck } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { getSingleUser } from '../../features/userSlice';
-import { clearBuy, clearCart, handlePrice } from '../../features/cartSlice';
+import { clearBuy, clearCart, handleBuy, handlePrice } from '../../features/cartSlice';
+import { displayRazorpay } from '../../services/razorpay';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const CheckoutPage = () => {
 
   const { userLocal, loading } = useSelector(state => state.user);
   const { user } = useSelector(state => state.auth);
-  const { cartData, totalSubPrice, shippingPrice, totalPrice, buyItem } = useSelector(state => state.cart);
+  const { cartData, totalSubPrice, shippingPrice, totalPrice, buyItem, tax } = useSelector(state => state.cart);
 
   useEffect(() => {
     if (!cartData.length) return;
@@ -31,11 +32,19 @@ const CheckoutPage = () => {
       }
     };
     fetchData();
+
+    if(!buyItem){
+      let data = sessionStorage.getItem("buyNow");      
+      if(data)
+        dispatch(handleBuy(JSON.parse(data)));
+    }
   }, []);
 
   const [inputData, setInputData] = useState({
-    fullName: "", phoneNumber: "", street: "", city: "", state: "", pinCode: ""
+    fullName: "", phoneNumber: "", streetAddress: "", city: "", state: "", pinCode: ""
   });
+  const [loadingg, setLoadingg] = useState(false);
+  // const [buyItem, setBuyItem] = useState(buyItem ? buyItem : {});
 
   const handleInputChange = (e) => setInputData({ ...inputData, [e.target.name]: e.target.value });
 
@@ -43,61 +52,61 @@ const CheckoutPage = () => {
     setInputData({
       fullName: address.fullName || "",
       phoneNumber: address.phoneNumber || "",
-      street: address.street || "",
+      streetAddress: address.street || "",
       city: address.city || "",
       state: address.state || "",
       pinCode: address.pinCode || "",
     });
   };
 
-  const generateWhatsAppMessage = () => {
-    let message = `🛍️ *NEW ORDER RECEIVED*\n\n━━━━━━━━━━━━━━━\n\n📦 *Order Items*\n\n`;
-    if (buyItem) {
-      message += `1️⃣ *${buyItem?.name}*\n`;
-      if (buyItem.size) message += `   └ Size: ${buyItem?.size}\n`;
-      message += `   └ Qty: ${buyItem?.quantity} × ₹${buyItem?.discountPrice}\n\n`;
-      let subTotal = buyItem.discountPrice * buyItem.quantity;
-      let shipping = buyItem.discountPrice < 500 ? 99 : 0;
-      message += `━━━━━━━━━━━━━━━\n\n💰 *Order Summary*\n🧾 Subtotal: ₹${subTotal}\n🚚 Shipping: ₹${shipping}\n🔸 *Total: ₹${subTotal + shipping}*\n\n`;
-    } else {
-      cartData.forEach((item, index) => {
-        message += `${index + 1}️⃣ *${item.productId.name}*\n`;
-        if (item.size) message += `   └ Size: ${item.size}\n`;
-        message += `   └ Qty: ${item.quantity} × ₹${item.productId.discountPrice}\n\n`;
-      });
-      message += `━━━━━━━━━━━━━━━\n\n💰 *Order Summary*\n🧾 Subtotal: ₹${totalSubPrice}\n🚚 Shipping: ₹${shippingPrice}\n🔸 *Total: ₹${totalPrice}*\n\n`;
-    }
-    message += `━━━━━━━━━━━━━━━\n\n📍 *Delivery Details*\n👤 ${inputData.fullName}\n🏠 ${inputData.street}\n📍 ${inputData.city}, ${inputData.state} - ${inputData.pinCode}\n📞 ${inputData.phoneNumber}\n\n━━━━━━━━━━━━━━━\n\n⚡ *Payment Mode*: Cash on Delivery\n\n`;
-    return message;
-  };
+  // const generateWhatsAppMessage = () => {
+  //   let message = `🛍️ *NEW ORDER RECEIVED*\n\n━━━━━━━━━━━━━━━\n\n📦 *Order Items*\n\n`;
+  //   if (buyItem) {
+  //     message += `1️⃣ *${buyItem?.name}*\n`;
+  //     if (buyItem.size) message += `   └ Size: ${buyItem?.size}\n`;
+  //     message += `   └ Qty: ${buyItem?.quantity} × ₹${buyItem?.discountPrice}\n\n`;
+  //     let subTotal = buyItem.discountPrice * buyItem.quantity;
+  //     let shipping = buyItem.discountPrice < 500 ? 99 : 0;
+  //     message += `━━━━━━━━━━━━━━━\n\n💰 *Order Summary*\n🧾 Subtotal: ₹${subTotal}\n🚚 Shipping: ₹${shipping}\n🔸 *Total: ₹${subTotal + shipping}*\n\n`;
+  //   } else {
+  //     cartData.forEach((item, index) => {
+  //       message += `${index + 1}️⃣ *${item.productId.name}*\n`;
+  //       if (item.size) message += `   └ Size: ${item.size}\n`;
+  //       message += `   └ Qty: ${item.quantity} × ₹${item.productId.discountPrice}\n\n`;
+  //     });
+  //     message += `━━━━━━━━━━━━━━━\n\n💰 *Order Summary*\n🧾 Subtotal: ₹${totalSubPrice}\n🚚 Shipping: ₹${shippingPrice}\n🔸 *Total: ₹${totalPrice}*\n\n`;
+  //   }
+  //   message += `━━━━━━━━━━━━━━━\n\n📍 *Delivery Details*\n👤 ${inputData.fullName}\n🏠 ${inputData.streetAddress}\n📍 ${inputData.city}, ${inputData.state} - ${inputData.pinCode}\n📞 ${inputData.phoneNumber}\n\n━━━━━━━━━━━━━━━\n\n⚡ *Payment Mode*: Cash on Delivery\n\n`;
+  //   return message;
+  // };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!inputData.phoneNumber) { toast.error("Phone number is required"); return; }
-    if (!inputData.street.trim()) { toast.error("Street address is required"); return; }
-    if (!inputData.city.trim()) { toast.error("City is required"); return; }
-    if (!inputData.state.trim()) { toast.error("State is required"); return; }
-    if (!inputData.pinCode) { toast.error("PIN code is required"); return; }
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!inputData.phoneNumber) { toast.error("Phone number is required"); return; }
+  //   if (!inputData.streetAddress.trim()) { toast.error("streetAddress address is required"); return; }
+  //   if (!inputData.city.trim()) { toast.error("City is required"); return; }
+  //   if (!inputData.state.trim()) { toast.error("State is required"); return; }
+  //   if (!inputData.pinCode) { toast.error("PIN code is required"); return; }
 
-    const message = generateWhatsAppMessage();
-    const url = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_NUMBER}&text=${encodeURIComponent(message)}`;
+  //   const message = generateWhatsAppMessage();
+  //   const url = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_NUMBER}&text=${encodeURIComponent(message)}`;
 
-    if (buyItem) {
-      toast.success("Order placed! Redirecting to WhatsApp...");
-      window.open(url, "_blank");
-      dispatch(clearBuy());
-      navigate("/products");
-    } else {
-      try {
-        toast.success("Order placed! Redirecting to WhatsApp...");
-        window.open(url, "_blank");
-        await dispatch(clearCart()).unwrap();
-        navigate("/products");
-      } catch (error) {
-        toast.error("Failed to process order. Please try again.");
-      }
-    }
-  };
+  //   if (buyItem) {
+  //     toast.success("Order placed! Redirecting to WhatsApp...");
+  //     window.open(url, "_blank");
+  //     dispatch(clearBuy());
+  //     navigate("/products");
+  //   } else {
+  //     try {
+  //       toast.success("Order placed! Redirecting to WhatsApp...");
+  //       window.open(url, "_blank");
+  //       await dispatch(clearCart()).unwrap();
+  //       navigate("/products");
+  //     } catch (error) {
+  //       toast.error("Failed to process order. Please try again.");
+  //     }
+  //   }
+  // };
 
   if (loading || !userLocal) {
     return (
@@ -107,9 +116,65 @@ const CheckoutPage = () => {
     );
   }
 
-  const orderTotal = buyItem
-    ? buyItem.discountPrice * buyItem.quantity + (buyItem.discountPrice < 500 ? 99 : 0)
-    : totalPrice;
+  // const orderTotal = buyItem
+  //   ? buyItem.discountPrice * buyItem.quantity + (buyItem.discountPrice < 500 ? 99 : 0)
+  //   : totalPrice;
+
+  // const shipping = buyItem
+  //   ? (buyItem.discountPrice < 500 ? 99 : 0)
+  //   : shippingPrice;
+
+  // const subTotal = buyItem ? buyItem.discountPrice * buyItem.quantity : totalSubPrice;
+
+  const subTotal = buyItem
+    ? buyItem.discountPrice * buyItem.quantity
+    : totalSubPrice;
+
+  const shipping = buyItem
+    ? (buyItem.discountPrice < 500 ? 99 : 0)
+    : shippingPrice;
+
+  const gst = Number((subTotal * 0.05).toFixed(0)); // 5% GST  
+
+  const orderTotal = subTotal + shipping + gst;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (loadingg)
+      return;
+
+    if (!inputData.phoneNumber) { toast.error("Phone number is required"); return; }
+    if (!inputData.streetAddress.trim()) { toast.error("streetAddress address is required"); return; }
+    if (!inputData.city.trim()) { toast.error("City is required"); return; }
+    if (!inputData.state.trim()) { toast.error("State is required"); return; }
+    if (!inputData.pinCode) { toast.error("PIN code is required"); return; }
+
+    // console.log("buyItem", buyItem);
+    // console.log("cartItem", cartData);
+
+    setLoadingg(true);
+
+    let products = [];
+
+    if (buyItem) {
+      products = [{
+        product: buyItem._id,
+        quantity: buyItem.quantity,
+        price: buyItem.discountPrice,
+        size: buyItem.size
+      }]
+
+    } else {
+      products = cartData.map((data) => {
+        return { product: data.productId._id, quantity: data.quantity, price: data.productId.discountPrice, size: data.size }
+      })
+    }
+
+    // console.log(products);
+
+    displayRazorpay(loadingg, setLoadingg, products, inputData, subTotal, shipping, orderTotal, gst, navigate);
+  }
 
   return (
     <div className="min-h-screen bg-[#FBF8F5]">
@@ -145,7 +210,7 @@ const CheckoutPage = () => {
                 <Input label="Full Name" name="fullName" type="text" placeholder="John Doe" value={inputData.fullName} onChange={handleInputChange} required />
                 <Input label="Phone Number" name="phoneNumber" type="number" placeholder="1234567890" value={inputData.phoneNumber} onChange={handleInputChange} required />
                 <div className="sm:col-span-2">
-                  <Input label="Street Address" name="street" type="text" placeholder="123 Main Street, Apartment 4B" value={inputData.street} onChange={handleInputChange} required />
+                  <Input label="Street Address" name="streetAddress" type="text" placeholder="123 Main street, Apartment 4B" value={inputData.streetAddress} onChange={handleInputChange} required />
                 </div>
                 <Input label="City" name="city" type="text" placeholder="New Delhi" value={inputData.city} onChange={handleInputChange} required />
                 <Input label="State" name="state" type="text" placeholder="Delhi" value={inputData.state} onChange={handleInputChange} required />
@@ -178,7 +243,7 @@ const CheckoutPage = () => {
                       )}
                       <p className="text-sm font-bold text-[#2C1810] group-hover:text-[#E7A9A2] transition-colors">{address.fullName}</p>
                       <p className="text-xs text-[#8A6B65] mt-1 leading-relaxed">
-                        {address.street}, {address.city}, {address.state} {address.pinCode}
+                        {address.streetAddress}, {address.city}, {address.state} {address.pinCode}
                       </p>
                       <p className="text-xs text-[#8A6B65] flex items-center gap-1 mt-1.5 font-light">
                         <Phone size={11} /> {address.phoneNumber}
@@ -236,13 +301,21 @@ const CheckoutPage = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-[#8A6B65]">Subtotal</span>
                   <span className="font-semibold text-[#2C1810] font-['Outfit']">
-                    ₹{buyItem ? buyItem.discountPrice * buyItem.quantity : totalSubPrice}
+                    ₹{subTotal}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#8A6B65]">Tax</span>
+                  <span className="font-semibold text-[#2C1810] font-['Outfit']">
+                    ₹{gst}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-[#8A6B65]">Shipping</span>
                   <span className={`font-semibold ${(buyItem ? buyItem.discountPrice < 500 ? 99 : 0 : shippingPrice) === 0 ? 'text-emerald-600 font-bold' : 'text-[#2C1810]'}`}>
-                    {(buyItem ? (buyItem.discountPrice < 500 ? 99 : 0) : shippingPrice) === 0 ? 'FREE' : `₹${buyItem ? 99 : shippingPrice}`}
+                    {
+                      shipping === 0 ? "FREE" : `₹${shipping}`
+                    }
                   </span>
                 </div>
                 <div className="flex justify-between border-t border-[#E8D4D0]/60 pt-2.5">
@@ -251,9 +324,28 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              <Button type="submit" variant="primary" className="w-full justify-center py-3.5" size="lg">
+
+              {/* <Button
+                type="submit"
+                variant="primary"
+                className="w-full justify-center py-3.5"
+                size="lg"
+              >
                 Place Order via WhatsApp
+              </Button> */}
+
+              <Button
+                variant="primary"
+                className="w-full justify-center py-3.5"
+                size="lg"
+                type="submit"
+                disabled={loadingg}
+              >
+                {
+                  loadingg ? "Loading" : "Place Order"
+                }
               </Button>
+
 
               <p className="text-center text-xs text-[#8A6B65] mt-3 flex items-center justify-center gap-1 font-light">
                 <span>🔒</span> Cash on Delivery · Secure Checkout
