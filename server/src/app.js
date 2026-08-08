@@ -11,7 +11,7 @@ app.use(cors({
 
 // Register ONLY the webhook with raw body
 app.use(
-    "/api/v1/payment/webhook",
+    "/api/v1/payments/webhook",
     express.raw({ type: "application/json" })
 );
 

@@ -33,6 +33,8 @@ const UpdateUserProfilePage = lazy(() => import("./pages/UpdateUserProfilePage/U
 const OrderSuccessPage = lazy(() => import("./pages/OrderSuccess/OrderSuccess.jsx"))
 const PaymentVerificationFailedPage = lazy(() => import("./pages/PaymentVerificationFailed/PaymentVerificationFailed.jsx"))
 const PaymentPending = lazy(() => import("./pages/PaymentPending/PaymentPending.jsx"))
+const OrdersPage = lazy(() => import("./pages/OrdersPage/OrdersPage.jsx"))
+const OrderDetailsPage = lazy(() => import("./pages/OrderDetailsPage/OrderDetailsPage.jsx"))
 
 const DashboardPage = lazy(() => import("./pages/ADMIN/DashboardPage/DashboardPage.jsx"))
 const AddProductPage = lazy(() => import("./pages/ADMIN/AddProductPage/AddProductPage.jsx"))
@@ -70,8 +72,8 @@ const router = createBrowserRouter(
         />
         <Route path="/payment/pending" element={<ProtectedRoute><PaymentPending /></ProtectedRoute>} />
 
-        {/* <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-        <Route path="/orders/:orderId" element={<ProtectedRoute><OrderDetailsPage /></ProtectedRoute>} /> */}
+        <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+        <Route path="/orders/:orderId" element={<ProtectedRoute><OrderDetailsPage /></ProtectedRoute>} />
 
       </Route>
 

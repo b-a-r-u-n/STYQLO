@@ -1,6 +1,8 @@
 import toast from "react-hot-toast"
 import { createOrder } from "./order"
-import { createRazorpayOrder, verifyRazorpayPayment } from "./payment"
+import { createRazorpayOrder, verifyRazorpayPayment } from "./payment";
+
+import { clearBuy, clearCart } from "../features/cartSlice";
 
 export const loadScript = (src) => {
   return new Promise((resolve) => {
@@ -17,7 +19,7 @@ export const loadScript = (src) => {
 }
 
 
-const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTotal, shipping, orderTotal, gst, navigate) => {
+const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTotal, shipping, orderTotal, gst, navigate, dispatch) => {
 
   try {
     const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js')
@@ -32,7 +34,7 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
 
     const razorpayOrderData = await createRazorpayOrder(orderData._id);
 
-    // console.log("razorpayOrderData", razorpayOrderData);
+    console.log("razorpayOrderData", razorpayOrderData);
 
 
     const options = {
@@ -56,8 +58,8 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
           if (verify.success) {
             navigate("/payment/success");
 
-            await dispatch(clearCart()).unwrap();
-            await dispatch(clearBuy()).unwrap();
+            await dispatch(clearCart());
+            await dispatch(clearBuy());
           } else {
             navigate("/payment/pending");
           }

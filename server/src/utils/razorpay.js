@@ -11,7 +11,7 @@ const razorpayOrder = async (totalAmount, currency, orderId) => {
             }
         )
 
-        const order = instance.orders.create({
+        const order = await instance.orders.create({
             amount: totalAmount * 100,
             currency: currency,
             receipt: orderId,
@@ -19,7 +19,7 @@ const razorpayOrder = async (totalAmount, currency, orderId) => {
 
         if(!order)
             throw new apiError(500, "Razorpay order creation failed");
-
+        
         return order;
     } catch (error) {
         throw new apiError(500, "Error creating Razorpay order");
@@ -43,6 +43,7 @@ const verifyRazorpayPaymentSignature = async (razorpayOrderId, razorpayPaymentId
 }
 
 const verifyRazorpayWebhookSignature = async (body, headers) => {
+
     try {
         const receivedSignature = headers["x-razorpay-signature"];
 

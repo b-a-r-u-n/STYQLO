@@ -4,6 +4,8 @@ import EditAndAddAddress from "./EditAndAddAddress/EditAndAddAddress";
 import HomePage from "./HomePage/HomePage";
 import LoginPage from "./LoginPage/LoginPage";
 import NotFoundPage from "./NotFoundPage/NotFoundPage";
+import OrderDetailsPage from "./OrderDetailsPage/OrderDetailsPage";
+import OrdersPage from "./OrdersPage/OrdersPage";
 import OrderSuccess from "./OrderSuccess/OrderSuccess";
 import PaymentPending from "./PaymentPending/PaymentPending";
 import PaymentVerificationFailed from "./PaymentVerificationFailed/PaymentVerificationFailed";
@@ -12,4 +14,4 @@ import ProfilePage from "./ProfilePage/ProfilePage";
 import SignupPage from "./SignupPage/SignupPage";
 import UpdateUserProfilePage from "./UpdateUserProfilePage/UpdateUserProfilePage";
 
-export {HomePage, LoginPage, SignupPage, ProductsPage, ProfilePage, CartPage, UpdateUserProfilePage, EditAndAddAddress, CheckoutPage, NotFoundPage, OrderSuccess, PaymentVerificationFailed, PaymentPending}
+export {HomePage, LoginPage, SignupPage, ProductsPage, ProfilePage, CartPage, UpdateUserProfilePage, EditAndAddAddress, CheckoutPage, NotFoundPage, OrderSuccess, PaymentVerificationFailed, PaymentPending, OrdersPage, OrderDetailsPage}

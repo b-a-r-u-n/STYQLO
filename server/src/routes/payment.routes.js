@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.route("/create-order").post(verifyJWT, createRazorpayOrder);
 router.route("/verify").post(verifyJWT, verifyRazorpayPayment);
-router.route("/webhook").post(verifyJWT, handleRazorpayWebhook);
+router.route("/webhook").post(handleRazorpayWebhook);
 
 export default router;

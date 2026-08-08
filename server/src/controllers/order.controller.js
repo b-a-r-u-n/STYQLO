@@ -4,7 +4,8 @@ import apiResponse from "../utils/apiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js";
 
 
-const createOrder = asyncHandler(async (req, res) => {
+const createOrder = asyncHandler(async (req, res) => {    
+
     const {products, shippingAddress, subTotal, tax, shippingCharges, totalAmount} = req.body;
 
     // console.log(req.body);

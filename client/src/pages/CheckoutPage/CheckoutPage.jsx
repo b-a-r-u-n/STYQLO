@@ -174,7 +174,7 @@ const CheckoutPage = () => {
 
       // console.log(products);
 
-      displayRazorpay(loadingg, setLoadingg, products, inputData, subTotal, shipping, orderTotal, gst, navigate);
+      displayRazorpay(loadingg, setLoadingg, products, inputData, subTotal, shipping, orderTotal, gst, navigate, dispatch);
 
     } catch (error) {
       console.error(error);
