@@ -56,12 +56,18 @@ const getUserOrders = asyncHandler(async (req, res) => {
 })
 
 const getOrderById = asyncHandler(async (req, res) => {
-    const {orderId} = req.params;
+    const {orderId} = req.params;   
 
     if(!orderId)
         throw new apiError(400, "Order id not found");
 
-    const order = await Order.findById(orderId).select("-paymentStatus -payment -razorpayOrderId -createdAt -updatedAt")
+    const order = await Order.findById(orderId)
+    .select("-payment -razorpayOrderId -createdAt")
+    .populate("products.product")
+    .populate({
+        path: "payment",
+        select: "-amount -createdAt -currency -gatewayResponse -order -razorpayOrderId -razorpayPaymentId -refundAmount -refundId -status -updatedAt -user -_id "
+    })
 
     if(!order)
         throw new apiError(404, "Order not found");

@@ -155,7 +155,7 @@ const OrdersPage = () => {
   }, [])
 
   const [displayDatas, setDisplayDatas] = useState(orderDatas);
-  // console.log(orderDatas);
+  // console.log(displayDatas);
   
 
   // let displayDatas = orderDatas;
@@ -491,7 +491,7 @@ const OrdersPage = () => {
                             <button
                               onClick={() =>
                                 navigate(
-                                  `/orders/${displayDatas._id}`
+                                  `/orders/${displayData._id}`
                                 )
                               }
                               className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"

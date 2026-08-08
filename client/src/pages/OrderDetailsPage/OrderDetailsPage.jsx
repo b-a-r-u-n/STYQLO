@@ -1,15 +1,9 @@
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock3,
-  CreditCard,
-  MapPin,
-  Package,
-  RotateCcw,
-  Truck,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock3, CreditCard, MapPin, Package, RotateCcw, Truck, XCircle } from "lucide-react";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import { getOrderById } from "../../features/orderSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const order = {
   id: "STYQLO-1001",
@@ -66,7 +60,8 @@ const isReturnEligible = (order) => {
     return false;
   }
 
-  const deliveredDate = new Date(order.deliveredAt);
+  // const deliveredDate = new Date(order.deliveredAt);
+  const deliveredDate = new Date(Date.now().toLocaleDateString);
   const today = new Date();
 
   const difference =
@@ -125,10 +120,42 @@ const StatusIcon = ({ status }) => {
 // --------------------------------------------------
 
 const OrderDetailsPage = () => {
+
+  const { loading, orderData } = useSelector(state => state.order);
+
   const navigate = useNavigate();
   const { orderId } = useParams();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await dispatch(getOrderById(orderId)).unwrap();
+      } catch (error) {
+        toast.error("Failed to fetch orders");
+      }
+    }
+
+    if (orderId)
+      fetchData();
+  }, [orderId])
+
+  console.log(orderData);
+
+
 
   const returnEligible = isReturnEligible(order);
+
+  if (loading || !orderData) {
+    return (
+      <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner-luxury mx-auto mb-4" />
+          <p className="text-sm text-[#9B7B75] font-medium">Loading order...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-luxury px-4 py-8 sm:px-6 lg:px-10">
@@ -165,7 +192,7 @@ const OrderDetailsPage = () => {
             </h1>
 
             <p className="mt-2 text-sm text-muted-foreground">
-              Order #{order.id}
+              Order #{orderData._id}
             </p>
 
           </div>
@@ -175,9 +202,9 @@ const OrderDetailsPage = () => {
 
           <div className="flex w-fit items-center gap-2 rounded-full border border-green-100 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700">
 
-            <StatusIcon status={order.status} />
+            <StatusIcon status={orderData.orderStatus} />
 
-            {order.status}
+            {orderData.orderStatus}
 
           </div>
 
@@ -220,7 +247,13 @@ const OrderDetailsPage = () => {
                   </p>
 
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {order.createdAt}
+                    {
+                      new Date(orderData.updatedAt).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    }
                   </p>
 
                 </div>
@@ -300,9 +333,7 @@ const OrderDetailsPage = () => {
 
                       Delivered on{" "}
 
-                      {new Date(
-                        order.deliveredAt
-                      ).toLocaleDateString("en-IN", {
+                      {new Date(Date.now()).toLocaleDateString("en-IN", {
                         day: "2-digit",
                         month: "short",
                         year: "numeric",
@@ -350,8 +381,8 @@ const OrderDetailsPage = () => {
                 </h2>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {order.items.length} item
-                  {order.items.length > 1 ? "s" : ""}
+                  {orderData.products.length} item
+                  {orderData.products.length > 1 ? "s" : ""}
                 </p>
 
               </div>
@@ -359,10 +390,10 @@ const OrderDetailsPage = () => {
 
               <div className="divide-y divide-border">
 
-                {order.items.map((item) => (
+                {orderData.products.map((product) => (
 
                   <div
-                    key={item.id}
+                    key={product._id}
                     className="flex gap-4 p-5 sm:p-6"
                   >
 
@@ -371,8 +402,8 @@ const OrderDetailsPage = () => {
                     <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-28 sm:w-28">
 
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={product.product.images[0].url}
+                        alt={product.product.name}
                         className="h-full w-full object-cover"
                       />
 
@@ -384,23 +415,23 @@ const OrderDetailsPage = () => {
                     <div className="min-w-0 flex-1">
 
                       <h3 className="font-semibold text-foreground">
-                        {item.name}
+                        {product.product.name}
                       </h3>
 
                       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
 
                         <span>
-                          Size: {item.size}
+                          Size: {product.size}
                         </span>
 
                         <span>
-                          Qty: {item.quantity}
+                          Qty: {product.quantity}
                         </span>
 
                       </div>
 
                       <p className="mt-3 font-bold text-foreground">
-                        ₹{item.price.toLocaleString("en-IN")}
+                        ₹{product.price.toLocaleString("en-IN")}
                       </p>
 
                     </div>
@@ -449,24 +480,24 @@ const OrderDetailsPage = () => {
               <div className="mt-5 rounded-2xl border border-border bg-primary/5 p-5">
 
                 <p className="font-semibold text-foreground">
-                  {order.shippingAddress.name}
+                  {orderData.shippingAddress.fullName}
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
 
-                  {order.shippingAddress.address}
+                  {orderData.shippingAddress.streetAddress}
                   <br />
 
-                  {order.shippingAddress.city},{" "}
-                  {order.shippingAddress.state}
+                  {orderData.shippingAddress.city},{" "}
+                  {orderData.shippingAddress.state}
                   <br />
 
-                  PIN: {order.shippingAddress.pinCode}
+                  PIN: {orderData.shippingAddress.pinCode}
 
                 </p>
 
                 <p className="mt-3 text-sm font-medium text-foreground">
-                  {order.shippingAddress.phone}
+                  {orderData.shippingAddress.phoneNumber}
                 </p>
 
               </div>
@@ -524,7 +555,7 @@ const OrderDetailsPage = () => {
                   </span>
 
                   <span className="font-semibold text-foreground">
-                    {order.paymentMethod}
+                    {orderData?.payment?.paymentMethod?.toUpperCase()}
                   </span>
 
                 </div>
@@ -537,7 +568,7 @@ const OrderDetailsPage = () => {
                   </span>
 
                   <span className="font-semibold text-green-600">
-                    {order.paymentStatus}
+                    {orderData.paymentStatus}
                   </span>
 
                 </div>
@@ -566,7 +597,7 @@ const OrderDetailsPage = () => {
                   </span>
 
                   <span className="font-medium text-foreground">
-                    ₹{order.subtotal.toLocaleString("en-IN")}
+                    ₹{orderData?.subTotal?.toLocaleString("en-IN")}
                   </span>
 
                 </div>
@@ -579,7 +610,7 @@ const OrderDetailsPage = () => {
                   </span>
 
                   <span className="font-medium text-foreground">
-                    ₹{order.shipping.toLocaleString("en-IN")}
+                    ₹{orderData?.shippingCharges?.toLocaleString("en-IN")}
                   </span>
 
                 </div>
@@ -588,11 +619,11 @@ const OrderDetailsPage = () => {
                 <div className="flex justify-between">
 
                   <span className="text-muted-foreground">
-                    GST
+                    TAX
                   </span>
 
                   <span className="font-medium text-foreground">
-                    ₹{order.gst.toLocaleString("en-IN")}
+                    ₹{orderData?.tax?.toLocaleString("en-IN")}
                   </span>
 
                 </div>
@@ -607,7 +638,7 @@ const OrderDetailsPage = () => {
                     </span>
 
                     <span className="text-xl font-bold text-primary">
-                      ₹{order.total.toLocaleString("en-IN")}
+                      ₹{orderData?.totalAmount?.toLocaleString("en-IN")}
                     </span>
 
                   </div>
@@ -623,7 +654,7 @@ const OrderDetailsPage = () => {
             {/* RETURN */}
             {/* -------------------------------------- */}
 
-            {returnEligible && (
+            {true && (
 
               <section className="card-luxury border-primary/20 bg-primary/5 p-5 sm:p-6">
 

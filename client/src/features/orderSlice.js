@@ -27,9 +27,9 @@ export const getUserOrders = createAsyncThunk("getUserOrders", async(_, {rejectW
     }
 })
 
-export const getOrderById = createAsyncThunk("getOrderById", async (_, {rejectWithValue}) => {
-    try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders/:orderId`, {withCredentials: true})
+export const getOrderById = createAsyncThunk("getOrderById", async (orderId, {rejectWithValue}) => {
+    try {        
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders/${orderId}`, {withCredentials: true})
 
         return response?.data?.data;
     } catch (error) {
@@ -39,6 +39,7 @@ export const getOrderById = createAsyncThunk("getOrderById", async (_, {rejectWi
 
 const initialState = {
     orderDatas: [],
+    orderData: null,
     currentOrder: null,
     currentOrderId: null,
     loading: false,
@@ -91,7 +92,7 @@ const orderSlice = createSlice({
         builder.addCase(getOrderById.fulfilled, (state, action) => {
             state.loading = false;
             state.success = true;
-            state.currentOrder = action.payload;
+            state.orderData = action.payload;
         })
         builder.addCase(getOrderById.rejected, (state, action) => {
             state.loading = false;
