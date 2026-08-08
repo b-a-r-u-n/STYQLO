@@ -1,10 +1,31 @@
 import React from 'react';
 import { CircleCheckBig, ShoppingBag } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUserOrders } from '../../features/orderSlice';
+import toast from 'react-hot-toast';
 
 const OrderSuccess = () => {
 
-    const navigate = useNavigate();
+  const {loading, orderDatas} = useSelector(state => state.order)
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleClick = async () => {
+    navigate("/orders");
+  }
+
+  if (loading && !orderDatas.length) {
+    return (
+      <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner-luxury mx-auto mb-4" />
+          <p className="text-sm text-[#9B7B75] font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className="min-h-screen bg-luxury flex items-center justify-center px-5 py-10">
@@ -50,7 +71,7 @@ const OrderSuccess = () => {
         <div className="mt-10 flex flex-col gap-4">
 
           <button
-            onClick={() => navigate("/orders")}
+            onClick={handleClick}
             className="w-full rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-luxury hover:shadow-hover hover:-translate-y-1"
           >
             <span className="flex items-center justify-center gap-2">

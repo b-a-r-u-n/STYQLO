@@ -29,7 +29,7 @@ const ProductsPage = () => {
       <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
         <div className="text-center">
           <div className="spinner-luxury mx-auto mb-4" />
-          <p className="text-sm text-[#9B7B75] font-medium">Loading collection...</p>
+          <p className="text-sm text-[#9B7B75] font-medium">Loading...</p>
         </div>
       </div>
     );

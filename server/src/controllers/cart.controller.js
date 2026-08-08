@@ -28,17 +28,17 @@ const addToCart = asyncHandler(async (req, res) => {
             productId,
             size: size
         })
-        console.log("inside if");
+        // console.log("inside if");
         
     } else {
         item = await CartItem.findOne({
             cartId: cart._id,
             productId
         })
-        console.log("inside else");
+        // console.log("inside else");
     }
 
-    console.log("item", item);
+    // console.log("item", item);
 
 
     if (item) {

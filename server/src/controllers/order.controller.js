@@ -37,12 +37,16 @@ const createOrder = asyncHandler(async (req, res) => {
 const getUserOrders = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
-    const orders = await Order.find({
+    let orders = await Order.find({
         user: userId
-    }).select("-paymentStatus -payment -razorpayOrderId -createdAt -updatedAt")
+    })
+    .sort({createdAt: -1})
+    .select("-payment -razorpayOrderId -createdAt")
+    .populate("products.product")
 
     if(!orders)
         throw new apiError(404, "No orders found for this user");
+
 
     res
     .status(200)

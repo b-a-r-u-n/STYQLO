@@ -1,15 +1,9 @@
-import {
-  Package,
-  ChevronRight,
-  Truck,
-  CheckCircle2,
-  Clock3,
-  XCircle,
-  RotateCcw,
-  ShoppingBag,
-  CreditCard,
-} from "lucide-react";
+import { Package, ChevronRight, Truck, CheckCircle2, Clock3, XCircle, RotateCcw, ShoppingBag, CreditCard } from "lucide-react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { getUserOrders } from "../../features/orderSlice";
+import toast from "react-hot-toast";
 
 const orders = [
   {
@@ -142,7 +136,37 @@ const isReturnEligible = (order) => {
 // --------------------------------------------------
 
 const OrdersPage = () => {
+
+  const { orderDatas, loading } = useSelector(state => state.order);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        await dispatch(getUserOrders()).unwrap();
+      } catch (error) {
+        toast.error(error || "Failed to fetch orders");
+      }
+    }
+    fetchOrder();
+  }, [])
+
+  const dispalyDatas = orderDatas;
+  const length = dispalyDatas?.length;
+  console.log(dispalyDatas[0]);
+
+  if (loading && !dispalyDatas?.length) {
+    return (
+      <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner-luxury mx-auto mb-4" />
+          <p className="text-sm text-[#9B7B75] font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-luxury px-4 py-8 sm:px-6 lg:px-10">
@@ -185,11 +209,10 @@ const OrdersPage = () => {
 
             <button
               key={filter}
-              className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition-luxury ${
-                index === 0
-                  ? "bg-primary text-primary-foreground shadow-card"
-                  : "border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary"
-              }`}
+              className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition-luxury ${index === 0
+                ? "bg-primary text-primary-foreground shadow-card"
+                : "border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary"
+                }`}
             >
               {filter}
             </button>
@@ -203,23 +226,23 @@ const OrdersPage = () => {
         {/* ORDERS */}
         {/* -------------------------------------------- */}
 
-        {orders.length > 0 ? (
+        {dispalyDatas?.length > 0 ? (
 
           <div className="space-y-5">
 
-            {orders.map((order) => {
+            {dispalyDatas.map((displayData) => {
 
-              const status = statusConfig[order.status];
+              const status = statusConfig[displayData?.orderStatus];
 
               const StatusIcon = status?.icon || Package;
 
               const returnEligible =
-                isReturnEligible(order);
+                isReturnEligible(displayData);
 
               return (
 
                 <article
-                  key={order.id}
+                  key={displayData._id}
                   className="card-luxury overflow-hidden"
                 >
 
@@ -240,7 +263,7 @@ const OrdersPage = () => {
                         </p>
 
                         <p className="mt-1 text-sm font-semibold text-foreground">
-                          #{order.id}
+                          #{displayData._id}
                         </p>
 
                       </div>
@@ -255,7 +278,13 @@ const OrdersPage = () => {
                         </p>
 
                         <p className="mt-1 text-sm font-semibold text-foreground">
-                          {order.date}
+                          {
+                            new Date(displayData.updatedAt).toLocaleDateString("en-IN", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  })
+                          }
                         </p>
 
                       </div>
@@ -266,12 +295,12 @@ const OrdersPage = () => {
                     {/* STATUS */}
 
                     <div
-                      className={`flex w-fit items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${status.className}`}
+                      className={`flex w-fit items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${displayData.className}`}
                     >
 
                       <StatusIcon size={15} />
 
-                      {order.status}
+                      {displayData.orderStatus}
 
                     </div>
 
@@ -286,10 +315,10 @@ const OrdersPage = () => {
 
                     <div className="space-y-5">
 
-                      {order.items.map((item) => (
+                      {displayData.products.map((data) => (
 
                         <div
-                          key={item.id}
+                          key={data.product._id}
                           className="flex gap-4"
                         >
 
@@ -298,8 +327,8 @@ const OrdersPage = () => {
                           <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-24">
 
                             <img
-                              src={item.image}
-                              alt={item.name}
+                              src={data.product.images[0].url}
+                              alt={data.product.name}
                               className="h-full w-full object-cover"
                             />
 
@@ -311,23 +340,23 @@ const OrdersPage = () => {
                           <div className="min-w-0 flex-1">
 
                             <h3 className="truncate text-sm font-semibold text-foreground sm:text-base">
-                              {item.name}
+                              {data.product.name}
                             </h3>
 
                             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground sm:text-sm">
 
                               <span>
-                                Size: {item.size}
+                                Size: {data.size}
                               </span>
 
                               <span>
-                                Qty: {item.quantity}
+                                Qty: {data.quantity}
                               </span>
 
                             </div>
 
                             <p className="mt-2 font-semibold text-foreground">
-                              ₹{item.price.toLocaleString("en-IN")}
+                              ₹{data.price.toLocaleString("en-IN")}
                             </p>
 
                           </div>
@@ -363,7 +392,7 @@ const OrdersPage = () => {
                             </span>
 
                             <span className="font-semibold text-foreground">
-                              {order.paymentStatus}
+                              {displayData.paymentStatus}
                             </span>
 
                           </div>
@@ -371,29 +400,38 @@ const OrdersPage = () => {
 
                           {/* DELIVERY */}
 
-                          {order.status === "Delivered" &&
-                            order.deliveredAt && (
+                          {/* {displayData.orderStatus === "Delivered" &&
+                            order.deliveredAt && ( */}
+                          {displayData.orderStatus === "Confirmed" && (
 
-                              <div className="text-sm text-muted-foreground">
+                            <div className="text-sm text-muted-foreground">
 
-                                Delivered on{" "}
+                              Delivered on{" "}
 
-                                <span className="font-semibold text-foreground">
-                                  {new Date(
-                                    order.deliveredAt
-                                  ).toLocaleDateString(
-                                    "en-IN",
-                                    {
-                                      day: "2-digit",
-                                      month: "short",
-                                      year: "numeric",
-                                    }
-                                  )}
-                                </span>
+                              <span className="font-semibold text-foreground">
+                                {/* {new Date(
+                                  order.deliveredAt
+                                ).toLocaleDateString(
+                                  "en-IN",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                )} */}
+                                {new Date(Date.now()).toLocaleDateString(
+                                  "en-IN",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                )}
+                              </span>
 
-                              </div>
+                            </div>
 
-                            )}
+                          )}
 
                         </div>
 
@@ -411,7 +449,7 @@ const OrdersPage = () => {
                             </p>
 
                             <p className="mt-1 text-xl font-bold text-foreground">
-                              ₹{order.total.toLocaleString("en-IN")}
+                              ₹{displayData.totalAmount.toLocaleString("en-IN")}
                             </p>
 
                           </div>
@@ -426,7 +464,7 @@ const OrdersPage = () => {
                             <button
                               onClick={() =>
                                 navigate(
-                                  `/orders/${order.id}`
+                                  `/orders/${dispalyDatas._id}`
                                 )
                               }
                               className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
@@ -441,7 +479,7 @@ const OrdersPage = () => {
 
                             {/* BUY AGAIN */}
 
-                            {order.status === "Delivered" && (
+                            {displayData.orderStatus === "Delivered" && (
 
                               <button
                                 className="rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary"

@@ -1,8 +1,8 @@
 import toast from "react-hot-toast"
-import { createOrder } from "./order"
 import { createRazorpayOrder, verifyRazorpayPayment } from "./payment";
 
 import { clearBuy, clearCart } from "../features/cartSlice";
+import { createOrder } from "../features/orderSlice";
 
 export const loadScript = (src) => {
   return new Promise((resolve) => {
@@ -30,12 +30,14 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
       return;
     }
 
-    const orderData = await createOrder(products, inputData, subTotal, shipping, orderTotal, gst);
+    const orderData = await dispatch(createOrder({products, inputData, subTotal, shipping, orderTotal, gst})).unwrap();
+
+    // console.log("orderData", orderData);
+    
 
     const razorpayOrderData = await createRazorpayOrder(orderData._id);
 
-    console.log("razorpayOrderData", razorpayOrderData);
-
+    // console.log("razorpayOrderData", razorpayOrderData);
 
     const options = {
       "key": import.meta.env.VITE_BASE_RAZORPAY_API_KEY, // Enter the Key ID generated from the Dashboard
@@ -56,10 +58,11 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
 
 
           if (verify.success) {
-            navigate("/payment/success");
-
+            
             await dispatch(clearCart());
             await dispatch(clearBuy());
+            
+            navigate("/payment/success");
           } else {
             navigate("/payment/pending");
           }

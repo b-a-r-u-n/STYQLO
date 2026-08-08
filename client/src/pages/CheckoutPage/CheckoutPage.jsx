@@ -139,41 +139,41 @@ const CheckoutPage = () => {
   const orderTotal = subTotal + shipping + gst;
 
   const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (loadingg)
+      return;
+    
+    if (!inputData.phoneNumber) { toast.error("Phone number is required"); return; }
+    if (!inputData.streetAddress.trim()) { toast.error("streetAddress address is required"); return; }
+    if (!inputData.city.trim()) { toast.error("City is required"); return; }
+    if (!inputData.state.trim()) { toast.error("State is required"); return; }
+    if (!inputData.pinCode) { toast.error("PIN code is required"); return; }
+    
+    // console.log("buyItem", buyItem);
+    // console.log("cartItem", cartData);
+    
+    setLoadingg(true);
+    
+    let products = [];
+    
+    if (buyItem) {
+      products = [{
+        product: buyItem._id,
+        quantity: buyItem.quantity,
+        price: buyItem.discountPrice,
+        size: buyItem.size
+      }]
+      
+    } else {
+      products = cartData.map((data) => {
+        return { product: data.productId._id, quantity: data.quantity, price: data.productId.discountPrice, size: data.size }
+      })
+    }
+    
+    // console.log(products);
+    
     try {
-      e.preventDefault();
-
-      if (loadingg)
-        return;
-
-      if (!inputData.phoneNumber) { toast.error("Phone number is required"); return; }
-      if (!inputData.streetAddress.trim()) { toast.error("streetAddress address is required"); return; }
-      if (!inputData.city.trim()) { toast.error("City is required"); return; }
-      if (!inputData.state.trim()) { toast.error("State is required"); return; }
-      if (!inputData.pinCode) { toast.error("PIN code is required"); return; }
-
-      // console.log("buyItem", buyItem);
-      // console.log("cartItem", cartData);
-
-      setLoadingg(true);
-
-      let products = [];
-
-      if (buyItem) {
-        products = [{
-          product: buyItem._id,
-          quantity: buyItem.quantity,
-          price: buyItem.discountPrice,
-          size: buyItem.size
-        }]
-
-      } else {
-        products = cartData.map((data) => {
-          return { product: data.productId._id, quantity: data.quantity, price: data.productId.discountPrice, size: data.size }
-        })
-      }
-
-      // console.log(products);
-
       displayRazorpay(loadingg, setLoadingg, products, inputData, subTotal, shipping, orderTotal, gst, navigate, dispatch);
 
     } catch (error) {
