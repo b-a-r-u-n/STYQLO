@@ -69,8 +69,8 @@ function Navbar() {
               </span> */}
               
               <div
-                style={{ backgroundImage: "url('/image/updated_logo.png')" }}
-                className="h-[80%] lg:w-48 md:w-40 w-32 bg-center bg-cover bg-no-repeat"
+                style={{ backgroundImage: "url('/image/updated_v3_logo.png')" }}
+                className="h-[80%] lg:w-48 md:w-40 w-32 bg-center bg-contain bg-no-repeat"
               >
 
               </div>

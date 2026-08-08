@@ -1,5 +1,5 @@
 import { Package, ChevronRight, Truck, CheckCircle2, Clock3, XCircle, RotateCcw, ShoppingBag, CreditCard } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getUserOrders } from "../../features/orderSlice";
@@ -92,7 +92,7 @@ const statusConfig = {
     className: "bg-blue-50 text-blue-700 border-blue-100",
   },
 
-  Processing: {
+  Pending: {
     icon: Clock3,
     className: "bg-primary/10 text-primary border-primary/20",
   },
@@ -145,7 +145,8 @@ const OrdersPage = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        await dispatch(getUserOrders()).unwrap();
+        const response = await dispatch(getUserOrders()).unwrap();
+        setDisplayDatas(response);
       } catch (error) {
         toast.error(error || "Failed to fetch orders");
       }
@@ -153,11 +154,33 @@ const OrdersPage = () => {
     fetchOrder();
   }, [])
 
-  const dispalyDatas = orderDatas;
-  const length = dispalyDatas?.length;
-  console.log(dispalyDatas[0]);
+  const [displayDatas, setDisplayDatas] = useState(orderDatas);
+  // console.log(orderDatas);
+  
 
-  if (loading && !dispalyDatas?.length) {
+  // let displayDatas = orderDatas;
+  // console.log(displayDatas.length);
+
+  const handleViewDetails = () => { }
+
+  const handleBuyAgain = () => { }
+
+  const handleReturnItem = () => { }
+
+  const handleFilterChange = (filter) => {
+
+    if (filter === "All Orders") {
+      setDisplayDatas(orderDatas)
+      return;
+    }
+    const filteredData = orderDatas.filter(
+      (data) => data.orderStatus === filter
+    );
+
+    setDisplayDatas(filteredData);
+  };
+
+  if (loading && !displayDatas?.length) {
     return (
       <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
         <div className="text-center">
@@ -202,12 +225,16 @@ const OrdersPage = () => {
 
           {[
             "All Orders",
-            "Processing",
+            "Pending",
+            "Confirmed",
+            "Packed",
             "Shipped",
             "Delivered",
+            "Canceled"
           ].map((filter, index) => (
 
             <button
+              onClick={() => handleFilterChange(filter)}
               key={filter}
               className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition-luxury ${index === 0
                 ? "bg-primary text-primary-foreground shadow-card"
@@ -226,11 +253,11 @@ const OrdersPage = () => {
         {/* ORDERS */}
         {/* -------------------------------------------- */}
 
-        {dispalyDatas?.length > 0 ? (
+        {displayDatas?.length > 0 ? (
 
           <div className="space-y-5">
 
-            {dispalyDatas.map((displayData) => {
+            {displayDatas.map((displayData) => {
 
               const status = statusConfig[displayData?.orderStatus];
 
@@ -280,10 +307,10 @@ const OrdersPage = () => {
                         <p className="mt-1 text-sm font-semibold text-foreground">
                           {
                             new Date(displayData.updatedAt).toLocaleDateString("en-IN", {
-                                    day: "2-digit",
-                                    month: "short",
-                                    year: "numeric",
-                                  })
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
                           }
                         </p>
 
@@ -464,7 +491,7 @@ const OrdersPage = () => {
                             <button
                               onClick={() =>
                                 navigate(
-                                  `/orders/${dispalyDatas._id}`
+                                  `/orders/${displayDatas._id}`
                                 )
                               }
                               className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
