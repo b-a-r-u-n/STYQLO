@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   ShoppingCart, User, LogOut, Plus, LayoutDashboard,
-  Package, Users, Sparkles, Menu, X
+  Package, Users, Sparkles, Menu, X,
+  SparklesIcon,
+  WandSparkles,
+  Undo2,
+  ClipboardList,
+  Clock3,
+  Box
 } from "lucide-react";
 import { Button } from "../Button/Button";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,6 +39,9 @@ function Navbar() {
     { path: '/admin/add-product', label: 'Add Product', icon: Plus },
     { path: '/admin/products', label: 'Manage Products', icon: Package },
     { path: '/admin/users', label: 'Manage Users', icon: Users },
+    { path: '/admin/orders', label: 'All Orders', icon: ClipboardList },
+    { path: '/admin/orders/pending', label: 'Pending Orders', icon: Clock3 },
+    { path: '/admin/returns/pending', label: 'Pending Returns', icon: Undo2 },
   ];
 
   const handleLogout = async () => {
@@ -50,11 +59,10 @@ function Navbar() {
   return (
     <>
       <nav
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-white/90 backdrop-blur-xl shadow-[0_4px_24px_rgba(44,24,16,0.06)] border-b border-[#E8D4D0]/60"
-            : "bg-white/80 backdrop-blur-md border-b border-[#E8D4D0]/40"
-        }`}
+        className={`sticky top-0 z-50 transition-all duration-300 ${scrolled
+          ? "bg-white/90 backdrop-blur-xl shadow-[0_4px_24px_rgba(44,24,16,0.06)] border-b border-[#E8D4D0]/60"
+          : "bg-white/80 backdrop-blur-md border-b border-[#E8D4D0]/40"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 md:h-18">
@@ -67,7 +75,7 @@ function Navbar() {
               {/* <span className="text-xl font-semibold text-[#2C1810] tracking-wider font-['Outfit']">
                 STY<span className="text-[#E7A9A2] font-bold">QLO</span>
               </span> */}
-              
+
               <div
                 style={{ backgroundImage: "url('/image/updated_v3_logo.png')" }}
                 className="h-[80%] lg:w-48 md:w-40 w-32 bg-center bg-contain bg-no-repeat"
@@ -120,16 +128,33 @@ function Navbar() {
                               onClick={() => setShowUserMenu(false)}
                               to={`${user?.isAdmin ? `/admin/${user?._id}/profile` : `/${user?._id}/profile`}`}
                               className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                                  isActive
-                                    ? 'bg-[#F1DBD5]/60 text-[#2C1810] font-semibold'
-                                    : 'text-[#2C1810] hover:bg-[#FBF8F5] hover:text-[#E7A9A2]'
+                                `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${isActive
+                                  ? 'bg-[#F1DBD5]/60 text-[#2C1810] font-semibold'
+                                  : 'text-[#2C1810] hover:bg-[#FBF8F5] hover:text-[#E7A9A2]'
                                 }`
                               }
                             >
                               <User size={16} />
                               <span>My Profile</span>
                             </NavLink>
+
+                            {
+                              !user.isAdmin && (
+                                <NavLink
+                                  onClick={() => setShowUserMenu(false)}
+                                  to={"/orders"}
+                                  className={({ isActive }) =>
+                                    `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${isActive
+                                      ? 'bg-[#F1DBD5]/60 text-[#2C1810] font-semibold'
+                                      : 'text-[#2C1810] hover:bg-[#FBF8F5] hover:text-[#E7A9A2]'
+                                    }`
+                                  }
+                                >
+                                  <Box size={16} />
+                                  <span>My Orders</span>
+                                </NavLink>
+                              )
+                            }
 
                             {user?.isAdmin && menuItems.map((item) => {
                               const Icon = item.icon;
@@ -223,6 +248,24 @@ function Navbar() {
                     <User size={18} />
                     <span>My Profile</span>
                   </Link>
+
+                  {
+                    !user.isAdmin && (
+                      <NavLink
+                        onClick={() => setShowUserMenu(false)}
+                        to={"/orders"}
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${isActive
+                            ? 'bg-[#F1DBD5]/60 text-[#2C1810] font-semibold'
+                            : 'text-[#2C1810] hover:bg-[#FBF8F5] hover:text-[#E7A9A2]'
+                          }`
+                        }
+                      >
+                        <Box size={16} />
+                        <span>My Orders</span>
+                      </NavLink>
+                    )
+                  }
 
                   {user?.isAdmin && menuItems.map((item) => {
                     const Icon = item.icon;

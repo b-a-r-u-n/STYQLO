@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Plus, Sparkles, Users } from 'lucide-react';
+import { ClipboardList, Clock3, LayoutDashboard, Package, Plus, Sparkles, SparklesIcon, Undo2, Users, WandSparkles } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -10,10 +10,13 @@ const AdminSidebar = () => {
     { path: '/admin/add-product', label: 'Add Product', icon: Plus },
     { path: '/admin/products', label: 'Manage Products', icon: Package },
     { path: '/admin/users', label: 'Manage Users', icon: Users },
+    { path: '/admin/orders', label: 'All Orders', icon: ClipboardList },
+    { path: '/admin/orders/pending', label: 'Pending Orders', icon: Clock3 },
+    { path: '/admin/returns/pending', label: 'Pending Returns', icon: Undo2 },
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-[#E8D4D0] min-h-screen flex-shrink-0 shadow-[2px_0_16px_rgba(44,24,16,0.02)]">
+    <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-[#E8D4D0] h-[calc(100vh_-_64px)] flex-shrink-0 shadow-[2px_0_16px_rgba(44,24,16,0.02)] sticky top-19">
       {/* Brand */}
       <div className="px-6 py-6 border-b border-[#E8D4D0]/60">
         <div className="flex items-center gap-2.5">

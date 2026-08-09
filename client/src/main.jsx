@@ -41,6 +41,11 @@ const AddProductPage = lazy(() => import("./pages/ADMIN/AddProductPage/AddProduc
 const ManageProductsPage = lazy(() => import("./pages/ADMIN/ManageProductsPage/ManageProductsPage.jsx"))
 const ManageUsersPage = lazy(() => import("./pages/ADMIN/ManageUsersPage/ManageUsersPage.jsx"))
 const UpdateProductPage = lazy(() => import("./pages/ADMIN/UpdateProductPage/UpdateProductPage.jsx"))
+const PendingOrdersPage = lazy(() => import("./pages/ADMIN/PendingOrdersPage/PendingOrdersPage.jsx"))
+const ManageOrdersPage = lazy(() => import("./pages/ADMIN/ManageOrdersPage/ManageOrdersPage.jsx"));
+const AdminOrderDetailsPage = lazy(() => import("./pages/ADMIN/AdminOrderDetailsPage/AdminOrderDetailsPage.jsx"));
+const AdminReturnDetailsPage = lazy(() => import("./pages/ADMIN/AdminReturnDetailsPage/AdminReturnDetailsPage.jsx"));
+const PendingReturnsPage = lazy(() => import("./pages/ADMIN/PendingReturnsPage/PendingReturnsPage.jsx"))
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -97,6 +102,15 @@ const router = createBrowserRouter(
         <Route path="users/:id/edit" element={<UpdateUserProfilePage />} />
         <Route path=":id/profile" element={<ProfilePage />} />
         <Route path="product/:id/edit" element={<UpdateProductPage />} />
+
+        {/* Orders */}
+        <Route path="orders" element={<ManageOrdersPage />} />
+        <Route path="orders/pending" element={<PendingOrdersPage />} />
+        <Route path="orders/:orderId" element={<AdminOrderDetailsPage />} />
+
+        {/* Returns */}
+        <Route path="returns/pending" element={<PendingReturnsPage />} />
+        <Route path="returns/:returnId" element={<AdminReturnDetailsPage />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
@@ -123,10 +137,10 @@ const Loader = () => (
 
 const AppWrapper = () => {
   const dispatch = useDispatch()
-  const { isLoggedIn } = useSelector(state => state.auth)
+  const { isLoggedIn, user } = useSelector(state => state.auth)
 
   useEffect(() => { dispatch(checkAuth()) }, [])
-  useEffect(() => { if (isLoggedIn) dispatch(getCartData()) }, [isLoggedIn])
+  useEffect(() => { if (isLoggedIn && !user.isAdmin) dispatch(getCartData()) }, [isLoggedIn])
 
   return (
     <Suspense fallback={<Loader />}>
