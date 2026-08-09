@@ -30,7 +30,7 @@ const SignupPage = lazy(() => import("./pages/SignupPage/SignupPage.jsx"))
 const LoginPage = lazy(() => import("./pages/LoginPage/LoginPage.jsx"))
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage/NotFoundPage.jsx"))
 const UpdateUserProfilePage = lazy(() => import("./pages/UpdateUserProfilePage/UpdateUserProfilePage.jsx"))
-const OrderSuccessPage = lazy(() => import("./pages/OrderSuccess/OrderSuccess.jsx"))
+const OrderSuccessPagePage = lazy(() => import("./pages/OrderSuccessPage/OrderSuccessPage.jsx"))
 const PaymentVerificationFailedPage = lazy(() => import("./pages/PaymentVerificationFailed/PaymentVerificationFailed.jsx"))
 const PaymentPending = lazy(() => import("./pages/PaymentPending/PaymentPending.jsx"))
 const OrdersPage = lazy(() => import("./pages/OrdersPage/OrdersPage.jsx"))
@@ -65,7 +65,7 @@ const router = createBrowserRouter(
         <Route path="cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
         <Route path="checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
 
-        <Route path="/payment/success" element={<ProtectedRoute><OrderSuccessPage /></ProtectedRoute>} />
+        <Route path="/payment/success" element={<ProtectedRoute><OrderSuccessPagePage /></ProtectedRoute>} />
         <Route
           path="/payment/verification-failed"
           element={<ProtectedRoute><PaymentVerificationFailedPage /></ProtectedRoute>}

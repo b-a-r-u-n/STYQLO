@@ -1,16 +1,23 @@
 import React from 'react';
 import { CircleCheckBig, ShoppingBag } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserOrders } from '../../features/orderSlice';
 import toast from 'react-hot-toast';
+import { useEffect } from 'react';
 
-const OrderSuccess = () => {
+const OrderSuccessPage = () => {
 
-  const {loading, orderDatas} = useSelector(state => state.order)
+  const { loading, orderDatas } = useSelector(state => state.order)
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+
+
+  if (location.state?.from !== "checkout" && location.state?.from !== "pending") {
+    return <Navigate to="/" replace />;
+  }
 
   const handleClick = async () => {
     navigate("/orders");
@@ -94,4 +101,4 @@ const OrderSuccess = () => {
   )
 }
 
-export default OrderSuccess
+export default OrderSuccessPage

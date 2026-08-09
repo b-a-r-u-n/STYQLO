@@ -50,26 +50,41 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
       "handler": async (response) => {
         try {
           const verify = await verifyRazorpayPayment({
-            razorpay_order_id: response.razorpay_order_id,
+            razorpay_order_id: " gege" || response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
           })
           // console.log(verify);
 
+          console.log(verify);
+          
+
 
           if (verify.success) {
             
-            await dispatch(clearCart());
-            await dispatch(clearBuy());
+            // await dispatch(clearCart());
+            // await dispatch(clearBuy());
             
-            navigate("/payment/success");
+            navigate("/payment/success", {
+              state: {
+                from: "checkout"
+              }
+            });
           } else {
-            navigate("/payment/pending");
+            navigate("/payment/pending", {
+              state: {
+                from: "checkout"
+              } 
+            });
           }
 
         } catch (error) {
           console.error(error);
-          navigate("/payment/pending");
+          navigate("/payment/pending", {
+            state: {
+              from: "checkout"
+            }
+          });
         } finally {
           setLoadingg(false);
         }

@@ -1,27 +1,48 @@
 import { LoaderCircle, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { getOrderById } from "../../features/orderSlice";
+import { clearBuy } from "../../features/cartSlice";
 // import { getPaymentStatus } from "../api/payment"; // Your API
 
 const PaymentPending = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
-  const orderId = searchParams.get("orderId");
+  const {currentOrderId} = useSelector(state => state.order);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  
+
+  if (location.state?.from !== "checkout") {
+    return <Navigate to="/" replace />;
+  }
 
   useEffect(() => {
-    if (!orderId) return;
+    if (!currentOrderId) return;
 
     const checkStatus = async () => {
       try {
-        const res = await getPaymentStatus(orderId);
+        const res = await dispatch(getOrderById(currentOrderId)).unwrap();
 
-        if (res.paymentStatus === "PAID") {
-          navigate("/payment/success", { replace: true });
+        if (res.paymentStatus === "Paid") {
+          navigate("/payment/success", {
+            state: {
+              from: "pending"
+            }
+          });
+
+          await dispatch(clearBuy());
+          await dispatch(clearCart())
         }
 
-        if (res.paymentStatus === "FAILED") {
-          navigate("/payment/verification-failed", { replace: true });
+        if (res.paymentStatus === "Failed") {
+          navigate("/payment/verification-failed", {
+            state: {
+              from: "pending"
+            }
+          });
         }
       } catch (error) {
         console.error(error);
@@ -29,13 +50,13 @@ const PaymentPending = () => {
     };
 
     // Check immediately
-    checkStatus();
+    // checkStatus();
 
     // Check every 5 seconds
     const interval = setInterval(checkStatus, 5000);
 
     return () => clearInterval(interval);
-  }, [orderId, navigate]);
+  }, [currentOrderId, navigate]);
 
   return (
     <section className="min-h-screen bg-luxury flex items-center justify-center px-5">

@@ -1,10 +1,14 @@
 import React from 'react';
 import { ShieldAlert, RefreshCw, ShoppingBag } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 const PaymentVerificationFailed = () => {
 
     const navigate = useNavigate();
+    const location = useLocation();
+
+    if(location?.state?.from !== "pending")
+      return <Navigate to="/" replace />;
 
   return (
     <section className="min-h-screen bg-luxury flex items-center justify-center px-5 py-10">
