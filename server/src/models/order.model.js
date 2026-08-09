@@ -84,6 +84,10 @@ const orderSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Payment"
         },
+        refundPayment: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Payment"
+        },
         razorpayOrderId: {
             type: String,
             default: null

@@ -159,7 +159,7 @@ const handleRazorpayWebhook = asyncHandler(async (req, res) => {
                 await payment.save({ session });
 
 
-                order.orderStatus = "Confirmed";
+                // order.orderStatus = "Confirmed";
                 order.paymentStatus = "Paid";
                 order.payment = payment._id;
 
@@ -241,7 +241,7 @@ const handleRazorpayWebhook = asyncHandler(async (req, res) => {
 
                 order.orderStatus = "Cancelled";
                 order.paymentStatus = "Refunded";
-                order.payment = payment._id;
+                order.refundPayment = payment._id;
 
                 await order.save({ session });
 
