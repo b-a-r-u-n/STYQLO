@@ -1,25 +1,32 @@
-import {
-  CheckCircle2,
-  ChevronRight,
-  Clock3,
-  CreditCard,
-  Package,
-  Search,
-  ShoppingBag,
-  User,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle2, ChevronRight, Clock3, CreditCard, Package, Search, ShoppingBag, User, XCircle, } from "lucide-react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllOrders } from "../../../features/orderSlice";
 
 const ManageOrdersPage = () => {
-  const navigate = useNavigate();
 
-  // ==================================================
-  // STATIC ORDERS
-  // ==================================================
+  const { loading, allOrdersData } = useSelector(state => state.order);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const url = "";
+        const res = await dispatch(getAllOrders(url)).unwrap();
+        // console.log(res);
+
+      } catch (error) {
+        toast.error(error || "Failed to fetch orders");
+      }
+    }
+
+    fetchData();
+  }, [])
 
   const [orders, setOrders] = useState([
     {
@@ -193,7 +200,32 @@ const ManageOrdersPage = () => {
 
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [actionLoading, setActionLoading] = useState(null);
+
+  // ==================================================
+  // HANDLE FILTER
+  // ==================================================
+
+  const handleFilter = async (filter) => {
+    setActiveFilter(filter);
+
+    try {
+      let url;
+      if (filter === "All")
+        url = ""
+      else
+        url = "?orderStatus=" + filter;
+
+      await dispatch(getAllOrders(url)).unwrap();
+    } catch (error) {
+      toast.error(error || "Failed to fetch orders");
+    }
+  }
+
+  // ==================================================
+  // HANDLE ACCEPT AND REJECT BUTTON
+  // ==================================================
+
+  const handleAcceptAndReject = async (orderId, string) => {}
 
   // ==================================================
   // STATUS CONFIG
@@ -237,88 +269,17 @@ const ManageOrdersPage = () => {
     },
   };
 
-  // ==================================================
-  // FILTER
-  // ==================================================
+  if (loading && !allOrdersData?.length) {
+    return (
+      <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner-luxury mx-auto mb-4" />
+          <p className="text-sm text-[#9B7B75] font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const filteredOrders = orders.filter((order) => {
-    const searchValue = search
-      .toLowerCase()
-      .trim();
-
-    const matchesSearch =
-      !searchValue ||
-      order.id
-        .toLowerCase()
-        .includes(searchValue) ||
-      order.customer.name
-        .toLowerCase()
-        .includes(searchValue) ||
-      order.customer.email
-        .toLowerCase()
-        .includes(searchValue) ||
-      order.products.some((product) =>
-        product.name
-          .toLowerCase()
-          .includes(searchValue)
-      );
-
-    const matchesFilter =
-      activeFilter === "All" ||
-      order.status === activeFilter;
-
-    return matchesSearch && matchesFilter;
-  });
-
-  // ==================================================
-  // ACCEPT
-  // ==================================================
-
-  const handleAccept = (orderId) => {
-    setActionLoading(orderId);
-
-    setTimeout(() => {
-      setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId
-            ? {
-                ...order,
-                status: "Confirmed",
-              }
-            : order
-        )
-      );
-
-      setActionLoading(null);
-
-      toast.success("Order accepted successfully.");
-    }, 500);
-  };
-
-  // ==================================================
-  // REJECT
-  // ==================================================
-
-  const handleReject = (orderId) => {
-    setActionLoading(orderId);
-
-    setTimeout(() => {
-      setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId
-            ? {
-                ...order,
-                status: "Cancelled",
-              }
-            : order
-        )
-      );
-
-      setActionLoading(null);
-
-      toast.success("Order rejected.");
-    }, 500);
-  };
 
   return (
     <main className="min-h-screen bg-luxury px-4 py-6 sm:px-6  lg:px-8">
@@ -369,7 +330,7 @@ const ManageOrdersPage = () => {
                 </p>
 
                 <p className="text-xl font-bold text-foreground">
-                  {orders.length}
+                  {allOrdersData.length}
                 </p>
 
               </div>
@@ -428,13 +389,12 @@ const ManageOrdersPage = () => {
             <button
               key={filter}
               onClick={() =>
-                setActiveFilter(filter)
+                handleFilter(filter)
               }
-              className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-semibold transition-luxury ${
-                activeFilter === filter
-                  ? "bg-primary text-primary-foreground shadow-soft"
-                  : "border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary"
-              }`}
+              className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-semibold transition-luxury ${activeFilter === filter
+                ? "bg-primary text-primary-foreground shadow-soft"
+                : "border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary"
+                }`}
             >
               {filter}
             </button>
@@ -448,14 +408,14 @@ const ManageOrdersPage = () => {
             ORDERS
         ================================================== */}
 
-        {filteredOrders.length > 0 ? (
+        {allOrdersData?.length > 0 ? (
 
           <div className="space-y-6">
 
-            {filteredOrders.map((order) => {
+            {allOrdersData?.map((order) => {
 
               const config =
-                statusConfig[order.status];
+                statusConfig[order.orderStatus];
 
               const StatusIcon =
                 config.icon;
@@ -467,13 +427,10 @@ const ManageOrdersPage = () => {
                   0
                 );
 
-              const isProcessing =
-                actionLoading === order.id;
-
               return (
 
                 <article
-                  key={order.id}
+                  key={order._id}
                   className="card-luxury overflow-hidden"
                 >
 
@@ -490,7 +447,7 @@ const ManageOrdersPage = () => {
                         <div className="flex flex-wrap items-center gap-3">
 
                           <h2 className="text-lg font-bold text-foreground">
-                            #{order.id}
+                            #{order._id}
                           </h2>
 
                           <span
@@ -499,14 +456,21 @@ const ManageOrdersPage = () => {
 
                             <StatusIcon size={13} />
 
-                            {order.status}
+                            {order.orderStatus}
 
                           </span>
 
                         </div>
 
                         <p className="mt-1.5 text-xs text-muted-foreground">
-                          Placed on {order.date}
+                          Placed on {new Date(order.createdAt).toLocaleString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true
+                          })}
                         </p>
 
                       </div>
@@ -565,20 +529,19 @@ const ManageOrdersPage = () => {
 
                         <div className="space-y-3">
 
-                          {order.products
+                          {order?.products
                             .slice(0, 2)
                             .map((product) => (
 
                               <div
-                                key={product.id}
+                                key={product._id}
                                 className="flex gap-3 rounded-xl bg-primary/5 p-3"
                               >
 
                                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted">
-
                                   <img
-                                    src={product.image}
-                                    alt={product.name}
+                                    src={product?.product?.images[0].url}
+                                    alt={product?.product?.name}
                                     className="h-full w-full object-cover"
                                   />
 
@@ -588,7 +551,7 @@ const ManageOrdersPage = () => {
                                 <div className="min-w-0 flex-1">
 
                                   <h3 className="line-clamp-2 text-sm font-semibold text-foreground">
-                                    {product.name}
+                                    {product?.product?.name}
                                   </h3>
 
                                   <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
@@ -598,10 +561,13 @@ const ManageOrdersPage = () => {
                                       {product.quantity}
                                     </span>
 
-                                    <span>
-                                      Size:{" "}
-                                      {product.size}
-                                    </span>
+                                    {
+                                      product.size && (
+                                      <span>
+                                        Size:{" "}
+                                        {product.size}
+                                      </span>)
+                                    }
 
                                   </div>
 
@@ -660,7 +626,7 @@ const ManageOrdersPage = () => {
                           <div className="min-w-0">
 
                             <p className="truncate font-semibold text-foreground">
-                              {order.customer.name}
+                              {order.shippingAddress.fullName}
                             </p>
 
                             <p className="truncate text-xs text-muted-foreground">
@@ -680,7 +646,7 @@ const ManageOrdersPage = () => {
                             </p>
 
                             <p className="mt-1 truncate text-sm font-medium text-foreground">
-                              {order.customer.email}
+                              {order.user.email}
                             </p>
 
                           </div>
@@ -692,7 +658,7 @@ const ManageOrdersPage = () => {
                             </p>
 
                             <p className="mt-1 text-sm font-medium text-foreground">
-                              {order.customer.phone}
+                              {order.shippingAddress.phoneNumber}
                             </p>
 
                           </div>
@@ -720,7 +686,7 @@ const ManageOrdersPage = () => {
                           />
 
                           <span className="font-semibold text-foreground">
-                            {order.paymentMethod}
+                            {order?.payment?.paymentMethod}
                           </span>
 
                         </div>
@@ -732,15 +698,14 @@ const ManageOrdersPage = () => {
                           </p>
 
                           <p
-                            className={`mt-2 font-semibold ${
-                              order.paymentStatus ===
+                            className={`mt-2 font-semibold ${order.paymentStatus ===
                               "Paid"
-                                ? "text-green-600"
-                                : order.paymentStatus ===
-                                  "Refunded"
-                                  ? "text-blue-600"
-                                  : "text-amber-600"
-                            }`}
+                              ? "text-green-600"
+                              : order.paymentStatus ===
+                                "Refunded"
+                                ? "text-blue-600"
+                                : "text-amber-600"
+                              }`}
                           >
                             {order.paymentStatus}
                           </p>
@@ -755,7 +720,7 @@ const ManageOrdersPage = () => {
 
                           <p className="mt-1 text-lg font-bold text-foreground">
                             ₹
-                            {order.totalAmount.toLocaleString(
+                            {order?.totalAmount.toLocaleString(
                               "en-IN"
                             )}
                           </p>
@@ -777,61 +742,45 @@ const ManageOrdersPage = () => {
 
                         <div className="flex flex-col gap-2">
 
-                          {order.status ===
+                          {order.orderStatus ===
                             "Pending" && (
 
-                            <>
-                              <button
-                                disabled={
-                                  isProcessing
-                                }
-                                onClick={() =>
-                                  handleAccept(
-                                    order.id
-                                  )
-                                }
-                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover disabled:cursor-not-allowed disabled:opacity-60"
-                              >
+                              <>
+                                <button
+                                  // disabled={}
+                                  onClick={() => { handleAcceptAndReject(order._id, "accepted") }}
+                                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover disabled:cursor-not-allowed disabled:opacity-60"
+                                >
 
-                                <CheckCircle2
-                                  size={17}
-                                />
-
-                                {isProcessing
-                                  ? "Processing..."
-                                  : "Accept Order"}
-
-                              </button>
+                                  <CheckCircle2
+                                    size={17}
+                                  />
+                                  Accept Order
+                                </button>
 
 
-                              <button
-                                disabled={
-                                  isProcessing
-                                }
-                                onClick={() =>
-                                  handleReject(
-                                    order.id
-                                  )
-                                }
-                                className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-luxury hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
-                              >
+                                <button
+                                  // disabled={}
+                                  onClick={() => { handleAcceptAndReject(order._id, "rejected") }}
+                                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-luxury hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
 
-                                <XCircle
-                                  size={17}
-                                />
+                                  <XCircle
+                                    size={17}
+                                  />
 
-                                Reject Order
+                                  Reject Order
 
-                              </button>
-                            </>
+                                </button>
+                              </>
 
-                          )}
+                            )}
 
 
                           <button
                             onClick={() =>
                               navigate(
-                                `/admin/orders/${order.id}`
+                                `/admin/orders/${order._id}`
                               )
                             }
                             className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary"
@@ -893,17 +842,17 @@ const ManageOrdersPage = () => {
             {(search ||
               activeFilter !== "All") && (
 
-              <button
-                onClick={() => {
-                  setSearch("");
-                  setActiveFilter("All");
-                }}
-                className="mt-6 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
-              >
-                View All Orders
-              </button>
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    setActiveFilter("All");
+                  }}
+                  className="mt-6 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+                >
+                  View All Orders
+                </button>
 
-            )}
+              )}
 
           </div>
 

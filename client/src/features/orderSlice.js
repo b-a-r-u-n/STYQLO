@@ -17,6 +17,8 @@ export const createOrder = createAsyncThunk("createOrder", async ({ products, in
     }
 })
 
+export const updateOrder = createAsyncThunk("updateOrder", async (_, {rejectWithValue}) => {})
+
 export const getUserOrders = createAsyncThunk("getUserOrders", async(_, {rejectWithValue}) => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders/`, {withCredentials: true})
@@ -28,8 +30,18 @@ export const getUserOrders = createAsyncThunk("getUserOrders", async(_, {rejectW
 })
 
 export const getOrderById = createAsyncThunk("getOrderById", async (orderId, {rejectWithValue}) => {
-    try {        
+    try {
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders/${orderId}`, {withCredentials: true})
+
+        return response?.data?.data;
+    } catch (error) {
+        return rejectWithValue(error.response?.data?.message || error.message);
+    }
+})
+
+export const getAllOrders = createAsyncThunk("getAllOrders", async (url, {rejectWithValue}) => {
+    try {      
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders/admin/orders${url}`, {withCredentials: true});
 
         return response?.data?.data;
     } catch (error) {
@@ -40,6 +52,7 @@ export const getOrderById = createAsyncThunk("getOrderById", async (orderId, {re
 const initialState = {
     orderDatas: [],
     orderData: null,
+    allOrdersData: [],
     currentOrder: null,
     currentOrderId: null,
     loading: false,
@@ -95,6 +108,20 @@ const orderSlice = createSlice({
             state.orderData = action.payload;
         })
         builder.addCase(getOrderById.rejected, (state, action) => {
+            state.loading = false;
+            state.success = false;
+        })
+
+        // Get all orders
+        builder.addCase(getAllOrders.pending, (state, _) => {
+            state.loading = true;
+        })
+        builder.addCase(getAllOrders.fulfilled, (state, action) => {
+            state.loading = false;
+            state.allOrdersData = action.payload;
+            state.success = true;
+        })
+        builder.addCase(getAllOrders.rejected, (state, _) => {
             state.loading = false;
             state.success = false;
         })

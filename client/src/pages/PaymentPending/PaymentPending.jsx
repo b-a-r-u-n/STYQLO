@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { getOrderById } from "../../features/orderSlice";
 import { clearBuy } from "../../features/cartSlice";
+import toast from "react-hot-toast";
 // import { getPaymentStatus } from "../api/payment"; // Your API
 
 const PaymentPending = () => {
@@ -45,7 +46,7 @@ const PaymentPending = () => {
           });
         }
       } catch (error) {
-        console.error(error);
+        toast.error(error || "Failed to fetch orders");
       }
     };
 

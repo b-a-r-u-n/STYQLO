@@ -1,4 +1,5 @@
 import { Order } from "../models/order.model.js";
+import { User } from "../models/user.model.js";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js";
@@ -31,6 +32,35 @@ const createOrder = asyncHandler(async (req, res) => {
     .status(200)
     .json(
         new apiResponse(200, "Order created successfully", createdOrder)
+    )
+})
+
+const updateOrder = asyncHandler(async (req, res) => {
+    const {orderId} = req.params;
+    if (!orderId)
+            throw new apiError(400, "Order id is required");
+
+    const {orderStatus} = req.body;
+
+    const order = await Order.findByIdAndUpdate(
+        orderId,
+        {
+            $set: {
+                orderStatus
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    if(!order)
+        throw new apiError(400, "Error while updating order");
+
+    res
+    .status(200)
+    .json(
+        new apiResponse(200, "Order Updated", order)
     )
 })
 
@@ -79,4 +109,46 @@ const getOrderById = asyncHandler(async (req, res) => {
     )
 })
 
-export {createOrder, getUserOrders, getOrderById}
+const getAllOrders = asyncHandler(async (req, res) => {
+
+    const user = req.user;
+
+    const userData = await User.findById(user._id);
+
+    // console.log(userData);
+    
+
+    if(!userData.isAdmin)
+        throw new apiError(403, "You are not authorized to access this resource");
+
+    const filter = {};
+
+    if(req.query?.orderStatus)
+        filter.orderStatus = req.query?.orderStatus;
+    if(req.query?.orderId)
+        filter._id = req.query?.orderId;
+
+    const orders = await Order.find(filter)
+    .sort({createdAt: -1})
+    .select("-razorpayOrderId")
+    .populate("products.product")
+    .populate({
+        path: "user",
+        select: "-fullName -password -phoneNumber -address -isAdmin -refreshToken -_id -createdAt -updatedAt"
+    })
+    .populate({
+        path: "payment",
+        select: "-amount -createdAt -currency -gatewayResponse -order -razorpayOrderId -razorpayPaymentId -refundAmount -refundId -status -updatedAt -user -_id "
+    })
+
+    if(!orders)
+        throw new apiError(404, "No orders found");
+
+    res
+    .status(200)
+    .json(
+        new apiResponse(200, "Orders fetched successfully", orders)
+    )
+})
+
+export {createOrder, getUserOrders, getOrderById, getAllOrders}
