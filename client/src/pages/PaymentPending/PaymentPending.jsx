@@ -46,7 +46,7 @@ const PaymentPending = () => {
           });
         }
       } catch (error) {
-        toast.error(error || "Failed to fetch orders");
+        toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
       }
     };
 

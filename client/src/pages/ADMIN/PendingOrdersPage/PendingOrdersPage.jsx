@@ -1,104 +1,62 @@
-import {
-  Check,
-  ChevronRight,
-  Clock3,
-  MapPin,
-  Package,
-  Phone,
-  ShoppingBag,
-  X,
-} from "lucide-react";
-import { useState } from "react";
-
-const pendingOrders = [
-  {
-    id: "STYQLO-1001",
-    date: "09 Aug 2026, 03:20 PM",
-    customer: {
-      name: "Rahul Kumar",
-      phone: "+91 98765 43210",
-    },
-    shippingAddress: {
-      address: "Main Road, Civil Township",
-      city: "Rourkela",
-      state: "Odisha",
-      pinCode: "769004",
-    },
-    totalAmount: 2499,
-    paymentStatus: "Paid",
-    paymentMethod: "Razorpay",
-
-    products: [
-      {
-        id: 1,
-        name: "Premium Oversized T-Shirt",
-        size: "L",
-        quantity: 1,
-        price: 1499,
-        image:
-          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300",
-      },
-      {
-        id: 2,
-        name: "Classic Denim Jeans",
-        size: "32",
-        quantity: 1,
-        price: 1000,
-        image:
-          "https://images.unsplash.com/photo-1542272604-787c3835535d?w=300",
-      },
-    ],
-  },
-
-  {
-    id: "STYQLO-1002",
-    date: "09 Aug 2026, 02:45 PM",
-    customer: {
-      name: "Priya Sharma",
-      phone: "+91 87654 32109",
-    },
-    shippingAddress: {
-      address: "Sector 5",
-      city: "Bhubaneswar",
-      state: "Odisha",
-      pinCode: "751001",
-    },
-    totalAmount: 1799,
-    paymentStatus: "Paid",
-    paymentMethod: "Razorpay",
-
-    products: [
-      {
-        id: 3,
-        name: "Relaxed Fit Hoodie",
-        size: "M",
-        quantity: 1,
-        price: 1799,
-        image:
-          "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=300",
-      },
-    ],
-  },
-];
+import { Check, ChevronRight, Clock3, MapPin, Package, Phone, ShoppingBag, X, } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { getAllOrders, updateOrder } from "../../../features/orderSlice";
 
 const PendingOrdersPage = () => {
-  const [orders, setOrders] = useState(pendingOrders);
 
-  const handleAccept = (orderId) => {
-    console.log("Accept order:", orderId);
+  const { loading, allOrdersData } = useSelector(state => state.order);
 
-    setOrders((prev) =>
-      prev.filter((order) => order.id !== orderId)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+
+  const fetchData = async () => {
+    try {
+      const url = "?orderStatus=Pending";
+      const res = await dispatch(getAllOrders(url)).unwrap();
+      // console.log(res[0]);
+
+    } catch (error) {
+      toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [])
+
+  const handleAcceptAndReject = async (orderId, string) => {
+    let url = "";
+    if (string === "accepted")
+      url = "?orderStatus=Confirmed";
+    else if (string === "rejected")
+      url = "?orderStatus=Rejected";
+
+    try {
+      const res = await dispatch(updateOrder({orderId, url})).unwrap();
+      fetchData();
+      // console.log(res);
+      
+      toast.success(`Order ${string} successfully`);
+    } catch (error) {
+      // console.error(error);
+      toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner-luxury mx-auto mb-4" />
+          <p className="text-sm text-[#9B7B75] font-medium">Loading...</p>
+        </div>
+      </div>
     );
-  };
-
-  const handleReject = (orderId) => {
-    console.log("Reject order:", orderId);
-
-    setOrders((prev) =>
-      prev.filter((order) => order.id !== orderId)
-    );
-  };
+  }
 
   return (
     <main className="min-h-screen bg-luxury px-4 py-6 sm:px-6 lg:px-8">
@@ -149,7 +107,7 @@ const PendingOrdersPage = () => {
                 </p>
 
                 <p className="text-xl font-bold text-foreground">
-                  {orders.length}
+                  {allOrdersData.length}
                 </p>
 
               </div>
@@ -165,14 +123,14 @@ const PendingOrdersPage = () => {
         {/* ORDERS */}
         {/* ============================================ */}
 
-        {orders.length > 0 ? (
+        {allOrdersData.length > 0 ? (
 
           <div className="space-y-6">
 
-            {orders.map((order) => (
+            {allOrdersData.map((order) => (
 
               <article
-                key={order.id}
+                key={order._id}
                 className="card-luxury overflow-hidden"
               >
 
@@ -187,7 +145,7 @@ const PendingOrdersPage = () => {
                     <div className="flex flex-wrap items-center gap-3">
 
                       <h2 className="text-lg font-bold text-foreground">
-                        #{order.id}
+                        #{order._id}
                       </h2>
 
                       <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
@@ -201,7 +159,14 @@ const PendingOrdersPage = () => {
                     </div>
 
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Placed on {order.date}
+                      Placed on {new Date(order.createdAt).toLocaleString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true
+                      })}
                     </p>
 
                   </div>
@@ -214,7 +179,7 @@ const PendingOrdersPage = () => {
                     </p>
 
                     <p className="mt-1 text-xl font-bold text-foreground">
-                      ₹{order.totalAmount.toLocaleString("en-IN")}
+                      ₹{order.totalAmount?.toLocaleString("en-IN")}
                     </p>
 
                   </div>
@@ -250,10 +215,10 @@ const PendingOrdersPage = () => {
 
                     <div className="space-y-4">
 
-                      {order.products.map((product) => (
+                      {order.products?.map((product) => (
 
                         <div
-                          key={product.id}
+                          key={product._id}
                           className="flex gap-4 rounded-2xl border border-border bg-card p-3 sm:p-4"
                         >
 
@@ -262,8 +227,8 @@ const PendingOrdersPage = () => {
                           <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-24">
 
                             <img
-                              src={product.image}
-                              alt={product.name}
+                              src={product?.product?.images[0].url}
+                              alt={product?.product?.name}
                               className="h-full w-full object-cover"
                             />
 
@@ -275,23 +240,23 @@ const PendingOrdersPage = () => {
                           <div className="min-w-0 flex-1">
 
                             <h4 className="truncate font-semibold text-foreground">
-                              {product.name}
+                              {product?.product?.name}
                             </h4>
 
                             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
 
                               <span>
-                                Size: {product.size}
+                                Size: {product?.size}
                               </span>
 
                               <span>
-                                Qty: {product.quantity}
+                                Qty: {product?.quantity}
                               </span>
 
                             </div>
 
                             <p className="mt-2 font-semibold text-foreground">
-                              ₹{product.price.toLocaleString("en-IN")}
+                              ₹{product?.price?.toLocaleString("en-IN")}
                             </p>
 
                           </div>
@@ -315,7 +280,7 @@ const PendingOrdersPage = () => {
 
                       <div className="rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary">
 
-                        {order.paymentMethod}
+                        {order.payment?.paymentMethod}
 
                       </div>
 
@@ -341,14 +306,14 @@ const PendingOrdersPage = () => {
                       <div className="mt-4">
 
                         <p className="font-semibold text-foreground">
-                          {order.customer.name}
+                          {order?.shippingAddress?.fullName}
                         </p>
 
                         <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
 
                           <Phone size={15} />
 
-                          {order.customer.phone}
+                          {order?.shippingAddress?.phoneNumber}
 
                         </div>
 
@@ -376,7 +341,7 @@ const PendingOrdersPage = () => {
 
                       <p className="mt-3 text-sm leading-6 text-muted-foreground">
 
-                        {order.shippingAddress.address}
+                        {order.shippingAddress.streetAddress}
                         <br />
 
                         {order.shippingAddress.city},{" "}
@@ -404,7 +369,7 @@ const PendingOrdersPage = () => {
 
                         <button
                           onClick={() =>
-                            handleAccept(order.id)
+                            handleAcceptAndReject(order?._id, "accepted")
                           }
                           className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
                         >
@@ -420,7 +385,7 @@ const PendingOrdersPage = () => {
 
                         <button
                           onClick={() =>
-                            handleReject(order.id)
+                            handleAcceptAndReject(order?._id, "rejected")
                           }
                           className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3.5 font-semibold text-red-600 transition-luxury hover:bg-red-100"
                         >
@@ -428,6 +393,25 @@ const PendingOrdersPage = () => {
                           <X size={18} />
 
                           Reject Order
+
+                        </button>
+
+                        {/* DETAILS */}
+
+                        <button
+                          onClick={() =>
+                            navigate(
+                              `/admin/orders/${order._id}`
+                            )
+                          }
+                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary"
+                        >
+
+                          View Details
+
+                          <ChevronRight
+                            size={16}
+                          />
 
                         </button>
 

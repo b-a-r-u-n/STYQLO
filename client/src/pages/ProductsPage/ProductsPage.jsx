@@ -18,7 +18,7 @@ const ProductsPage = () => {
       try {
         await dispatch(getAllProducts()).unwrap();
       } catch (error) {
-        toast.error(error || "Failed to fetch products");
+        toast.error(error?.message || error?.data?.message || "Failed to fetch products");
       }
     };
     fetchData();

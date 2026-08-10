@@ -5,9 +5,9 @@ import apiResponse from "../utils/apiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js";
 
 
-const createOrder = asyncHandler(async (req, res) => {    
+const createOrder = asyncHandler(async (req, res) => {
 
-    const {products, shippingAddress, subTotal, tax, shippingCharges, totalAmount} = req.body;
+    const { products, shippingAddress, subTotal, tax, shippingCharges, totalAmount } = req.body;
 
     // console.log(req.body);
 
@@ -23,45 +23,50 @@ const createOrder = asyncHandler(async (req, res) => {
         paymentStatus: "Pending"
     })
 
-    if(!order)
+    if (!order)
         throw new apiError(500, "Order creation failed");
 
     const createdOrder = await Order.findById(order._id).select("-user -products -shippingAddress -subTotal -tax -shippingCharges -totalAmount -orderStatus -paymentStatus -createdAt -updatedAt -razorpayOrderId")
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Order created successfully", createdOrder)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Order created successfully", createdOrder)
+        )
 })
 
 const updateOrder = asyncHandler(async (req, res) => {
-    const {orderId} = req.params;
+    const { orderId } = req.params;
     if (!orderId)
-            throw new apiError(400, "Order id is required");
+        throw new apiError(400, "Order id is required");
 
-    const {orderStatus} = req.body;
+    // const {orderStatus} = req.body;
+
+    const filter = {}
+
+    if (req.query?.orderStatus)
+        filter.orderStatus = req.query?.orderStatus;
+    
 
     const order = await Order.findByIdAndUpdate(
         orderId,
         {
-            $set: {
-                orderStatus
-            }
+            $set: filter
         },
         {
-            new: true
+            new: true,
+            runValidators: true
         }
     )
 
-    if(!order)
+    if (!order)
         throw new apiError(400, "Error while updating order");
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Order Updated", order)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Order Updated", order)
+        )
 })
 
 const getUserOrders = asyncHandler(async (req, res) => {
@@ -70,43 +75,47 @@ const getUserOrders = asyncHandler(async (req, res) => {
     let orders = await Order.find({
         user: userId
     })
-    .sort({createdAt: -1})
-    .select("-payment -razorpayOrderId -createdAt")
-    .populate("products.product")
+        .sort({ createdAt: -1 })
+        .select("-payment -razorpayOrderId -createdAt")
+        .populate("products.product")
 
-    if(!orders)
+    if (!orders)
         throw new apiError(404, "No orders found for this user");
 
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "User orders fetched successfully", orders)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "User orders fetched successfully", orders)
+        )
 })
 
 const getOrderById = asyncHandler(async (req, res) => {
-    const {orderId} = req.params;   
+    const { orderId } = req.params;
 
-    if(!orderId)
+    if (!orderId)
         throw new apiError(400, "Order id not found");
 
     const order = await Order.findById(orderId)
-    .select("-payment -razorpayOrderId -createdAt")
-    .populate("products.product")
-    .populate({
-        path: "payment",
-        select: "-amount -createdAt -currency -gatewayResponse -order -razorpayOrderId -razorpayPaymentId -refundAmount -refundId -status -updatedAt -user -_id "
-    })
+        .select("-payment -razorpayOrderId")
+        .populate("products.product")
+        .populate({
+            path: "payment",
+            select: "-amount -createdAt -currency -gatewayResponse -order -refundAmount -refundId -status -updatedAt -user -_id "
+        })
+        .populate({
+            path: "user",
+            select: "-fullName -password -phoneNumber -address -isAdmin -refreshToken -_id -createdAt -updatedAt"
+        })
 
-    if(!order)
+    if (!order)
         throw new apiError(404, "Order not found");
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Order fetched successfully", order)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Order fetched successfully", order)
+        )
 })
 
 const getAllOrders = asyncHandler(async (req, res) => {
@@ -116,39 +125,39 @@ const getAllOrders = asyncHandler(async (req, res) => {
     const userData = await User.findById(user._id);
 
     // console.log(userData);
-    
 
-    if(!userData.isAdmin)
+
+    if (!userData.isAdmin)
         throw new apiError(403, "You are not authorized to access this resource");
 
     const filter = {};
 
-    if(req.query?.orderStatus)
+    if (req.query?.orderStatus)
         filter.orderStatus = req.query?.orderStatus;
-    if(req.query?.orderId)
+    if (req.query?.orderId)
         filter._id = req.query?.orderId;
 
     const orders = await Order.find(filter)
-    .sort({createdAt: -1})
-    .select("-razorpayOrderId")
-    .populate("products.product")
-    .populate({
-        path: "user",
-        select: "-fullName -password -phoneNumber -address -isAdmin -refreshToken -_id -createdAt -updatedAt"
-    })
-    .populate({
-        path: "payment",
-        select: "-amount -createdAt -currency -gatewayResponse -order -razorpayOrderId -razorpayPaymentId -refundAmount -refundId -status -updatedAt -user -_id "
-    })
+        .sort({ updatedAt: -1 })
+        .select("-razorpayOrderId")
+        .populate("products.product")
+        .populate({
+            path: "user",
+            select: "-fullName -password -phoneNumber -address -isAdmin -refreshToken -_id -createdAt -updatedAt"
+        })
+        .populate({
+            path: "payment",
+            select: "-amount -createdAt -currency -gatewayResponse -order -razorpayOrderId -razorpayPaymentId -refundAmount -refundId -status -updatedAt -user -_id "
+        })
 
-    if(!orders)
+    if (!orders)
         throw new apiError(404, "No orders found");
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Orders fetched successfully", orders)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Orders fetched successfully", orders)
+        )
 })
 
-export {createOrder, getUserOrders, getOrderById, getAllOrders}
+export { createOrder, getUserOrders, getOrderById, getAllOrders, updateOrder }

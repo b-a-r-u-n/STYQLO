@@ -1,117 +1,71 @@
-import {
-  ArrowLeft,
-  Check,
-  CheckCircle2,
-  Clock3,
-  CreditCard,
-  MapPin,
-  Package,
-  Phone,
-  RotateCcw,
-  Truck,
-  User,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Check, CheckCircle2, Clock3, CreditCard, MapPin, Package, Phone, RotateCcw, Truck, User, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getOrderById, updateOrder } from "../../../features/orderSlice";
 
 const AdminOrderDetailsPage = () => {
+
+  const { loading, orderData } = useSelector(state => state.order);
+
   const navigate = useNavigate();
   const { orderId } = useParams();
+  const dispatch = useDispatch();
 
   const [orderStatus, setOrderStatus] = useState("Pending");
 
-  // Replace this with your API data
-  const order = {
-    id: orderId || "STYQLO-1001",
-
-    createdAt: "09 Aug 2026, 03:20 PM",
-
-    customer: {
-      name: "Rahul Kumar",
-      email: "rahul@example.com",
-      phone: "+91 98765 43210",
-    },
-
-    shippingAddress: {
-      address: "Main Road, Civil Township",
-      city: "Rourkela",
-      state: "Odisha",
-      pinCode: "769004",
-    },
-
-    payment: {
-      status: "Paid",
-      method: "Razorpay",
-      amount: 2499,
-      razorpayOrderId: "order_RZP123456",
-      razorpayPaymentId: "pay_RZP123456",
-    },
-
-    subtotal: 2299,
-    shippingCharge: 100,
-    gst: 100,
-    totalAmount: 2499,
-
-    products: [
-      {
-        id: 1,
-        name: "Premium Oversized T-Shirt",
-        size: "L",
-        quantity: 1,
-        price: 1499,
-        image:
-          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
-      },
-      {
-        id: 2,
-        name: "Classic Denim Jeans",
-        size: "32",
-        quantity: 1,
-        price: 800,
-        image:
-          "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400",
-      },
-    ],
-  };
-
-  const handleAccept = async () => {
+  const fetchData = async () => {
     try {
-      // await acceptOrder(order.id);
+      const res = await dispatch(getOrderById(orderId)).unwrap();
+      // console.log(res);
 
-      setOrderStatus("Confirmed");
-
-      toast.success("Order accepted successfully");
     } catch (error) {
-      toast.error("Failed to accept order");
+      toast.error(error?.message || error?.data?.message || "Failed to fetch order");
     }
-  };
+  }
 
-  const handleReject = async () => {
-    try {
-      // await rejectOrder(order.id);
+  // console.log(orderData);
 
-      setOrderStatus("Cancelled");
 
-      toast.success("Order rejected");
-    } catch (error) {
-      toast.error("Failed to reject order");
+  useEffect(() => {
+    fetchData();
+  }, [])
+
+  const handleAcceptAndReject = async (string) => {
+      let url = "";
+      if (string === "accepted")
+        url = "?orderStatus=Confirmed";
+      else if (string === "rejected")
+        url = "?orderStatus=Rejected";
+  
+      try {
+        const res = await dispatch(updateOrder({orderId, url})).unwrap();
+        fetchData();
+        // console.log(res);
+        
+        toast.success(`Order ${string} successfully`);
+      } catch (error) {
+        // console.error(error);
+        toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+      }
     }
-  };
 
+  
+  
   const handleStatusChange = async (status) => {
     try {
       // await updateOrderStatus(order.id, status);
-
+      
       setOrderStatus(status);
-
+      
       toast.success(`Order marked as ${status}`);
     } catch (error) {
       toast.error("Failed to update order status");
     }
   };
-
+  
   const statusSteps = [
     {
       name: "Pending",
@@ -134,11 +88,22 @@ const AdminOrderDetailsPage = () => {
       icon: Check,
     },
   ];
-
+  
   const currentIndex = statusSteps.findIndex(
-    (step) => step.name === orderStatus
+    (step) => step.name === orderData?.orderStatus
   );
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner-luxury mx-auto mb-4" />
+          <p className="text-sm text-[#9B7B75] font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <main className="min-h-screen bg-luxury px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -150,7 +115,8 @@ const AdminOrderDetailsPage = () => {
         <div className="mb-7">
 
           <button
-            onClick={() => navigate("/admin/orders")}
+            // onClick={() => navigate("/admin/orders")}
+            onClick={() => navigate(-1)}
             className="mb-5 flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
           >
             <ArrowLeft size={18} />
@@ -170,7 +136,14 @@ const AdminOrderDetailsPage = () => {
               </h1>
 
               <p className="mt-2 text-sm text-muted-foreground">
-                #{order.id} · {order.createdAt}
+                #{orderData?._id} · {new Date(orderData?.createdAt).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true
+                })}
               </p>
 
             </div>
@@ -181,7 +154,7 @@ const AdminOrderDetailsPage = () => {
 
               <Clock3 size={16} />
 
-              {orderStatus}
+              {orderData?.orderStatus}
 
             </div>
 
@@ -247,21 +220,19 @@ const AdminOrderDetailsPage = () => {
                   >
 
                     <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all ${
-                        completed
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-card text-muted-foreground"
-                      }`}
+                      className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all ${completed
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-muted-foreground"
+                        }`}
                     >
                       <Icon size={17} />
                     </div>
 
                     <p
-                      className={`mt-3 text-xs font-semibold ${
-                        completed
-                          ? "text-primary"
-                          : "text-muted-foreground"
-                      }`}
+                      className={`mt-3 text-xs font-semibold ${completed
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                        }`}
                     >
                       {step.name}
                     </p>
@@ -289,29 +260,26 @@ const AdminOrderDetailsPage = () => {
               return (
                 <div
                   key={step.name}
-                  className={`flex items-center gap-3 rounded-xl border p-3 ${
-                    completed
-                      ? "border-primary/20 bg-primary/5"
-                      : "border-border"
-                  }`}
+                  className={`flex items-center gap-3 rounded-xl border p-3 ${completed
+                    ? "border-primary/20 bg-primary/5"
+                    : "border-border"
+                    }`}
                 >
 
                   <div
-                    className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                      completed
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    }`}
+                    className={`flex h-9 w-9 items-center justify-center rounded-full ${completed
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                      }`}
                   >
                     <Icon size={17} />
                   </div>
 
                   <span
-                    className={`text-sm font-semibold ${
-                      completed
-                        ? "text-primary"
-                        : "text-muted-foreground"
-                    }`}
+                    className={`text-sm font-semibold ${completed
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                      }`}
                   >
                     {step.name}
                   </span>
@@ -327,10 +295,12 @@ const AdminOrderDetailsPage = () => {
 
           <div className="mt-8 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row">
 
-            {orderStatus === "Pending" && (
+            {orderData?.orderStatus === "Pending" && (
               <>
                 <button
-                  onClick={handleAccept}
+                  onClick={() => {
+                    handleAcceptAndReject("accepted")
+                  }}
                   className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
                 >
                   <Check size={18} />
@@ -338,7 +308,9 @@ const AdminOrderDetailsPage = () => {
                 </button>
 
                 <button
-                  onClick={handleReject}
+                  onClick={() => {
+                    handleAcceptAndReject("rejected")
+                  }}
                   className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-3.5 font-semibold text-red-600 transition-luxury hover:bg-red-100"
                 >
                   <X size={18} />
@@ -347,7 +319,7 @@ const AdminOrderDetailsPage = () => {
               </>
             )}
 
-            {orderStatus === "Confirmed" && (
+            {orderData?.orderStatus === "Confirmed" && (
               <button
                 onClick={() => handleStatusChange("Packed")}
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
@@ -357,7 +329,7 @@ const AdminOrderDetailsPage = () => {
               </button>
             )}
 
-            {orderStatus === "Packed" && (
+            {orderData?.orderStatus === "Packed" && (
               <button
                 onClick={() => handleStatusChange("Shipped")}
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
@@ -367,7 +339,7 @@ const AdminOrderDetailsPage = () => {
               </button>
             )}
 
-            {orderStatus === "Shipped" && (
+            {orderData?.orderStatus === "Shipped" && (
               <button
                 onClick={() => handleStatusChange("Delivered")}
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
@@ -377,7 +349,7 @@ const AdminOrderDetailsPage = () => {
               </button>
             )}
 
-            {orderStatus === "Delivered" && (
+            {orderData?.orderStatus === "Delivered" && (
               <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-50 py-3.5 font-semibold text-green-700">
                 <CheckCircle2 size={18} />
                 Order Delivered
@@ -412,26 +384,26 @@ const AdminOrderDetailsPage = () => {
                 </h2>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {order.products.length} product
-                  {order.products.length > 1 ? "s" : ""}
+                  {orderData?.products?.length} product
+                  {orderData?.products?.length > 1 ? "s" : ""}
                 </p>
 
               </div>
 
               <div className="divide-y divide-border">
 
-                {order.products.map((product) => (
+                {orderData?.products?.map((product) => (
 
                   <div
-                    key={product.id}
+                    key={product?._id}
                     className="flex gap-4 p-5 sm:p-6"
                   >
 
                     <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-28 sm:w-28">
 
                       <img
-                        src={product.image}
-                        alt={product.name}
+                        src={product?.product?.images[0]?.url}
+                        alt={product?.product?.name}
                         className="h-full w-full object-cover"
                       />
 
@@ -440,23 +412,27 @@ const AdminOrderDetailsPage = () => {
                     <div className="min-w-0 flex-1">
 
                       <h3 className="font-semibold text-foreground">
-                        {product.name}
+                        {product?.product?.name}
                       </h3>
 
                       <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
 
-                        <span>
-                          Size: {product.size}
-                        </span>
+                        {
+                          product?.size && (
+                            <span>
+                              Size: {product?.size}
+                            </span>
+                          )
+                        }
 
                         <span>
-                          Quantity: {product.quantity}
+                          Quantity: {product?.quantity}
                         </span>
 
                       </div>
 
                       <p className="mt-3 font-bold text-foreground">
-                        ₹{product.price.toLocaleString("en-IN")}
+                        ₹{product?.price?.toLocaleString("en-IN")}
                       </p>
 
                     </div>
@@ -508,7 +484,7 @@ const AdminOrderDetailsPage = () => {
                   </p>
 
                   <p className="mt-1 font-semibold text-foreground">
-                    {order.customer.name}
+                    {orderData?.shippingAddress?.fullName}
                   </p>
 
                 </div>
@@ -523,7 +499,7 @@ const AdminOrderDetailsPage = () => {
 
                     <Phone size={15} />
 
-                    {order.customer.phone}
+                    {orderData?.shippingAddress?.phoneNumber}
 
                   </div>
 
@@ -536,7 +512,7 @@ const AdminOrderDetailsPage = () => {
                   </p>
 
                   <p className="mt-1 break-all font-semibold text-foreground">
-                    {order.customer.email}
+                    {orderData?.user?.email}
                   </p>
 
                 </div>
@@ -578,19 +554,19 @@ const AdminOrderDetailsPage = () => {
               <div className="mt-5 rounded-2xl border border-border bg-primary/5 p-5">
 
                 <p className="font-semibold text-foreground">
-                  {order.customer.name}
+                  {orderData?.shippingAddress?.fullName}
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
 
-                  {order.shippingAddress.address}
+                  {orderData?.shippingAddress?.streetAddress}
                   <br />
 
-                  {order.shippingAddress.city},{" "}
-                  {order.shippingAddress.state}
+                  {orderData?.shippingAddress?.city},{" "}
+                  {orderData?.shippingAddress?.state}
                   <br />
 
-                  PIN: {order.shippingAddress.pinCode}
+                  PIN: {orderData?.shippingAddress?.pinCode}
 
                 </p>
 
@@ -598,7 +574,7 @@ const AdminOrderDetailsPage = () => {
 
                   <Phone size={15} />
 
-                  {order.customer.phone}
+                  {orderData?.shippingAddress?.phoneNumber}
 
                 </p>
 
@@ -653,7 +629,7 @@ const AdminOrderDetailsPage = () => {
                   </span>
 
                   <span className="font-semibold text-foreground">
-                    {order.payment.method}
+                    {orderData?.payment?.paymentMethod}
                   </span>
 
                 </div>
@@ -665,7 +641,7 @@ const AdminOrderDetailsPage = () => {
                   </span>
 
                   <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
-                    {order.payment.status}
+                    {orderData?.paymentStatus}
                   </span>
 
                 </div>
@@ -677,7 +653,7 @@ const AdminOrderDetailsPage = () => {
                   </span>
 
                   <span className="font-bold text-foreground">
-                    ₹{order.payment.amount.toLocaleString("en-IN")}
+                    ₹{orderData?.totalAmount?.toLocaleString("en-IN")}
                   </span>
 
                 </div>
@@ -704,7 +680,7 @@ const AdminOrderDetailsPage = () => {
                   </span>
 
                   <span className="font-medium">
-                    ₹{order.subtotal.toLocaleString("en-IN")}
+                    ₹{orderData?.subTotal?.toLocaleString("en-IN")}
                   </span>
 
                 </div>
@@ -716,7 +692,7 @@ const AdminOrderDetailsPage = () => {
                   </span>
 
                   <span className="font-medium">
-                    ₹{order.shippingCharge.toLocaleString("en-IN")}
+                    ₹{orderData?.shippingCharges?.toLocaleString("en-IN")}
                   </span>
 
                 </div>
@@ -728,7 +704,7 @@ const AdminOrderDetailsPage = () => {
                   </span>
 
                   <span className="font-medium">
-                    ₹{order.gst.toLocaleString("en-IN")}
+                    ₹{orderData?.tax?.toLocaleString("en-IN")}
                   </span>
 
                 </div>
@@ -742,7 +718,7 @@ const AdminOrderDetailsPage = () => {
                     </span>
 
                     <span className="text-xl font-bold text-primary">
-                      ₹{order.totalAmount.toLocaleString("en-IN")}
+                      ₹{orderData?.totalAmount?.toLocaleString("en-IN")}
                     </span>
 
                   </div>
@@ -771,7 +747,7 @@ const AdminOrderDetailsPage = () => {
                   </p>
 
                   <p className="mt-1 break-all text-xs font-medium text-foreground">
-                    {order.payment.razorpayOrderId}
+                    {orderData?.payment?.razorpayOrderId}
                   </p>
 
                 </div>
@@ -783,7 +759,7 @@ const AdminOrderDetailsPage = () => {
                   </p>
 
                   <p className="mt-1 break-all text-xs font-medium text-foreground">
-                    {order.payment.razorpayPaymentId}
+                    {orderData?.payment?.razorpayPaymentId}
                   </p>
 
                 </div>

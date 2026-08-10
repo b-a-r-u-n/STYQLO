@@ -17,7 +17,16 @@ export const createOrder = createAsyncThunk("createOrder", async ({ products, in
     }
 })
 
-export const updateOrder = createAsyncThunk("updateOrder", async (_, {rejectWithValue}) => {})
+export const updateOrder = createAsyncThunk("updateOrder", async ({orderId, url}, {rejectWithValue}) => {
+    
+    try {
+        const response = await axios.put(`${import.meta.env.VITE_BASE_URL}/orders/admin/orders/update/${orderId}${url}`, {}, {withCredentials: true});       
+        
+        return response?.data?.data;
+    } catch (error) {
+        return rejectWithValue(error.response?.data?.message || error.message);
+    }
+})
 
 export const getUserOrders = createAsyncThunk("getUserOrders", async(_, {rejectWithValue}) => {
     try {
@@ -29,7 +38,7 @@ export const getUserOrders = createAsyncThunk("getUserOrders", async(_, {rejectW
     }
 })
 
-export const getOrderById = createAsyncThunk("getOrderById", async (orderId, {rejectWithValue}) => {
+export const getOrderById = createAsyncThunk("getOrderById", async (orderId, {rejectWithValue}) => {    
     try {
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders/${orderId}`, {withCredentials: true})
 
@@ -42,7 +51,7 @@ export const getOrderById = createAsyncThunk("getOrderById", async (orderId, {re
 export const getAllOrders = createAsyncThunk("getAllOrders", async (url, {rejectWithValue}) => {
     try {      
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders/admin/orders${url}`, {withCredentials: true});
-
+        
         return response?.data?.data;
     } catch (error) {
         return rejectWithValue(error.response?.data?.message || error.message);
@@ -83,6 +92,19 @@ const orderSlice = createSlice({
             
         })
 
+        //Update order
+        builder.addCase(updateOrder.pending, (state,_) => {
+            state.loading = true;
+        })
+        builder.addCase(updateOrder.fulfilled, (state, _) => {
+            state.loading = false;
+            state.success = true;
+        })
+        builder.addCase(updateOrder.rejected, (state, _) => {
+            state.loading = false;
+            state.success = false;
+        })
+
         //Get user orders
         builder.addCase(getUserOrders.pending, (state, _) => {
             state.loading = true;
@@ -105,7 +127,7 @@ const orderSlice = createSlice({
         builder.addCase(getOrderById.fulfilled, (state, action) => {
             state.loading = false;
             state.success = true;
-            state.orderData = action.payload;
+            state.orderData = action.payload;            
         })
         builder.addCase(getOrderById.rejected, (state, action) => {
             state.loading = false;

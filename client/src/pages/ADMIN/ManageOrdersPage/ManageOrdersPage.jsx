@@ -1,10 +1,10 @@
-import { CheckCircle2, ChevronRight, Clock3, CreditCard, Package, Search, ShoppingBag, User, XCircle, } from "lucide-react";
+import { Ban, CheckCircle2, ChevronRight, CircleX, Clock3, CreditCard, Package, Search, ShoppingBag, User, XCircle, } from "lucide-react";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllOrders } from "../../../features/orderSlice";
+import { getAllOrders, updateOrder } from "../../../features/orderSlice";
 
 const ManageOrdersPage = () => {
 
@@ -13,18 +13,18 @@ const ManageOrdersPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
       try {
         const url = "";
         const res = await dispatch(getAllOrders(url)).unwrap();
         // console.log(res);
 
       } catch (error) {
-        toast.error(error || "Failed to fetch orders");
+        toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
       }
     }
 
+  useEffect(() => {
     fetchData();
   }, [])
 
@@ -217,7 +217,7 @@ const ManageOrdersPage = () => {
 
       await dispatch(getAllOrders(url)).unwrap();
     } catch (error) {
-      toast.error(error || "Failed to fetch orders");
+      toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
     }
   }
 
@@ -225,7 +225,24 @@ const ManageOrdersPage = () => {
   // HANDLE ACCEPT AND REJECT BUTTON
   // ==================================================
 
-  const handleAcceptAndReject = async (orderId, string) => {}
+  const handleAcceptAndReject = async (orderId, string) => {
+    let url = "";
+    if (string === "accepted")
+      url = "?orderStatus=Confirmed";
+    else if (string === "rejected")
+      url = "?orderStatus=Rejected";
+
+    try {
+      const res = await dispatch(updateOrder({orderId, url})).unwrap();
+      fetchData();
+      // console.log(res);
+      
+      toast.success(`Order ${string} successfully`);
+    } catch (error) {
+      // console.error(error);
+      toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+    }
+  }
 
   // ==================================================
   // STATUS CONFIG
@@ -262,14 +279,18 @@ const ManageOrdersPage = () => {
         "border-green-200 bg-green-50 text-green-700",
     },
 
+    Rejected: {
+      icon: CircleX,
+      className: "border-rose-200 bg-rose-50 text-rose-700",
+    },
+
     Cancelled: {
-      icon: XCircle,
-      className:
-        "border-red-200 bg-red-50 text-red-700",
+      icon: Ban,
+      className: "border-red-200 bg-red-50 text-red-700",
     },
   };
 
-  if (loading && !allOrdersData?.length) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
         <div className="text-center">
@@ -384,6 +405,7 @@ const ManageOrdersPage = () => {
             "Shipped",
             "Delivered",
             "Cancelled",
+            "Rejected"
           ].map((filter) => (
 
             <button
@@ -563,10 +585,10 @@ const ManageOrdersPage = () => {
 
                                     {
                                       product.size && (
-                                      <span>
-                                        Size:{" "}
-                                        {product.size}
-                                      </span>)
+                                        <span>
+                                          Size:{" "}
+                                          {product.size}
+                                        </span>)
                                     }
 
                                   </div>

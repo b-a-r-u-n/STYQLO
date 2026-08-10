@@ -148,7 +148,7 @@ const OrdersPage = () => {
         const response = await dispatch(getUserOrders()).unwrap();
         setDisplayDatas(response);
       } catch (error) {
-        toast.error(error || "Failed to fetch orders");
+        toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
       }
     }
     fetchOrder();
@@ -230,7 +230,7 @@ const OrdersPage = () => {
             "Packed",
             "Shipped",
             "Delivered",
-            "Canceled"
+            "Cancelled"
           ].map((filter, index) => (
 
             <button
