@@ -91,6 +91,10 @@ const orderSchema = new mongoose.Schema(
         razorpayOrderId: {
             type: String,
             default: null
+        },
+        deliveredAt: {
+            type: Date,
+            default: null
         }
     },
     {

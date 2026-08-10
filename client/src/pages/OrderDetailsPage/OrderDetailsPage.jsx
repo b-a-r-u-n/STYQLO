@@ -1,62 +1,17 @@
 import { ArrowLeft, CheckCircle2, Clock3, CreditCard, MapPin, Package, RotateCcw, Truck, XCircle } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { getOrderById } from "../../features/orderSlice";
 import { useDispatch, useSelector } from "react-redux";
-
-const order = {
-  id: "STYQLO-1001",
-  createdAt: "08 Aug 2026",
-  deliveredAt: "08 Aug 2026T10:30:00",
-
-  status: "Delivered",
-  paymentStatus: "Paid",
-  paymentMethod: "Razorpay",
-
-  subtotal: 2299,
-  shipping: 100,
-  gst: 100,
-  total: 2499,
-
-  shippingAddress: {
-    name: "Barun Kumar",
-    phone: "+91 98765 43210",
-    address: "Main Road, Civil Township",
-    city: "Rourkela",
-    state: "Odisha",
-    pinCode: "769004",
-  },
-
-  items: [
-    {
-      id: 1,
-      name: "Premium Oversized T-Shirt",
-      size: "L",
-      quantity: 1,
-      price: 1499,
-      image:
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
-    },
-    {
-      id: 2,
-      name: "Classic Denim Jeans",
-      size: "32",
-      quantity: 1,
-      price: 800,
-      image:
-        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500",
-    },
-  ],
-};
-
+import { ReturnModal } from "../../components";
 
 // --------------------------------------------------
 // RETURN ELIGIBILITY
 // --------------------------------------------------
 
-const isReturnEligible = (order) => {
-  if (order.status !== "Delivered" || !order.deliveredAt) {
+const isReturnEligible = (orderData) => {
+  if (orderData?.orderStatus !== "Delivered" || !orderData?.deliveredAt) {
     return false;
   }
 
@@ -140,11 +95,13 @@ const OrderDetailsPage = () => {
       fetchData();
   }, [orderId])
 
-  console.log(orderData);
+  // console.log(orderData);
+
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
 
 
 
-  const returnEligible = isReturnEligible(order);
+  const returnEligible = isReturnEligible(orderData);
 
   if (loading || !orderData) {
     return (
@@ -327,7 +284,7 @@ const OrderDetailsPage = () => {
                     Delivered
                   </p>
 
-                  {order.deliveredAt && (
+                  {orderData.deliveredAt && (
 
                     <p className="mt-1 text-sm text-muted-foreground">
 
@@ -420,12 +377,16 @@ const OrderDetailsPage = () => {
 
                       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
 
-                        <span>
-                          Size: {product.size}
-                        </span>
+                        {
+                          product?.size && (
+                            <span>
+                              Size: {product?.size}
+                            </span>
+                          )
+                        }
 
                         <span>
-                          Qty: {product.quantity}
+                          Qty: {product?.quantity}
                         </span>
 
                       </div>
@@ -685,11 +646,9 @@ const OrderDetailsPage = () => {
 
 
                 <button
-                  onClick={() =>
-                    navigate(
-                      `/orders/${order.id}/return`
-                    )
-                  }
+                  onClick={() => {
+                    setReturnModalOpen(true)
+                  }}
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
                 >
 
@@ -708,6 +667,12 @@ const OrderDetailsPage = () => {
         </div>
 
       </div>
+
+      <ReturnModal
+        opened={returnModalOpen}
+        onClose={() => setReturnModalOpen(false)}
+        order={orderData}
+      />
 
     </main>
   );

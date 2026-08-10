@@ -12,5 +12,6 @@ import Navbar from "./Navbar/Navbar";
 import ProductCard from "./ProductCard/ProductCard";
 import ProductCarousel from "./ProductCarousel/ProductCarousel";
 import ProfileEditModal from "./ProfileEditModal/ProfileEditModal";
+import ReturnModal from "./ReturnModal/ReturnModal";
 
-export {Navbar, Footer, ProductCard, Card, Input, ProfileEditModal, AdminSidebar, AdminRedirect, Badge, Button, ProductCarousel, CartCard, FeatureStrip, BargainModal}
+export {Navbar, Footer, ProductCard, Card, Input, ProfileEditModal, AdminSidebar, AdminRedirect, Badge, Button, ProductCarousel, CartCard, FeatureStrip, BargainModal, ReturnModal}

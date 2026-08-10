@@ -237,7 +237,8 @@ const AdminReturnDetailsPage = () => {
 
           <button
             onClick={() =>
-              navigate("/admin/returns")
+              // navigate("/admin/returns")
+              navigate(-1)
             }
             className="mb-5 flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
           >
