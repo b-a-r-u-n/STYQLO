@@ -10,25 +10,27 @@ const returnSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
-        products: [
-            {
-                product: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "Product"
-                },
-                quantity: {
-                    type: Number,
-                    default: 1
-                },
-                price: {
-                    type: Number,
-                    required: true
-                },
-                size: {
-                    type: String,
-                }
+        products: {
+            product: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Product"
+            },
+            quantity: {
+                type: Number,
+                default: 1
+            },
+            price: {
+                type: Number,
+                required: true
+            },
+            size: {
+                type: String,
+            },
+            returnedQuantity: {
+                type: Number,
+                default: 0
             }
-        ],
+        },
         reason: {
             type: String,
             required: true
@@ -50,11 +52,21 @@ const returnSchema = new mongoose.Schema(
             type: Number,
             required: true
         },
+        tax: {
+            type:Number,
+        },
+        shippingCharges: {
+            type:Number
+        },
         requestedAt: {
             type: Date,
             default: Date.now
         },
         approvedAt: {
+            type: Date,
+            default: null
+        },
+        rejectedAt: {
             type: Date,
             default: null
         },

@@ -43,6 +43,7 @@ const ManageUsersPage = lazy(() => import("./pages/ADMIN/ManageUsersPage/ManageU
 const UpdateProductPage = lazy(() => import("./pages/ADMIN/UpdateProductPage/UpdateProductPage.jsx"))
 const PendingOrdersPage = lazy(() => import("./pages/ADMIN/PendingOrdersPage/PendingOrdersPage.jsx"))
 const ManageOrdersPage = lazy(() => import("./pages/ADMIN/ManageOrdersPage/ManageOrdersPage.jsx"));
+const ManageReturnsPage = lazy(() => import("./pages/ADMIN/ManageReturnsPage/ManageReturnsPage.jsx"));
 const AdminOrderDetailsPage = lazy(() => import("./pages/ADMIN/AdminOrderDetailsPage/AdminOrderDetailsPage.jsx"));
 const AdminReturnDetailsPage = lazy(() => import("./pages/ADMIN/AdminReturnDetailsPage/AdminReturnDetailsPage.jsx"));
 const PendingReturnsPage = lazy(() => import("./pages/ADMIN/PendingReturnsPage/PendingReturnsPage.jsx"))
@@ -109,6 +110,7 @@ const router = createBrowserRouter(
         <Route path="orders/:orderId" element={<AdminOrderDetailsPage />} />
 
         {/* Returns */}
+        <Route path="returns" element={<ManageReturnsPage />} />
         <Route path="returns/pending" element={<PendingReturnsPage />} />
         <Route path="returns/:returnId" element={<AdminReturnDetailsPage />} />
       </Route>

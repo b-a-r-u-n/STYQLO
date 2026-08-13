@@ -1,4 +1,4 @@
-import { Package, ChevronRight, Truck, CheckCircle2, Clock3, XCircle, RotateCcw, ShoppingBag, CreditCard } from "lucide-react";
+import { Package, ChevronRight, Truck, CheckCircle2, Clock3, XCircle, RotateCcw, ShoppingBag, CreditCard, CircleX, Ban } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -10,32 +10,47 @@ import toast from "react-hot-toast";
 // STATUS CONFIG
 // --------------------------------------------------
 
-const statusConfig = {
-  Delivered: {
-    icon: CheckCircle2,
-    className: "bg-green-50 text-green-700 border-green-100",
-  },
+  const statusConfig = {
+    Pending: {
+      icon: Clock3,
+      className:
+        "border-amber-200 bg-amber-50 text-amber-700",
+    },
 
-  Shipped: {
-    icon: Truck,
-    className: "bg-blue-50 text-blue-700 border-blue-100",
-  },
+    Confirmed: {
+      icon: CheckCircle2,
+      className:
+        "border-blue-200 bg-blue-50 text-blue-700",
+    },
 
-  Pending: {
-    icon: Clock3,
-    className: "bg-primary/10 text-primary border-primary/20",
-  },
+    Packed: {
+      icon: Package,
+      className:
+        "border-purple-200 bg-purple-50 text-purple-700",
+    },
 
-  Cancelled: {
-    icon: XCircle,
-    className: "bg-red-50 text-red-700 border-red-100",
-  },
+    Shipped: {
+      icon: Package,
+      className:
+        "border-indigo-200 bg-indigo-50 text-indigo-700",
+    },
 
-  Returned: {
-    icon: RotateCcw,
-    className: "bg-orange-50 text-orange-700 border-orange-100",
-  },
-};
+    Delivered: {
+      icon: CheckCircle2,
+      className:
+        "border-green-200 bg-green-50 text-green-700",
+    },
+
+    Rejected: {
+      icon: CircleX,
+      className: "border-rose-200 bg-rose-50 text-rose-700",
+    },
+
+    Cancelled: {
+      icon: Ban,
+      className: "border-red-200 bg-red-50 text-red-700",
+    },
+  };
 
 
 // --------------------------------------------------
@@ -84,6 +99,7 @@ const OrdersPage = () => {
   }, [])
 
   const [displayDatas, setDisplayDatas] = useState(orderDatas);
+  const [activeFilter, setActiveFilter] = useState("All Orders");
   // console.log(displayDatas);
   
 
@@ -97,6 +113,7 @@ const OrdersPage = () => {
   const handleReturnItem = () => { }
 
   const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
 
     if (filter === "All Orders") {
       setDisplayDatas(orderDatas)
@@ -159,21 +176,23 @@ const OrdersPage = () => {
             "Packed",
             "Shipped",
             "Delivered",
-            "Cancelled"
-          ].map((filter, index) => (
+            "Cancelled",
+            "Rejected"
+          ].map((filter) => 
 
-            <button
+            {            
+            return <button
               onClick={() => handleFilterChange(filter)}
               key={filter}
-              className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition-luxury ${index === 0
-                ? "bg-primary text-primary-foreground shadow-card"
+              className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition-luxury ${activeFilter === filter
+                ? "bg-primary text-primary-foreground shadow-soft"
                 : "border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary"
                 }`}
             >
               {filter}
-            </button>
+            </button>}
 
-          ))}
+          )}
 
         </div>
 
@@ -190,7 +209,12 @@ const OrdersPage = () => {
 
               const status = statusConfig[displayData?.orderStatus];
 
+              // console.log(status);
+              
+
               const StatusIcon = status?.icon || Package;
+
+              const statusClassName = status?.className;
 
               const returnEligible =
                 isReturnEligible(displayData);
@@ -249,9 +273,9 @@ const OrdersPage = () => {
 
 
                     {/* STATUS */}
-
+                          
                     <div
-                      className={`flex w-fit items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${displayData.className}`}
+                      className={`flex w-fit items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${statusClassName}`}
                     >
 
                       <StatusIcon size={15} />

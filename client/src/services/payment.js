@@ -1,7 +1,7 @@
 import axios from "axios"
 
-const createRazorpayOrder = async (orderId) => {
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/payments/create-order`, {orderId}, {withCredentials: true});
+const createRazorpayOrder = async (checkoutId) => {
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/payments/create-order`, {checkoutId}, {withCredentials: true});
 
     return response.data.data;
 }

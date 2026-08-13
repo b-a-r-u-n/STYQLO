@@ -1,56 +1,194 @@
+import mongoose from "mongoose";
 import { Order } from "../models/order.model.js";
+import { Return } from "../models/return.model.js";
 import { User } from "../models/user.model.js";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js";
 
 
+// const createOrder = asyncHandler(async (req, res) => {
+
+//     const { products, shippingAddress, subTotal, tax, shippingCharges, totalAmount } = req.body;
+
+//     // console.log(req.body);
+
+//     if (!products || !products.length)
+//         throw new apiError(400, "Products are required");
+
+//     if (!shippingAddress)
+//         throw new apiError(400, "Shipping address is required");
+
+//     if (!subTotal)
+//         throw new apiError(400, "Sub total is required");
+
+//     if (!tax)
+//         throw new apiError(400, "Tax is required");
+
+//     if (!shippingCharges && shippingCharges !== 0)
+//         throw new apiError(400, "Shipping charges are required");
+
+//     if (!totalAmount)
+//         throw new apiError(400, "Total amount is required");
+
+//     const order = await Order.create({
+//         user: req.user._id,
+//         products,
+//         shippingAddress,
+//         subTotal,
+//         tax,
+//         shippingCharges,
+//         totalAmount,
+//         orderStatus: "Pending",
+//         paymentStatus: "Pending"
+//     })
+
+//     if (!order)
+//         throw new apiError(500, "Order creation failed");
+
+//     const createdOrder = await Order.findById(order._id).select("-user -products -shippingAddress -subTotal -tax -shippingCharges -totalAmount -orderStatus -paymentStatus -createdAt -updatedAt -razorpayOrderId")
+
+//     res
+//         .status(200)
+//         .json(
+//             new apiResponse(200, "Order created successfully", createdOrder)
+//         )
+// })
+
 const createOrder = asyncHandler(async (req, res) => {
 
-    const { products, shippingAddress, subTotal, tax, shippingCharges, totalAmount } = req.body;
-
-    // console.log(req.body);
-
-    if(!products || !products.length)
-        throw new apiError(400, "Products are required");
-
-    if(!shippingAddress)
-        throw new apiError(400, "Shipping address is required");
-
-    if(!subTotal)
-        throw new apiError(400, "Sub total is required");
-
-    if(!tax)
-        throw new apiError(400, "Tax is required");
-
-    if(!shippingCharges)
-        throw new apiError(400, "Shipping charges are required");
-
-    if(!totalAmount)
-        throw new apiError(400, "Total amount is required");
-
-    const order = await Order.create({
-        user: req.user._id,
+    const {
         products,
         shippingAddress,
         subTotal,
         tax,
         shippingCharges,
-        totalAmount,
-        orderStatus: "Pending",
-        paymentStatus: "Pending"
-    })
+        totalAmount
+    } = req.body;
 
-    if (!order)
-        throw new apiError(500, "Order creation failed");
+    if (!products || !products.length)
+        throw new apiError(400, "Products are required");
 
-    const createdOrder = await Order.findById(order._id).select("-user -products -shippingAddress -subTotal -tax -shippingCharges -totalAmount -orderStatus -paymentStatus -createdAt -updatedAt -razorpayOrderId")
+    if (!shippingAddress)
+        throw new apiError(400, "Shipping address is required");
+
+    if (subTotal === undefined)
+        throw new apiError(400, "Sub total is required");
+
+    if (tax === undefined)
+        throw new apiError(400, "Tax is required");
+
+    if (shippingCharges === undefined)
+        throw new apiError(400, "Shipping charges are required");
+
+    if (totalAmount === undefined)
+        throw new apiError(400, "Total amount is required");
+
+
+    // Generate one ID for this checkout
+    const orderGroupId = new mongoose.Types.ObjectId();
+
+    const createdOrders = [];
+
+    for (const item of products) {
+
+        const itemSubTotal = item.price * item.quantity;
+
+        // Calculate item's percentage of the total subtotal
+        const ratio = itemSubTotal / subTotal;
+
+        // Divide tax and shipping proportionally
+        const itemTax = tax * ratio;
+        const itemShippingCharges = shippingCharges * ratio;
+
+        const itemTotalAmount =
+            itemSubTotal +
+            itemTax +
+            itemShippingCharges;
+
+
+        const order = await Order.create({
+
+            user: req.user._id,
+
+            products: [
+                {
+                    product: item.product,
+                    quantity: item.quantity,
+                    price: item.price,
+                    size: item.size
+                }
+            ],
+
+            shippingAddress,
+
+            subTotal: itemSubTotal,
+
+            tax: itemTax,
+
+            shippingCharges: itemShippingCharges,
+
+            totalAmount: itemTotalAmount,
+
+            orderStatus: "Pending",
+
+            paymentStatus: "Pending",
+
+            orderGroupId
+        });
+
+
+        if (!order)
+            throw new apiError(500, "Order creation failed");
+
+
+        createdOrders.push(order);
+    }
+
+
+    const createdOrdersResponse = createdOrders.map(order => ({
+        _id: order._id,
+        products: order.products,
+        subTotal: order.subTotal,
+        tax: order.tax,
+        shippingCharges: order.shippingCharges,
+        totalAmount: order.totalAmount,
+        orderStatus: order.orderStatus,
+        paymentStatus: order.paymentStatus,
+        orderGroupId: order.orderGroupId
+    }));
+
 
     res
         .status(200)
         .json(
-            new apiResponse(200, "Order created successfully", createdOrder)
-        )
+            new apiResponse(
+                200,
+                "Orders created successfully",
+                createdOrdersResponse
+            )
+        );
+});
+
+const removeOrder = asyncHandler(async (req, res) => {
+    const {orderId} = req.params;
+
+    if(!orderId)
+        throw new apiError(400, "Order id is required");
+
+    const deletedOrder = await Order.findByIdAndDelete(orderId);
+
+    // console.log(deletedOrder);
+    
+    if(!deletedOrder)
+        throw new apiError(404, "Order not found");
+
+    res
+    .status(200)
+    .json(
+        new apiResponse(200, "Order deleted successfully")
+    )
+
 })
 
 const updateOrder = asyncHandler(async (req, res) => {
@@ -64,7 +202,7 @@ const updateOrder = asyncHandler(async (req, res) => {
 
     if (req.query?.orderStatus)
         filter.orderStatus = req.query?.orderStatus;
-    
+
 
     const order = await Order.findByIdAndUpdate(
         orderId,
@@ -115,7 +253,7 @@ const getOrderById = asyncHandler(async (req, res) => {
         throw new apiError(400, "Order id not found");
 
     const order = await Order.findById(orderId)
-        .select("-payment -razorpayOrderId")
+        .select("-razorpayOrderId")
         .populate("products.product")
         .populate({
             path: "payment",
@@ -125,9 +263,22 @@ const getOrderById = asyncHandler(async (req, res) => {
             path: "user",
             select: "-fullName -password -phoneNumber -address -isAdmin -refreshToken -_id -createdAt -updatedAt"
         })
+        .lean()
 
     if (!order)
         throw new apiError(404, "Order not found");
+
+    const returns = await Return.find({
+        order: order._id
+    })
+        .sort({createdAt: -1})
+        .populate({
+            path: "products.product",
+            select: "name images"
+        })
+        .lean();
+
+        order.returns = returns;
 
     res
         .status(200)
@@ -154,6 +305,8 @@ const getAllOrders = asyncHandler(async (req, res) => {
         filter.orderStatus = req.query?.orderStatus;
     if (req.query?.orderId)
         filter._id = req.query?.orderId;
+    if (req.query?._id)
+        filter._id = req.query?._id;    
 
     const orders = await Order.find(filter)
         .sort({ updatedAt: -1 })
@@ -178,4 +331,4 @@ const getAllOrders = asyncHandler(async (req, res) => {
         )
 })
 
-export { createOrder, getUserOrders, getOrderById, getAllOrders, updateOrder }
+export { createOrder, getUserOrders, getOrderById, getAllOrders, updateOrder, removeOrder }

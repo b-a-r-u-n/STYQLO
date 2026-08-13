@@ -2,7 +2,8 @@ import toast from "react-hot-toast"
 import { createRazorpayOrder, verifyRazorpayPayment } from "./payment";
 
 import { clearBuy, clearCart } from "../features/cartSlice";
-import { createOrder } from "../features/orderSlice";
+// import { createOrder, removeOrder } from "../features/orderSlice";
+import {createCheckout, removeCheckout} from "./checkout"
 
 export const loadScript = (src) => {
   return new Promise((resolve) => {
@@ -30,12 +31,12 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
       return;
     }
 
-    const orderData = await dispatch(createOrder({products, inputData, subTotal, shipping, orderTotal, gst})).unwrap();
+    const checkoutData = await createCheckout({products, inputData, subTotal, shipping, orderTotal, gst});
 
-    // console.log("orderData", orderData);
+    // console.log("checkoutData", checkoutData);
     
 
-    const razorpayOrderData = await createRazorpayOrder(orderData._id);
+    const razorpayOrderData = await createRazorpayOrder(checkoutData._id);
 
     // console.log("razorpayOrderData", razorpayOrderData);
 
@@ -54,12 +55,9 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
           })
+
           // console.log(verify);
-
-          console.log(verify);
           
-
-
           if (verify.success) {
             
             await dispatch(clearCart());
@@ -92,7 +90,11 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
       },
       "modal": {
         ondismiss() {
+          const callRemove = async () => {
+            await removeCheckout(checkoutData._id);
+          }
           setLoadingg(false);
+          callRemove();
           toast.error("Payment cancelled.");
         }
       },
@@ -105,9 +107,11 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
     };
     const paymentObject = new window.Razorpay(options);
 
-    paymentObject.on("payment.failed", function (response) {
+    paymentObject.on("payment.failed", async (response) =>  {
       setLoadingg(false);
 
+      // const res = 
+      
       toast.error(response.error.description);
 
       console.error(response.error);

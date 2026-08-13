@@ -1,244 +1,204 @@
-import {
-  Check,
-  ChevronRight,
-  Clock3,
-  Package,
-  RotateCcw,
-  Search,
-  User,
-  X,
-} from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Check, ChevronRight, Clock3, MapPin, Package, Phone, RefreshCcw, ShoppingBag, X } from "lucide-react";
+
+import { useEffect } from "react";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
+import { getAllReturns, updateReturn, } from "../../../features/returnSlice";
+
 
 const PendingReturnsPage = () => {
+
+  const {loading,returnDatas} = useSelector((state) => state.return);
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState("");
+  // console.log(returnDatas);
+  
 
-  const [returns, setReturns] = useState([
-    {
-      _id: "RET-1001",
-
-      order: {
-        _id: "STYQLO-1001",
-      },
-
-      user: {
-        name: "Rahul Kumar",
-        email: "rahul@example.com",
-      },
-
-      product: {
-        _id: "product001",
-        name: "Premium Oversized T-Shirt",
-        image:
-          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
-      },
-
-      quantity: 1,
-      size: "L",
-
-      reason: "Size doesn't fit",
-
-      description:
-        "The product is good but the size is slightly larger than expected.",
-
-      refundAmount: 1499,
-
-      status: "Pending",
-
-      requestedAt: "09 Aug 2026, 03:20 PM",
-    },
-
-    {
-      _id: "RET-1002",
-
-      order: {
-        _id: "STYQLO-1005",
-      },
-
-      user: {
-        name: "Ananya Singh",
-        email: "ananya@example.com",
-      },
-
-      product: {
-        _id: "product002",
-        name: "Minimal Summer Dress",
-        image:
-          "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400",
-      },
-
-      quantity: 1,
-      size: "M",
-
-      reason: "Product damaged",
-
-      description:
-        "The product arrived with a damaged area near the sleeve.",
-
-      refundAmount: 2899,
-
-      status: "Pending",
-
-      requestedAt: "08 Aug 2026, 11:10 AM",
-    },
-
-    {
-      _id: "RET-1003",
-
-      order: {
-        _id: "STYQLO-1007",
-      },
-
-      user: {
-        name: "Amit Kumar",
-        email: "amit@example.com",
-      },
-
-      product: {
-        _id: "product003",
-        name: "Classic Denim Jeans",
-        image:
-          "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400",
-      },
-
-      quantity: 1,
-      size: "32",
-
-      reason: "Wrong size received",
-
-      description:
-        "I ordered size 32 but received size 34.",
-
-      refundAmount: 1799,
-
-      status: "Pending",
-
-      requestedAt: "08 Aug 2026, 09:45 AM",
-    },
-  ]);
-
-  const [actionLoading, setActionLoading] = useState(null);
 
   // ==================================================
-  // SEARCH
+  // FETCH PENDING RETURNS
   // ==================================================
 
-  const filteredReturns = returns.filter((returnItem) => {
-    const value = search.toLowerCase().trim();
+  const fetchData = async () => {
 
-    if (!value) return true;
+    try {
+
+      const url =
+        "?returnStatus=Pending";
+
+      await dispatch(
+        getAllReturns(url)
+      ).unwrap();
+
+    } catch (error) {
+
+      toast.error(
+        error?.message ||
+        error?.data?.message ||
+        "Failed to fetch returns"
+      );
+
+    }
+
+  };
+
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+
+  // ==================================================
+  // APPROVE / REJECT RETURN
+  // ==================================================
+
+  const handleAcceptAndReject = async (
+    returnId,
+    action
+  ) => {
+
+    let url = "";
+
+    if (action === "approved") {
+
+      url =
+        "?returnStatus=Approved";
+
+    } else if (action === "rejected") {
+
+      url =
+        "?returnStatus=Rejected";
+
+    }
+
+
+    try {
+
+      await dispatch(
+        updateReturn({
+          returnId,
+          url
+        })
+      ).unwrap();
+
+
+      await fetchData();
+
+
+      toast.success(
+        `Return ${action} successfully`
+      );
+
+    } catch (error) {
+
+      toast.error(
+        error?.message ||
+        error?.data?.message ||
+        "Failed to update return"
+      );
+
+    }
+
+  };
+
+
+  // ==================================================
+  // LOADING
+  // ==================================================
+
+  if (loading) {
 
     return (
-      returnItem._id.toLowerCase().includes(value) ||
-      returnItem.order._id.toLowerCase().includes(value) ||
-      returnItem.user.name.toLowerCase().includes(value) ||
-      returnItem.user.email.toLowerCase().includes(value) ||
-      returnItem.product.name.toLowerCase().includes(value) ||
-      returnItem.reason.toLowerCase().includes(value)
+
+      <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
+
+        <div className="text-center">
+
+          <div className="spinner-luxury mx-auto mb-4" />
+
+          <p className="text-sm text-[#9B7B75] font-medium">
+            Loading...
+          </p>
+
+        </div>
+
+      </div>
+
     );
-  });
+
+  }
+
 
   // ==================================================
-  // APPROVE
+  // PAGE
   // ==================================================
-
-  const handleApprove = (returnId) => {
-    try {
-      setActionLoading(returnId);
-
-      setTimeout(() => {
-        setReturns((prev) =>
-          prev.filter((item) => item._id !== returnId)
-        );
-
-        setActionLoading(null);
-
-        toast.success("Return request approved.");
-      }, 500);
-    } catch (error) {
-      console.error(error);
-
-      setActionLoading(null);
-
-      toast.error("Failed to approve return request.");
-    }
-  };
-
-  // ==================================================
-  // REJECT
-  // ==================================================
-
-  const handleReject = (returnId) => {
-    try {
-      setActionLoading(returnId);
-
-      setTimeout(() => {
-        setReturns((prev) =>
-          prev.filter((item) => item._id !== returnId)
-        );
-
-        setActionLoading(null);
-
-        toast.success("Return request rejected.");
-      }, 500);
-    } catch (error) {
-      console.error(error);
-
-      setActionLoading(null);
-
-      toast.error("Failed to reject return request.");
-    }
-  };
 
   return (
+
     <main className="min-h-screen bg-luxury px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-[1600px]">
+
+      <div className="mx-auto max-w-7xl">
+
 
         {/* ==================================================
-            HEADER
-        ================================================== */}
+                    HEADER
+                ================================================== */}
 
-        <div className="mb-7">
+        <div className="mb-8">
 
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+
 
             <div>
+
               <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
                 STYQLO ADMIN
               </p>
+
 
               <h1 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">
                 Pending Returns
               </h1>
 
+
               <p className="mt-2 text-sm text-muted-foreground">
-                Review customer return requests that need your attention.
+                Review and manage customer return requests.
               </p>
+
             </div>
 
-            {/* PENDING COUNT */}
 
-            <div className="flex w-fit items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3">
+            {/* COUNT */}
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
+            <div className="flex w-fit items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-5 py-3">
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+
                 <Clock3
                   size={20}
-                  className="text-amber-700"
+                  className="text-primary"
                 />
+
               </div>
 
+
               <div>
-                <p className="text-xs text-amber-700/70">
-                  Pending Returns
+
+                <p className="text-xs text-muted-foreground">
+                  Pending
                 </p>
 
-                <p className="text-xl font-bold text-amber-700">
-                  {returns.length}
+
+                <p className="text-xl font-bold text-foreground">
+
+                  {returnDatas?.length || 0}
+
                 </p>
+
               </div>
 
             </div>
@@ -247,346 +207,615 @@ const PendingReturnsPage = () => {
 
         </div>
 
-        {/* ==================================================
-            SEARCH
-        ================================================== */}
-
-        <div className="mb-6">
-
-          <div className="relative w-full max-w-xl">
-
-            <Search
-              size={19}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
-            />
-
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search return ID, order ID, customer or product..."
-              className="w-full rounded-2xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/10"
-            />
-
-          </div>
-
-        </div>
 
         {/* ==================================================
-            RETURN LIST
-        ================================================== */}
+                    RETURNS
+                ================================================== */}
 
-        {filteredReturns.length > 0 ? (
+        {returnDatas?.length > 0 ? (
 
-          <div className="space-y-5">
+          <div className="space-y-6">
 
-            {filteredReturns.map((returnItem) => {
 
-              const isProcessing =
-                actionLoading === returnItem._id;
+            {returnDatas.map(
+              (returnData) => {
 
-              return (
-                <article
-                  key={returnItem._id}
-                  className="card-luxury overflow-hidden"
-                >
+                /*
+                 * Your API returns products as an object:
+                 *
+                 * products: {
+                 *     product: {...},
+                 *     quantity: 3,
+                 *     returnedQuantity: 3,
+                 *     price: 499,
+                 *     size: null
+                 * }
+                 *
+                 * This converts it to an array
+                 * so the UI can use .map().
+                 */
 
-                  {/* ==================================================
-                      HEADER
-                  ================================================== */}
+                const returnedProducts =
+                  Array.isArray(
+                    returnData?.products
+                  )
+                    ? returnData.products
+                    : returnData?.products
+                      ? [
+                        returnData.products
+                      ]
+                      : [];
 
-                  <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
 
-                    <div>
+                return (
 
-                      <div className="flex flex-wrap items-center gap-3">
+                  <article
+                    key={
+                      returnData._id
+                    }
+                    className="card-luxury overflow-hidden"
+                  >
 
-                        <h2 className="font-bold text-foreground">
-                          #{returnItem._id}
-                        </h2>
 
-                        <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                    {/* ==================================
+                                            RETURN HEADER
+                                        ================================== */}
 
-                          <Clock3 size={13} />
+                    <div className="flex flex-col gap-4 border-b border-border bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
 
-                          Pending
+                      <div>
 
-                        </span>
+                        <div className="flex flex-wrap items-center gap-3">
 
-                      </div>
 
-                      <p className="mt-1 text-xs text-muted-foreground">
+                          <h2 className="text-lg font-bold text-foreground">
 
-                        Order #{returnItem.order._id}
+                            #
+                            {
+                              returnData._id
+                            }
 
-                        {" · "}
+                          </h2>
 
-                        {returnItem.requestedAt}
 
-                      </p>
+                          <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
 
-                    </div>
+                            <Clock3
+                              size={13}
+                            />
 
-                    {/* REFUND */}
+                            Pending
 
-                    <div className="sm:text-right">
-
-                      <p className="text-xs text-muted-foreground">
-                        Refund Amount
-                      </p>
-
-                      <p className="mt-1 text-xl font-bold text-foreground">
-
-                        ₹
-                        {returnItem.refundAmount.toLocaleString(
-                          "en-IN"
-                        )}
-
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  {/* ==================================================
-                      BODY
-                  ================================================== */}
-
-                  <div className="p-5 sm:p-6">
-
-                    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(280px,1.5fr)_minmax(160px,0.7fr)_minmax(180px,0.9fr)_auto] xl:items-center">
-
-                      {/* PRODUCT */}
-
-                      <div className="flex min-w-0 gap-4">
-
-                        <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-28 sm:w-28">
-
-                          <img
-                            src={returnItem.product.image}
-                            alt={returnItem.product.name}
-                            className="h-full w-full object-cover"
-                          />
+                          </span>
 
                         </div>
 
-                        <div className="min-w-0">
 
-                          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            Product
-                          </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
 
-                          <h3 className="mt-1 line-clamp-2 font-semibold text-foreground">
-                            {returnItem.product.name}
-                          </h3>
+                          Requested on{" "}
 
-                          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
+                          {new Date(
+                            returnData.requestedAt ||
+                            returnData.createdAt
+                          ).toLocaleString(
+                            "en-IN",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true
+                            }
+                          )}
 
-                            <span>
-                              Size: {returnItem.size}
-                            </span>
-
-                            <span>
-                              Qty: {returnItem.quantity}
-                            </span>
-
-                          </div>
-
-                          <p className="mt-2 font-semibold text-foreground">
-
-                            ₹
-                            {returnItem.refundAmount.toLocaleString(
-                              "en-IN"
-                            )}
-
-                          </p>
-
-                        </div>
+                        </p>
 
                       </div>
 
-                      {/* CUSTOMER */}
 
-                      <div className="min-w-0">
+                      {/* REFUND */}
 
-                        <div className="flex items-center gap-2">
+                      <div className="text-left sm:text-right">
 
-                          <User
-                            size={16}
+                        <p className="text-xs text-muted-foreground">
+                          Refund Amount
+                        </p>
+
+
+                        <p className="mt-1 text-xl font-bold text-foreground">
+
+                          ₹
+                          {Number(
+                            returnData?.refundAmount ||
+                            0
+                          ).toLocaleString(
+                            "en-IN"
+                          )}
+
+                        </p>
+
+                      </div>
+
+                    </div>
+
+
+                    {/* ==================================
+                                            RETURN CONTENT
+                                        ================================== */}
+
+                    <div className="grid lg:grid-cols-[minmax(0,1fr)_320px]">
+
+
+                      {/* =================================
+                                                LEFT - PRODUCT
+                                            ================================= */}
+
+                      <div className="p-5 sm:p-6">
+
+
+                        <div className="mb-5 flex items-center gap-2">
+
+                          <ShoppingBag
+                            size={18}
                             className="text-primary"
                           />
 
-                          <p className="text-xs text-muted-foreground">
-                            Customer
+                          <h3 className="font-bold text-foreground">
+                            Returned Items
+                          </h3>
+
+                        </div>
+
+
+                        <div className="space-y-4">
+
+
+                          {returnedProducts.map(
+                            (
+                              returnProduct
+                            ) => {
+
+                              const product =
+                                returnProduct?.product;
+
+
+                              return (
+
+                                <div
+                                  key={
+                                    returnProduct?._id ||
+                                    product?._id
+                                  }
+                                  className="flex gap-4 rounded-2xl border border-border bg-card p-3 sm:p-4"
+                                >
+
+
+                                  {/* IMAGE */}
+
+                                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-24">
+
+                                    {product?.images?.[0]?.url ? (
+
+                                      <img
+                                        src={
+                                          product.images[0].url
+                                        }
+                                        alt={
+                                          product?.name
+                                        }
+                                        className="h-full w-full object-cover"
+                                      />
+
+                                    ) : (
+
+                                      <div className="flex h-full w-full items-center justify-center">
+
+                                        <Package
+                                          size={
+                                            28
+                                          }
+                                          className="text-muted-foreground"
+                                        />
+
+                                      </div>
+
+                                    )}
+
+                                  </div>
+
+
+                                  {/* INFO */}
+
+                                  <div className="min-w-0 flex-1">
+
+                                    <h4 className="truncate font-semibold text-foreground">
+
+                                      {
+                                        product?.name
+                                      }
+
+                                    </h4>
+
+
+                                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+
+
+                                      {returnProduct?.size && (
+
+                                        <span>
+                                          Size:{" "}
+                                          {
+                                            returnProduct.size
+                                          }
+                                        </span>
+
+                                      )}
+
+
+                                      <span>
+                                        Qty:{" "}
+                                        {
+                                          returnProduct?.quantity
+                                        }
+                                      </span>
+
+
+                                      {/* <span>
+                                        Returned:{" "}
+                                        {
+                                          returnProduct?.returnedQuantity
+                                        }
+                                      </span> */}
+
+                                    </div>
+
+
+                                    <p className="mt-2 font-semibold text-foreground">
+
+                                      ₹
+                                      {Number(
+                                        returnProduct?.price ||
+                                        0
+                                      ).toLocaleString(
+                                        "en-IN"
+                                      )}
+
+                                    </p>
+
+                                  </div>
+
+                                </div>
+
+                              );
+
+                            }
+                          )}
+
+                        </div>
+
+
+                        {/* RETURN REASON */}
+
+                        <div className="mt-5 rounded-2xl border border-border bg-primary/5 p-4">
+
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Return Reason
+                          </p>
+
+
+                          <p className="mt-2 text-sm font-medium text-foreground">
+
+                            {
+                              returnData?.reason ||
+                              "No reason provided"
+                            }
+
                           </p>
 
                         </div>
 
-                        <p className="mt-1 truncate font-semibold text-foreground">
-                          {returnItem.user.name}
-                        </p>
 
-                        <p className="mt-1 truncate text-xs text-muted-foreground">
-                          {returnItem.user.email}
-                        </p>
+                        {/* DESCRIPTION */}
+
+                        {returnData?.description && (
+
+                          <div className="mt-4 rounded-2xl border border-border bg-card p-4">
+
+                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                              Description
+                            </p>
+
+
+                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+
+                              {
+                                returnData.description
+                              }
+
+                            </p>
+
+                          </div>
+
+                        )}
+
+
+                        {/* REFUND */}
+
+                        <div className="mt-5 flex flex-wrap gap-3">
+
+                          <div className="rounded-xl bg-green-50 px-4 py-2 text-xs font-semibold text-green-700">
+
+                            Refund: ₹
+                            {Number(
+                              returnData?.refundAmount ||
+                              0
+                            ).toLocaleString(
+                              "en-IN"
+                            )}
+
+                          </div>
+
+
+                          <div className="rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary">
+
+                            Refund Status:{" "}
+
+                            {
+                              returnData?.refundStatus ||
+                              "NotStarted"
+                            }
+
+                          </div>
+
+                        </div>
 
                       </div>
 
-                      {/* REASON */}
 
-                      <div className="min-w-0">
+                      {/* =================================
+                                                RIGHT - CUSTOMER
+                                            ================================= */}
 
-                        <p className="text-xs text-muted-foreground">
-                          Return Reason
-                        </p>
+                      <div className="border-t border-border bg-primary/5 p-5 sm:p-6 lg:border-l lg:border-t-0">
 
-                        <p className="mt-1 font-semibold text-foreground">
-                          {returnItem.reason}
-                        </p>
 
-                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
-                          {returnItem.description}
-                        </p>
+                        {/* CUSTOMER */}
 
-                      </div>
+                        <div>
 
-                      {/* ACTIONS */}
+                          <h3 className="font-bold text-foreground">
+                            Customer
+                          </h3>
 
-                      <div className="flex flex-col gap-2 sm:flex-row xl:flex-col">
 
-                        {/* APPROVE */}
+                          <div className="mt-4">
 
-                        <button
-                          disabled={isProcessing}
-                          onClick={() =>
-                            handleApprove(returnItem._id)
-                          }
-                          className="flex min-w-[110px] items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover disabled:cursor-not-allowed disabled:opacity-60"
-                        >
 
-                          <Check size={17} />
+                            <p className="font-semibold text-foreground">
 
-                          {isProcessing
-                            ? "Processing..."
-                            : "Approve"}
+                              {
+                                returnData?.user?.fullName ||
+                                returnData?.order?.shippingAddress?.fullName ||
+                                "Customer"
+                              }
 
-                        </button>
+                            </p>
 
-                        {/* REJECT */}
 
-                        <button
-                          disabled={isProcessing}
-                          onClick={() =>
-                            handleReject(returnItem._id)
-                          }
-                          className="flex min-w-[110px] items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-luxury hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
+                            <p className="mt-2 text-sm text-muted-foreground">
 
-                          <X size={17} />
+                              {
+                                returnData?.user?.email ||
+                                "No email"
+                              }
 
-                          Reject
+                            </p>
 
-                        </button>
 
-                        {/* DETAILS */}
+                            {returnData?.order?.shippingAddress?.phoneNumber && (
 
-                        <button
-                          disabled={isProcessing}
-                          onClick={() =>
-                            navigate(
-                              `/admin/returns/${returnItem._id}`
-                            )
-                          }
-                          className="flex min-w-[110px] items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
-                        >
+                              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
 
-                          Details
+                                <Phone
+                                  size={15}
+                                />
 
-                          <ChevronRight size={16} />
+                                {
+                                  returnData.order.shippingAddress.phoneNumber
+                                }
 
-                        </button>
+                              </div>
+
+                            )}
+
+                          </div>
+
+                        </div>
+
+
+                        {/* ADDRESS */}
+
+                        {returnData?.order?.shippingAddress && (
+
+                          <div className="mt-6 border-t border-border pt-5">
+
+                            <div className="flex items-center gap-2">
+
+                              <MapPin
+                                size={17}
+                                className="text-primary"
+                              />
+
+                              <h3 className="font-bold text-foreground">
+                                Delivery Address
+                              </h3>
+
+                            </div>
+
+
+                            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+
+                              {
+                                returnData.order.shippingAddress.streetAddress
+                              }
+
+                              <br />
+
+                              {
+                                returnData.order.shippingAddress.city
+                              }
+                              ,{" "}
+
+                              {
+                                returnData.order.shippingAddress.state
+                              }
+
+                              <br />
+
+                              PIN:{" "}
+
+                              {
+                                returnData.order.shippingAddress.pinCode
+                              }
+
+                            </p>
+
+                          </div>
+
+                        )}
+
+
+                        {/* RETURN ACTIONS */}
+
+                        <div className="mt-6 border-t border-border pt-5">
+
+                          <p className="mb-3 text-xs text-muted-foreground">
+                            Return Action
+                          </p>
+
+
+                          <div className="flex flex-col gap-3">
+
+
+                            {/* ACCEPT */}
+
+                            <button
+                              onClick={() =>
+                                handleAcceptAndReject(
+                                  returnData?._id,
+                                  "approved"
+                                )
+                              }
+                              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+                            >
+
+                              <Check
+                                size={18}
+                              />
+
+                              Accept Return
+
+                            </button>
+
+
+                            {/* REJECT */}
+
+                            <button
+                              onClick={() =>
+                                handleAcceptAndReject(
+                                  returnData?._id,
+                                  "rejected"
+                                )
+                              }
+                              className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3.5 font-semibold text-red-600 transition-luxury hover:bg-red-100"
+                            >
+
+                              <X
+                                size={18}
+                              />
+
+                              Reject Return
+
+                            </button>
+
+
+                            {/* DETAILS */}
+
+                            <button
+                              onClick={() =>
+                                navigate(
+                                  `/admin/returns/${returnData._id}`
+                                )
+                              }
+                              className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary"
+                            >
+
+                              View Details
+
+                              <ChevronRight
+                                size={16}
+                              />
+
+                            </button>
+
+                          </div>
+
+                        </div>
 
                       </div>
 
                     </div>
 
-                    {/* CUSTOMER MESSAGE */}
+                  </article>
 
-                    <div className="mt-5 rounded-2xl border border-border bg-primary/5 p-4">
+                );
 
-                      <div className="flex items-center gap-2">
-
-                        <Package
-                          size={16}
-                          className="text-primary"
-                        />
-
-                        <p className="text-xs font-semibold text-foreground">
-                          Customer Message
-                        </p>
-
-                      </div>
-
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        {returnItem.description}
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                </article>
-              );
-            })}
+              }
+            )}
 
           </div>
 
         ) : (
 
+
           /* ==================================================
-             EMPTY
+             EMPTY STATE
           ================================================== */
 
-          <div className="card-luxury flex min-h-[450px] flex-col items-center justify-center px-6 py-20 text-center">
+          <div className="card-luxury flex flex-col items-center justify-center px-6 py-24 text-center">
 
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
 
-              <RotateCcw
-                size={38}
+              <Package
+                size={40}
                 className="text-primary"
               />
 
             </div>
 
+
             <h2 className="mt-6 text-2xl font-bold text-foreground">
               No Pending Returns
             </h2>
 
+
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-
-              {search
-                ? "No pending returns match your search."
-                : "There are currently no return requests waiting for approval."}
-
+              You're all caught up. New customer return requests will appear here.
             </p>
 
-            {search && (
-
-              <button
-                onClick={() => setSearch("")}
-                className="mt-6 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
-              >
-                Clear Search
-              </button>
-
-            )}
-
           </div>
+
         )}
 
       </div>
+
     </main>
+
   );
+
 };
+
 
 export default PendingReturnsPage;

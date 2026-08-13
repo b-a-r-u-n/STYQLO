@@ -8,7 +8,8 @@ import {
   Undo2,
   ClipboardList,
   Clock3,
-  Box
+  Box,
+  PackageOpen
 } from "lucide-react";
 import { Button } from "../Button/Button";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,6 +42,7 @@ function Navbar() {
     { path: '/admin/users', label: 'Manage Users', icon: Users },
     { path: '/admin/orders', label: 'All Orders', icon: ClipboardList },
     { path: '/admin/orders/pending', label: 'Pending Orders', icon: Clock3 },
+    { path: '/admin/returns', label: 'All Returns', icon: PackageOpen  },
     { path: '/admin/returns/pending', label: 'Pending Returns', icon: Undo2 },
   ];
 
@@ -252,8 +254,8 @@ function Navbar() {
                   {
                     !user.isAdmin && (
                       <NavLink
-                        onClick={() => setShowUserMenu(false)}
-                        to={"/orders"}
+                      to={"/orders"}
+                      onClick={() => setMobileOpen(!mobileOpen)}
                         className={({ isActive }) =>
                           `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${isActive
                             ? 'bg-[#F1DBD5]/60 text-[#2C1810] font-semibold'

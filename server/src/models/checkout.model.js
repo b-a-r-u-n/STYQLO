@@ -1,33 +1,27 @@
 import mongoose from "mongoose";
 
-const orderSchema = new mongoose.Schema(
+const checkOutSchema = new mongoose.Schema(
     {
         user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true
+            ref: "User"
         },
         products: [
             {
                 product: {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: "Product",
-                    required: true
+                    ref: "Product"
                 },
                 quantity: {
                     type: Number,
                     default: 1
                 },
+                size: {
+                    type: String
+                },
                 price: {
                     type: Number,
                     required: true
-                },
-                size: {
-                    type: String,
-                    // required: true
-                },
-                returnedQuantity: {
-                    type: Number
                 }
             }
         ],
@@ -57,6 +51,10 @@ const orderSchema = new mongoose.Schema(
                 required: true
             }
         },
+        totalAmount: {
+            type: Number,
+            required: true
+        },
         subTotal: {
             type: Number,
             required: true
@@ -69,44 +67,22 @@ const orderSchema = new mongoose.Schema(
             type: Number,
             default: 0
         },
-        totalAmount: {
-            type: Number,
-            required: true
-        },
-        orderStatus: {
-            type: String,
-            enum: ["Pending", "Confirmed", "Packed", "Shipped", "Delivered", "Cancelled", "Rejected"],
-            default: "Pending"
-        },
-        paymentStatus: {
-            type: String,
-            enum: ["Pending", "Paid", "Failed", "Refunded"],
-            default: "Pending"
-        },
-        payment: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Payment"
-        },
-        refundPayment: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Payment"
-        },
         razorpayOrderId: {
             type: String,
             default: null
         },
-        deliveredAt: {
-            type: Date,
-            default: null
-        },
-        orderGroupId: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true
+        status: {
+            type: String,
+            enum: [
+                "Pending",
+                "Paid",
+                "Failed",
+                "Expired"
+            ],
+            default: "Pending"
         }
     },
-    {
-        timestamps: true
-    }
+    {timestamps: true}
 )
 
-export const Order = mongoose.model("Order", orderSchema);
+export const Checkout = mongoose.model("Checkout", checkOutSchema)

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrders, updateOrder } from "../../../features/orderSlice";
+import { Button } from "../../../components";
 
 const ManageOrdersPage = () => {
 
@@ -14,189 +15,19 @@ const ManageOrdersPage = () => {
   const dispatch = useDispatch();
 
   const fetchData = async () => {
-      try {
-        const url = "";
-        const res = await dispatch(getAllOrders(url)).unwrap();
-        // console.log(res);
+    try {
+      const url = "";
+      const res = await dispatch(getAllOrders(url)).unwrap();
+      // console.log(res);
 
-      } catch (error) {
-        toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
-      }
+    } catch (error) {
+      toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
     }
+  }
 
   useEffect(() => {
     fetchData();
   }, [])
-
-  const [orders, setOrders] = useState([
-    {
-      id: "STYQLO-1001",
-      date: "09 Aug 2026, 02:30 PM",
-
-      status: "Pending",
-
-      paymentStatus: "Paid",
-      paymentMethod: "Razorpay",
-
-      totalAmount: 3499,
-
-      customer: {
-        name: "Rahul Kumar",
-        email: "rahul@example.com",
-        phone: "+91 9876543210",
-      },
-
-      products: [
-        {
-          id: "P001",
-          name: "Premium Oversized T-Shirt",
-          image:
-            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
-          quantity: 2,
-          size: "L",
-          price: 1499,
-        },
-        {
-          id: "P002",
-          name: "Classic Cotton Shirt",
-          image:
-            "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500",
-          quantity: 1,
-          size: "M",
-          price: 999,
-        },
-      ],
-    },
-
-    {
-      id: "STYQLO-1002",
-      date: "08 Aug 2026, 11:45 AM",
-
-      status: "Confirmed",
-
-      paymentStatus: "Paid",
-      paymentMethod: "Razorpay",
-
-      totalAmount: 2899,
-
-      customer: {
-        name: "Ananya Singh",
-        email: "ananya@example.com",
-        phone: "+91 9123456789",
-      },
-
-      products: [
-        {
-          id: "P003",
-          name: "Minimal Summer Dress",
-          image:
-            "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=500",
-          quantity: 1,
-          size: "M",
-          price: 2899,
-        },
-      ],
-    },
-
-    {
-      id: "STYQLO-1003",
-      date: "07 Aug 2026, 04:20 PM",
-
-      status: "Shipped",
-
-      paymentStatus: "Paid",
-      paymentMethod: "Razorpay",
-
-      totalAmount: 4599,
-
-      customer: {
-        name: "Amit Kumar",
-        email: "amit@example.com",
-        phone: "+91 9988776655",
-      },
-
-      products: [
-        {
-          id: "P004",
-          name: "Classic Denim Jeans",
-          image:
-            "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500",
-          quantity: 1,
-          size: "32",
-          price: 1999,
-        },
-        {
-          id: "P005",
-          name: "Oversized Hoodie",
-          image:
-            "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500",
-          quantity: 1,
-          size: "XL",
-          price: 2600,
-        },
-      ],
-    },
-
-    {
-      id: "STYQLO-1004",
-      date: "06 Aug 2026, 09:10 AM",
-
-      status: "Delivered",
-
-      paymentStatus: "Paid",
-      paymentMethod: "Razorpay",
-
-      totalAmount: 2199,
-
-      customer: {
-        name: "Priya Sharma",
-        email: "priya@example.com",
-        phone: "+91 9871234567",
-      },
-
-      products: [
-        {
-          id: "P006",
-          name: "Women's Casual Top",
-          image:
-            "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=500",
-          quantity: 1,
-          size: "S",
-          price: 2199,
-        },
-      ],
-    },
-
-    {
-      id: "STYQLO-1005",
-      date: "05 Aug 2026, 01:15 PM",
-
-      status: "Cancelled",
-
-      paymentStatus: "Refunded",
-      paymentMethod: "Razorpay",
-
-      totalAmount: 1799,
-
-      customer: {
-        name: "Vikash Das",
-        email: "vikash@example.com",
-        phone: "+91 9090909090",
-      },
-
-      products: [
-        {
-          id: "P007",
-          name: "Regular Fit Jeans",
-          image:
-            "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500",
-          quantity: 1,
-          size: "34",
-          price: 1799,
-        },
-      ],
-    },
-  ]);
 
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
@@ -233,15 +64,32 @@ const ManageOrdersPage = () => {
       url = "?orderStatus=Rejected";
 
     try {
-      const res = await dispatch(updateOrder({orderId, url})).unwrap();
+      const res = await dispatch(updateOrder({ orderId, url })).unwrap();
       fetchData();
       // console.log(res);
-      
+
       toast.success(`Order ${string} successfully`);
     } catch (error) {
       // console.error(error);
       toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
     }
+  }
+
+  // ==================================================
+  // HANDLE SEARCH BUTTON
+  // ==================================================
+
+  const handleSearch = async () => {
+    if(!search)
+      return toast.error("Please enter a search term");
+
+    try {
+      await dispatch(getAllOrders(`?_id=${search}`)).unwrap();
+    } catch (error) {
+      toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+    }
+
+    setSearch("");
   }
 
   // ==================================================
@@ -367,7 +215,7 @@ const ManageOrdersPage = () => {
             SEARCH
         ================================================== */}
 
-        <div className="mb-5">
+        <div className="mb-5 flex gap-4 items-center">
 
           <div className="relative w-full max-w-xl">
 
@@ -386,6 +234,24 @@ const ManageOrdersPage = () => {
               className="w-full rounded-2xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/10"
             />
 
+          </div>
+
+          <div
+            rounded-2xl
+          >
+            <button
+              onClick={handleSearch}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+            >
+
+              <Search size={18} />
+              <span
+                className="hidden md:block"
+              >
+                Search
+              </span>
+
+            </button>
           </div>
 
         </div>

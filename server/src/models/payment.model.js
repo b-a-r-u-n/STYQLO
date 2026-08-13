@@ -6,9 +6,10 @@ const paymentSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
-        order: {
+        checkout: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Order"
+            ref: "Checkout",
+            required: true
         },
         razorpayPaymentId: {
             type: String,

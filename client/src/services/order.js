@@ -1,6 +1,4 @@
 import axios from "axios"
-
-
 // const createOrder = async (products, inputData, subTotal, shipping, orderTotal, gst) => {
 //     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/orders/`, {
 //         products, shippingAddress: inputData, 

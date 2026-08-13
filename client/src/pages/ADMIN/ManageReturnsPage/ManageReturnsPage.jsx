@@ -1,306 +1,232 @@
-import {
-  Check,
-  CheckCircle2,
-  ChevronRight,
-  Clock3,
-  Package,
-  RotateCcw,
-  Search,
-  X,
-  XCircle,
-} from "lucide-react";
-import { useMemo, useState } from "react";
+import { Ban, CheckCircle2, ChevronRight, CircleX, Clock3, CreditCard, Package, RefreshCcw, Search, ShoppingBag, User, XCircle } from "lucide-react";
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 
-const initialReturns = [
-  {
-    id: "RET-1001",
-    orderId: "STYQLO-1001",
-    customer: {
-      name: "Rahul Kumar",
-      email: "rahul@example.com",
-    },
-    product: {
-      name: "Premium Oversized T-Shirt",
-      size: "L",
-      quantity: 1,
-      price: 1499,
-      image:
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300",
-    },
-    reason: "Size doesn't fit",
-    description:
-      "The product is good but the size is slightly larger than expected.",
-    requestedAt: "09 Aug 2026, 03:20 PM",
-    status: "Pending",
-  },
-
-  {
-    id: "RET-1002",
-    orderId: "STYQLO-1005",
-    customer: {
-      name: "Ananya Singh",
-      email: "ananya@example.com",
-    },
-    product: {
-      name: "Minimal Summer Dress",
-      size: "M",
-      quantity: 1,
-      price: 2899,
-      image:
-        "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=300",
-    },
-    reason: "Product damaged",
-    description:
-      "The product arrived with a small damaged area.",
-    requestedAt: "07 Aug 2026, 11:10 AM",
-    status: "Approved",
-  },
-
-  {
-    id: "RET-1003",
-    orderId: "STYQLO-0998",
-    customer: {
-      name: "Priya Sharma",
-      email: "priya@example.com",
-    },
-    product: {
-      name: "Relaxed Fit Hoodie",
-      size: "M",
-      quantity: 1,
-      price: 1799,
-      image:
-        "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=300",
-    },
-    reason: "Wrong product received",
-    description:
-      "The product received was different from the product ordered.",
-    requestedAt: "05 Aug 2026, 02:30 PM",
-    status: "Rejected",
-  },
-
-  {
-    id: "RET-1004",
-    orderId: "STYQLO-0990",
-    customer: {
-      name: "Amit Kumar",
-      email: "amit@example.com",
-    },
-    product: {
-      name: "Classic Denim Jeans",
-      size: "32",
-      quantity: 1,
-      price: 1200,
-      image:
-        "https://images.unsplash.com/photo-1542272604-787c3835535d?w=300",
-    },
-    reason: "Size doesn't fit",
-    description:
-      "Requested return because the selected size does not fit.",
-    requestedAt: "01 Aug 2026, 01:15 PM",
-    status: "Completed",
-  },
-];
-
-
-// --------------------------------------------------
-// STATUS CONFIG
-// --------------------------------------------------
-
-const statusConfig = {
-  Pending: {
-    icon: Clock3,
-    className:
-      "border-amber-200 bg-amber-50 text-amber-700",
-  },
-
-  Approved: {
-    icon: CheckCircle2,
-    className:
-      "border-blue-200 bg-blue-50 text-blue-700",
-  },
-
-  Rejected: {
-    icon: XCircle,
-    className:
-      "border-red-200 bg-red-50 text-red-700",
-  },
-
-  Completed: {
-    icon: CheckCircle2,
-    className:
-      "border-green-200 bg-green-50 text-green-700",
-  },
-};
-
-
-// --------------------------------------------------
-// PAGE
-// --------------------------------------------------
+import { getAllReturns, updateReturn } from "../../../features/returnSlice";
 
 const ManageReturnsPage = () => {
-  const navigate = useNavigate();
 
-  const [returns, setReturns] =
-    useState(initialReturns);
+  const { loading, returnDatas } = useSelector((state) => state.return);
+
+  // console.log(returnDatas);
+  
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+
+  // ==================================================
+  // FETCH RETURNS
+  // ==================================================
+
+  const fetchData = async () => {
+    try {
+
+      const url = "";
+
+      await dispatch(
+        getAllReturns(url)
+      ).unwrap();
+
+    } catch (error) {
+
+      toast.error(
+        error?.message ||
+        error?.data?.message ||
+        "Failed to fetch returns"
+      );
+
+    }
+  };
+
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+
+  // ==================================================
+  // SEARCH
+  // ==================================================
+
+  const [search, setSearch] = useState("");
 
   const [activeFilter, setActiveFilter] =
     useState("All");
 
-  const [search, setSearch] = useState("");
 
+  // ==================================================
+  // HANDLE FILTER
+  // ==================================================
 
-  // ------------------------------------------------
-  // COUNTS
-  // ------------------------------------------------
+  const handleFilter = async (filter) => {
 
-  const counts = useMemo(() => {
-    return {
-      All: returns.length,
+    setActiveFilter(filter);
 
-      Pending: returns.filter(
-        (item) => item.status === "Pending"
-      ).length,
-
-      Approved: returns.filter(
-        (item) => item.status === "Approved"
-      ).length,
-
-      Rejected: returns.filter(
-        (item) => item.status === "Rejected"
-      ).length,
-
-      Completed: returns.filter(
-        (item) => item.status === "Completed"
-      ).length,
-    };
-  }, [returns]);
-
-
-  // ------------------------------------------------
-  // FILTER
-  // ------------------------------------------------
-
-  const filteredReturns = useMemo(() => {
-    return returns.filter((item) => {
-
-      const searchValue =
-        search.toLowerCase().trim();
-
-      const matchesStatus =
-        activeFilter === "All" ||
-        item.status === activeFilter;
-
-      const matchesSearch =
-        !searchValue ||
-        item.id
-          .toLowerCase()
-          .includes(searchValue) ||
-        item.orderId
-          .toLowerCase()
-          .includes(searchValue) ||
-        item.customer.name
-          .toLowerCase()
-          .includes(searchValue) ||
-        item.customer.email
-          .toLowerCase()
-          .includes(searchValue) ||
-        item.product.name
-          .toLowerCase()
-          .includes(searchValue);
-
-      return matchesStatus && matchesSearch;
-    });
-  }, [returns, activeFilter, search]);
-
-
-  // ------------------------------------------------
-  // APPROVE
-  // ------------------------------------------------
-
-  const handleApprove = async (returnId) => {
     try {
+      let url;
+      if (filter === "All") {
+        url = "";
+      } else {
+        url = "?returnStatus=" + filter;
+      }
 
-      // Replace with API call
-      // await approveReturn(returnId);
-
-      setReturns((prev) =>
-        prev.map((item) =>
-          item.id === returnId
-            ? {
-                ...item,
-                status: "Approved",
-              }
-            : item
-        )
-      );
-
-      toast.success("Return request approved");
+      await dispatch(getAllReturns(url)).unwrap();
 
     } catch (error) {
 
-      console.error(error);
-
       toast.error(
-        "Failed to approve return"
+        error?.message ||
+        error?.data?.message ||
+        "Failed to fetch returns"
       );
+
     }
   };
 
 
-  // ------------------------------------------------
-  // REJECT
-  // ------------------------------------------------
+  // ==================================================
+  // HANDLE APPROVE / REJECT
+  // ==================================================
 
-  const handleReject = async (returnId) => {
+  const handleApproveReject = async (returnId, action) => {
+
+    let url = "";
+
+    if (action === "approved") {
+      url = "?returnStatus=Approved&approvedAt";
+
+    } else if (action === "rejected") {
+      url = "?returnStatus=Rejected&rejectedAt=Date.now()";
+    }
+
     try {
+      await dispatch(updateReturn({ returnId, url })).unwrap();
 
-      // Replace with API call
-      // await rejectReturn(returnId);
+      await fetchData();
 
-      setReturns((prev) =>
-        prev.map((item) =>
-          item.id === returnId
-            ? {
-                ...item,
-                status: "Rejected",
-              }
-            : item
-        )
-      );
-
-      toast.success("Return request rejected");
+      toast.success(`Return ${action} successfully`);
 
     } catch (error) {
 
-      console.error(error);
+      toast.error(error?.message || error?.data?.message || "Failed to update return");
 
-      toast.error(
-        "Failed to reject return"
-      );
     }
   };
 
 
-  const filters = [
-    "All",
-    "Pending",
-    "Approved",
-    "Rejected",
-    "Completed",
-  ];
+  // ==================================================
+  // HANDLE SEARCH
+  // ==================================================
 
+  const handleSearch = async () => {
+
+    if (!search) {
+      return toast.error("Please enter a search term");
+    }
+
+    try {
+      const res = await dispatch(getAllReturns(`?_id=${search}`)).unwrap();
+
+      // console.log("res", res);  
+
+    } catch (error) {
+
+      toast.error(error?.message || error?.data?.message || "Failed to search returns"
+      );
+
+    }
+
+    setSearch("");
+  };
+
+
+  // ==================================================
+  // STATUS CONFIG
+  // ==================================================
+
+  const statusConfig = {
+
+    Pending: {
+      icon: Clock3,
+      className:
+        "border-amber-200 bg-amber-50 text-amber-700"
+    },
+
+    Approved: {
+      icon: CheckCircle2,
+      className:
+        "border-blue-200 bg-blue-50 text-blue-700"
+    },
+
+    Rejected: {
+      icon: CircleX,
+      className:
+        "border-rose-200 bg-rose-50 text-rose-700"
+    },
+
+    Received: {
+      icon: Package,
+      className:
+        "border-blue-200 bg-blue-50 text-blue-700"
+    },
+
+    Refunded: {
+      icon: RefreshCcw,
+      className:
+        "border-purple-200 bg-purple-50 text-purple-700"
+    },
+
+    Completed: {
+      icon: CheckCircle2,
+      className:
+        "border-green-200 bg-green-50 text-green-700"
+    }
+
+  };
+
+
+  // ==================================================
+  // LOADING
+  // ==================================================
+
+  if (loading) {
+
+    return (
+      <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
+
+        <div className="text-center">
+
+          <div className="spinner-luxury mx-auto mb-4" />
+
+          <p className="text-sm text-[#9B7B75] font-medium">
+            Loading...
+          </p>
+
+        </div>
+
+      </div>
+    );
+  }
+
+
+  // ==================================================
+  // PAGE
+  // ==================================================
 
   return (
+
     <main className="min-h-screen bg-luxury px-4 py-6 sm:px-6 lg:px-8">
 
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto w-full max-w-[1600px]">
 
 
-        {/* ========================================== */}
-        {/* HEADER */}
-        {/* ========================================== */}
+        {/* ==================================================
+            HEADER
+            ================================================== */}
 
         <div className="mb-7">
 
@@ -313,37 +239,37 @@ const ManageReturnsPage = () => {
               </p>
 
               <h1 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">
-                Return Requests
+                Manage Returns
               </h1>
 
               <p className="mt-2 text-sm text-muted-foreground">
-                Review and manage customer return requests.
+                Manage and review all customer return requests.
               </p>
 
             </div>
 
 
-            {/* PENDING COUNT */}
+            {/* RETURN COUNT */}
 
-            <div className="flex w-fit items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3">
+            <div className="flex w-fit items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-5 py-3">
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
 
-                <Clock3
+                <RefreshCcw
                   size={20}
-                  className="text-amber-700"
+                  className="text-primary"
                 />
 
               </div>
 
               <div>
 
-                <p className="text-xs text-amber-700/70">
-                  Pending Returns
+                <p className="text-xs text-muted-foreground">
+                  Total Returns
                 </p>
 
-                <p className="text-xl font-bold text-amber-700">
-                  {counts.Pending}
+                <p className="text-xl font-bold text-foreground">
+                  {returnDatas?.length || 0}
                 </p>
 
               </div>
@@ -355,13 +281,13 @@ const ManageReturnsPage = () => {
         </div>
 
 
-        {/* ========================================== */}
-        {/* SEARCH */}
-        {/* ========================================== */}
+        {/* ==================================================
+                    SEARCH
+                ================================================== */}
 
-        <div className="mb-5">
+        <div className="mb-5 flex gap-4 items-center">
 
-          <div className="relative max-w-xl">
+          <div className="relative w-full max-w-xl">
 
             <Search
               size={19}
@@ -374,360 +300,704 @@ const ManageReturnsPage = () => {
               onChange={(e) =>
                 setSearch(e.target.value)
               }
-              placeholder="Search return ID, order ID, customer or product..."
+              placeholder="Search return..."
               className="w-full rounded-2xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/10"
             />
 
           </div>
 
+
+          <button
+            onClick={handleSearch}
+            className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+          >
+
+            <Search size={18} />
+
+            <span className="hidden md:block">
+              Search
+            </span>
+
+          </button>
+
         </div>
 
 
-        {/* ========================================== */}
-        {/* FILTERS */}
-        {/* ========================================== */}
+        {/* ==================================================
+                    FILTERS
+                ================================================== */}
 
-        <div className="mb-6 overflow-x-auto pb-2">
+        <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
 
-          <div className="flex min-w-max gap-2">
+          {[
+            "All",
+            "Pending",
+            "Approved",
+            "Rejected",
+            "Received",
+            "Refunded",
+            "Completed"
+          ].map((filter) => (
 
-            {filters.map((filter) => (
-
-              <button
-                key={filter}
-                onClick={() =>
-                  setActiveFilter(filter)
-                }
-                className={`rounded-full px-4 py-2.5 text-sm font-semibold transition-luxury ${
-                  activeFilter === filter
-                    ? "bg-primary text-primary-foreground shadow-card"
-                    : "border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary"
+            <button
+              key={filter}
+              onClick={() =>
+                handleFilter(filter)
+              }
+              className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-semibold transition-luxury ${activeFilter === filter
+                ? "bg-primary text-primary-foreground shadow-soft"
+                : "border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary"
                 }`}
-              >
+            >
+              {filter}
+            </button>
 
-                {filter}
-
-                <span
-                  className={`ml-2 rounded-full px-1.5 py-0.5 text-xs ${
-                    activeFilter === filter
-                      ? "bg-white/20"
-                      : "bg-primary/10 text-primary"
-                  }`}
-                >
-                  {counts[filter]}
-                </span>
-
-              </button>
-
-            ))}
-
-          </div>
+          ))}
 
         </div>
 
 
-        {/* ========================================== */}
-        {/* RETURNS */}
-        {/* ========================================== */}
+        {/* ==================================================
+                    RETURNS
+                ================================================== */}
 
-        {filteredReturns.length > 0 ? (
+        {returnDatas?.length > 0 ? (
 
-          <div className="space-y-5">
+          <div className="space-y-6">
 
-            {filteredReturns.map((returnItem) => {
+            {returnDatas.map(
+              (returnItem) => {
 
-              const config =
-                statusConfig[
-                  returnItem.status
-                ];
-
-              const StatusIcon =
-                config.icon;
-
-              return (
-
-                <article
-                  key={returnItem.id}
-                  className="card-luxury overflow-hidden"
-                >
-
-                  {/* -------------------------------- */}
-                  {/* HEADER */}
-                  {/* -------------------------------- */}
-
-                  <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-
-                    <div>
-
-                      <div className="flex flex-wrap items-center gap-3">
-
-                        <h2 className="font-bold text-foreground">
-                          #{returnItem.id}
-                        </h2>
-
-                        <span
-                          className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${config.className}`}
-                        >
-
-                          <StatusIcon size={13} />
-
-                          {returnItem.status}
-
-                        </span>
-
-                      </div>
-
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Order #{returnItem.orderId}
-                        {" · "}
-                        {returnItem.requestedAt}
-                      </p>
-
-                    </div>
+                const config =
+                  statusConfig[
+                  returnItem.returnStatus
+                  ] || statusConfig.Pending;
 
 
-                    <div className="sm:text-right">
-
-                      <p className="text-xs text-muted-foreground">
-                        Refund Amount
-                      </p>
-
-                      <p className="mt-1 text-xl font-bold text-foreground">
-                        ₹{returnItem.product.price.toLocaleString("en-IN")}
-                      </p>
-
-                    </div>
-
-                  </div>
+                const StatusIcon =
+                  config.icon;
 
 
-                  {/* -------------------------------- */}
-                  {/* BODY */}
-                  {/* -------------------------------- */}
-
-                  <div className="p-5 sm:p-6">
-
-                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
-
-
-                      {/* PRODUCT */}
-
-                      <div className="flex min-w-0 flex-1 gap-4">
-
-                        <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted">
-
-                          <img
-                            src={returnItem.product.image}
-                            alt={returnItem.product.name}
-                            className="h-full w-full object-cover"
-                          />
-
-                        </div>
+                const returnedProducts =
+                  Array.isArray(
+                    returnItem.products
+                  )
+                    ? returnItem.products
+                    : returnItem.products
+                      ? [
+                        returnItem.products
+                      ]
+                      : [];
 
 
-                        <div className="min-w-0">
+                const totalItems =
+                  returnedProducts.reduce(
+                    (
+                      total,
+                      product
+                    ) =>
+                      total +
+                      Number(
+                        product?.quantity ||
+                        0
+                      ),
+                    0
+                  );
 
-                          <h3 className="font-semibold text-foreground">
-                            {returnItem.product.name}
-                          </h3>
 
-                          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                return (
 
-                            <span>
-                              Size:{" "}
-                              {returnItem.product.size}
-                            </span>
+                  <article
+                    key={
+                      returnItem._id
+                    }
+                    className="card-luxury overflow-hidden"
+                  >
 
-                            <span>
-                              Qty:{" "}
-                              {returnItem.product.quantity}
+
+                    {/* ======================================
+                                            RETURN HEADER
+                                        ====================================== */}
+
+                    <div className="border-b border-border px-5 py-5 sm:px-6 lg:px-7">
+
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+
+                        <div>
+
+                          <div className="flex flex-wrap items-center gap-3">
+
+                            <h2 className="text-lg font-bold text-foreground">
+
+                              Return #
+                              {
+                                returnItem._id
+                              }
+
+                            </h2>
+
+
+                            <span
+                              className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${config.className}`}
+                            >
+
+                              <StatusIcon
+                                size={13}
+                              />
+
+                              {
+                                returnItem.returnStatus
+                              }
+
                             </span>
 
                           </div>
 
-                          <p className="mt-2 text-sm font-semibold text-foreground">
+
+                          <p className="mt-1.5 text-xs text-muted-foreground">
+
+                            Requested on{" "}
+
+                            {new Date(
+                              returnItem.requestedAt ||
+                              returnItem.createdAt
+                            ).toLocaleString(
+                              "en-IN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true
+                              }
+                            )}
+
+                          </p>
+
+                        </div>
+
+
+                        {/* REFUND */}
+
+                        <div className="sm:text-right">
+
+                          <p className="text-xs text-muted-foreground">
+                            Refund Amount
+                          </p>
+
+                          <p className="mt-1 text-2xl font-bold text-foreground">
+
                             ₹
-                            {returnItem.product.price.toLocaleString(
+                            {Number(
+                              returnItem.refundAmount ||
+                              0
+                            ).toLocaleString(
                               "en-IN"
                             )}
+
                           </p>
 
                         </div>
 
                       </div>
 
-
-                      {/* CUSTOMER */}
-
-                      <div className="lg:min-w-[190px]">
-
-                        <p className="text-xs text-muted-foreground">
-                          Customer
-                        </p>
-
-                        <p className="mt-1 font-semibold text-foreground">
-                          {returnItem.customer.name}
-                        </p>
-
-                        <p className="mt-1 truncate text-xs text-muted-foreground">
-                          {returnItem.customer.email}
-                        </p>
-
-                      </div>
+                    </div>
 
 
-                      {/* REASON */}
+                    {/* ======================================
+                                            RETURN CONTENT
+                                        ====================================== */}
 
-                      <div className="lg:min-w-[190px]">
+                    <div className="p-5 sm:p-6 lg:p-7">
 
-                        <p className="text-xs text-muted-foreground">
-                          Return Reason
-                        </p>
-
-                        <p className="mt-1 font-semibold text-foreground">
-                          {returnItem.reason}
-                        </p>
-
-                      </div>
+                      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 2xl:grid-cols-4">
 
 
-                      {/* ACTIONS */}
+                        {/* ==================================
+                                                    PRODUCTS
+                                                ================================== */}
 
-                      <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
+                        <div className="rounded-2xl border border-border p-5">
 
-                        {returnItem.status ===
-                          "Pending" && (
+                          <div className="mb-4 flex items-center justify-between">
 
-                          <>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                              Returned Products
+                            </p>
+
+                            <span className="text-xs font-medium text-muted-foreground">
+
+                              {totalItems}{" "}
+
+                              {totalItems ===
+                                1
+                                ? "item"
+                                : "items"}
+
+                            </span>
+
+                          </div>
+
+
+                          <div className="space-y-3">
+
+                            {returnedProducts
+                              .slice(0, 2)
+                              .map(
+                                (
+                                  returnProduct
+                                ) => {
+
+                                  const product = returnProduct?.product;
+
+                                  return (
+
+                                    <div
+                                      key={
+                                        returnProduct?.product?._id
+                                      }
+                                      className="flex gap-3 rounded-xl bg-primary/5 p-3"
+                                    >
+
+
+                                      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted">
+
+                                        {product?.images?.[0]?.url ? (
+
+                                          <img
+                                            src={
+                                              product.images[0].url
+                                            }
+                                            alt={
+                                              product.name
+                                            }
+                                            className="h-full w-full object-cover"
+                                          />
+
+                                        ) : (
+
+                                          <div className="flex h-full w-full items-center justify-center">
+
+                                            <Package
+                                              size={
+                                                24
+                                              }
+                                              className="text-muted-foreground"
+                                            />
+
+                                          </div>
+
+                                        )}
+
+                                      </div>
+
+
+                                      <div className="min-w-0 flex-1">
+
+                                        <h3 className="line-clamp-2 text-sm font-semibold text-foreground">
+
+                                          {
+                                            product?.name ||
+                                            "Product"
+                                          }
+
+                                        </h3>
+
+
+                                        <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+
+                                          <span>
+                                            Qty:{" "}
+                                            {
+                                              returnProduct.quantity
+                                            }
+                                          </span>
+
+
+                                          {returnProduct.size && (
+
+                                            <span>
+                                              Size:{" "}
+                                              {
+                                                returnProduct.size
+                                              }
+                                            </span>
+
+                                          )}
+
+                                        </div>
+
+
+                                        <p className="mt-1.5 text-sm font-semibold text-foreground">
+
+                                          ₹
+                                          {Number(
+                                            returnProduct.price ||
+                                            0
+                                          ).toLocaleString(
+                                            "en-IN"
+                                          )}
+
+                                        </p>
+
+                                      </div>
+
+                                    </div>
+
+                                  );
+
+                                }
+                              )}
+
+
+                            {returnedProducts.length >
+                              2 && (
+
+                                <div className="rounded-xl border border-dashed border-border px-3 py-2.5 text-center text-xs font-medium text-muted-foreground">
+
+                                  +
+                                  {returnedProducts.length -
+                                    2}{" "}
+                                  more products
+
+                                </div>
+
+                              )}
+
+                          </div>
+
+                        </div>
+
+
+                        {/* ==================================
+                                                    CUSTOMER
+                                                ================================== */}
+
+                        <div className="rounded-2xl border border-border p-5">
+
+                          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Customer
+                          </p>
+
+
+                          <div className="flex items-center gap-3">
+
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10">
+
+                              <User
+                                size={19}
+                                className="text-primary"
+                              />
+
+                            </div>
+
+
+                            <div className="min-w-0">
+
+                              <p className="truncate font-semibold text-foreground">
+
+                                {
+                                  returnItem
+                                    ?.order
+                                    ?.shippingAddress
+                                    ?.fullName ||
+                                  "Customer"
+                                }
+
+                              </p>
+
+                              <p className="truncate text-xs text-muted-foreground">
+                                Customer
+                              </p>
+
+                            </div>
+
+                          </div>
+
+
+                          <div className="mt-5 space-y-4">
+
+                            <div>
+
+                              <p className="text-xs text-muted-foreground">
+                                Email
+                              </p>
+
+                              <p className="mt-1 truncate text-sm font-medium text-foreground">
+
+                                {
+                                  returnItem
+                                    ?.user
+                                    ?.email ||
+                                  "N/A"
+                                }
+
+                              </p>
+
+                            </div>
+
+
+                            <div>
+
+                              <p className="text-xs text-muted-foreground">
+                                Reason
+                              </p>
+
+                              <p className="mt-1 text-sm font-medium text-foreground">
+
+                                {
+                                  returnItem.reason ||
+                                  "N/A"
+                                }
+
+                              </p>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+
+
+                        {/* ==================================
+                                                    REFUND
+                                                ================================== */}
+
+                        <div className="rounded-2xl border border-border p-5">
+
+                          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Refund
+                          </p>
+
+
+                          <div className="flex items-center gap-2">
+
+                            <CreditCard
+                              size={18}
+                              className="text-primary"
+                            />
+
+                            <span className="font-semibold text-foreground">
+
+                              ₹
+                              {Number(
+                                returnItem.refundAmount ||
+                                0
+                              ).toLocaleString(
+                                "en-IN"
+                              )}
+
+                            </span>
+
+                          </div>
+
+
+                          <div className="mt-5">
+
+                            <p className="text-xs text-muted-foreground">
+                              Refund Status
+                            </p>
+
+                            <p
+                              className={`mt-2 font-semibold ${returnItem.refundStatus ===
+                                "Completed"
+                                ? "text-green-600"
+                                : returnItem.refundStatus ===
+                                  "Failed"
+                                  ? "text-red-600"
+                                  : "text-amber-600"
+                                }`}
+                            >
+
+                              {
+                                returnItem.refundStatus ||
+                                "NotStarted"
+                              }
+
+                            </p>
+
+                          </div>
+
+
+                          <div className="mt-5 border-t border-border pt-4">
+
+                            <p className="text-xs text-muted-foreground">
+                              Return Quantity
+                            </p>
+
+                            <p className="mt-1 text-lg font-bold text-foreground">
+
+                              {totalItems}
+
+                            </p>
+
+                          </div>
+
+                        </div>
+
+
+                        {/* ==================================
+                                                    ACTIONS
+                                                ================================== */}
+
+                        <div className="rounded-2xl border border-border p-5">
+
+                          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Actions
+                          </p>
+
+
+                          <div className="flex flex-col gap-2">
+
+
+                            {/* APPROVE / REJECT */}
+
+                            {returnItem.returnStatus ===
+                              "Pending" && (
+
+                                <>
+
+                                  <button
+                                    onClick={() =>
+                                      handleApproveReject(
+                                        returnItem._id,
+                                        "approved"
+                                      )
+                                    }
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+                                  >
+
+                                    <CheckCircle2
+                                      size={
+                                        17
+                                      }
+                                    />
+
+                                    Approve Return
+
+                                  </button>
+
+
+                                  <button
+                                    onClick={() =>
+                                      handleApproveReject(
+                                        returnItem._id,
+                                        "rejected"
+                                      )
+                                    }
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-luxury hover:bg-red-100"
+                                  >
+
+                                    <XCircle
+                                      size={
+                                        17
+                                      }
+                                    />
+
+                                    Reject Return
+
+                                  </button>
+
+                                </>
+
+                              )}
+
+
+                            {/* VIEW DETAILS */}
 
                             <button
                               onClick={() =>
-                                handleApprove(
-                                  returnItem.id
+                                navigate(
+                                  `/admin/returns/${returnItem._id}`
                                 )
                               }
-                              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+                              className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary"
                             >
 
-                              <Check size={17} />
+                              View Details
 
-                              Approve
+                              <ChevronRight
+                                size={16}
+                              />
 
                             </button>
 
-                            <button
-                              onClick={() =>
-                                handleReject(
-                                  returnItem.id
-                                )
-                              }
-                              className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-luxury hover:bg-red-100"
-                            >
+                          </div>
 
-                              <X size={17} />
-
-                              Reject
-
-                            </button>
-
-                          </>
-
-                        )}
-
-
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/admin/returns/${returnItem.id}`
-                            )
-                          }
-                          className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary"
-                        >
-
-                          Details
-
-                          <ChevronRight
-                            size={16}
-                          />
-
-                        </button>
+                        </div>
 
                       </div>
 
                     </div>
 
+                  </article>
 
-                    {/* DESCRIPTION */}
+                );
 
-                    {returnItem.description && (
-
-                      <div className="mt-5 rounded-xl border border-border bg-primary/5 p-4">
-
-                        <p className="text-xs font-semibold text-foreground">
-                          Customer Message
-                        </p>
-
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                          {returnItem.description}
-                        </p>
-
-                      </div>
-
-                    )}
-
-                  </div>
-
-                </article>
-
-              );
-
-            })}
+              }
+            )}
 
           </div>
 
         ) : (
 
-          /* ======================================== */
-          /* EMPTY */
-          /* ======================================== */
+          /* ==========================================
+             EMPTY
+          ========================================== */
 
-          <div className="card-luxury flex flex-col items-center justify-center px-6 py-24 text-center">
+          <div className="card-luxury flex min-h-[450px] flex-col items-center justify-center px-6 py-20 text-center">
 
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
 
-              <RotateCcw
+              <RefreshCcw
                 size={38}
                 className="text-primary"
               />
 
             </div>
 
+
             <h2 className="mt-6 text-2xl font-bold text-foreground">
-              No Return Requests
+              No Returns Found
             </h2>
+
 
             <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
 
               {search
-                ? "No return requests match your search."
-                : `There are no ${activeFilter.toLowerCase()} return requests.`}
+                ? "No returns match your search."
+                : `There are no ${activeFilter.toLowerCase()} returns.`}
 
             </p>
+
 
             {(search ||
               activeFilter !== "All") && (
 
-              <button
-                onClick={() => {
-                  setSearch("");
-                  setActiveFilter("All");
-                }}
-                className="mt-6 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
-              >
-                View All Returns
-              </button>
+                <button
+                  onClick={() => {
 
-            )}
+                    setSearch("");
+
+                    setActiveFilter(
+                      "All"
+                    );
+
+                    handleFilter(
+                      "All"
+                    );
+
+                  }}
+                  className="mt-6 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+                >
+
+                  View All Returns
+
+                </button>
+
+              )}
 
           </div>
 
@@ -738,5 +1008,6 @@ const ManageReturnsPage = () => {
     </main>
   );
 };
+
 
 export default ManageReturnsPage;

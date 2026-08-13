@@ -1,4 +1,4 @@
-import { ClipboardList, Clock3, LayoutDashboard, Package, Plus, Sparkles, SparklesIcon, Undo2, Users, WandSparkles } from 'lucide-react';
+import { ClipboardList, Clock3, LayoutDashboard, Package, PackageOpen, Plus, Sparkles, SparklesIcon, Undo2, Users, WandSparkles } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -12,6 +12,7 @@ const AdminSidebar = () => {
     { path: '/admin/users', label: 'Manage Users', icon: Users },
     { path: '/admin/orders', label: 'All Orders', icon: ClipboardList },
     { path: '/admin/orders/pending', label: 'Pending Orders', icon: Clock3 },
+    { path: '/admin/returns', label: 'All Returns', icon: PackageOpen  },
     { path: '/admin/returns/pending', label: 'Pending Returns', icon: Undo2 },
   ];
 

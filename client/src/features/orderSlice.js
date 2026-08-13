@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const createOrder = createAsyncThunk("createOrder", async ({ products, inputData, subTotal, shipping, orderTotal, gst }, { rejectWithValue }) => {
     
-    try {
+    try {        
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/orders/`, {
             products, shippingAddress: inputData,
             subTotal, shippingCharges: shipping,
@@ -53,6 +53,16 @@ export const getAllOrders = createAsyncThunk("getAllOrders", async (url, {reject
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/orders/admin/orders${url}`, {withCredentials: true});
         
         return response?.data?.data;
+    } catch (error) {
+        return rejectWithValue(error.response?.data?.message || error.message);
+    }
+})
+
+export const removeOrder = createAsyncThunk("removeOrder", async (orderId, {rejectWithValue}) => {
+    try {
+        const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}/orders/${orderId}`, {withCredentials: true})
+
+        return response.data.data;
     } catch (error) {
         return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -146,6 +156,18 @@ const orderSlice = createSlice({
         builder.addCase(getAllOrders.rejected, (state, _) => {
             state.loading = false;
             state.success = false;
+        })
+
+        // Remove order 
+        builder.addCase(removeOrder.pending, (state, _) => {
+            state.loading = true;
+        })
+        builder.addCase(removeOrder.fulfilled, (state, action) => {
+            state.loading = true;
+            state.success = true;
+        })
+        builder.addCase(removeOrder.rejected, (state, action) => {
+            state.loading = false;
         })
     }
 })

@@ -7,75 +7,135 @@ import {
   MapPin,
   Package,
   Phone,
+  RefreshCcw,
   RotateCcw,
-  Truck,
   User,
   X,
   XCircle,
 } from "lucide-react";
+
 import { useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect } from "react";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+
+import {
+  getReturnById,
+  updateReturn,
+} from "../../../features/returnSlice";
+
 
 const AdminReturnDetailsPage = () => {
+
+  const {
+    loading,
+    returnData
+  } = useSelector(
+    (state) => state.return
+  );
+
   const navigate = useNavigate();
+
   const { returnId } = useParams();
 
-  // Replace this with API data
-  const [returnStatus, setReturnStatus] =
-    useState("Pending");
+  const dispatch = useDispatch();
 
-  const [refundStatus, setRefundStatus] =
-    useState("NotStarted");
 
-  const returnRequest = {
-    id: returnId || "RET-1001",
+  // ==================================================
+  // FETCH RETURN
+  // ==================================================
 
-    orderId: "STYQLO-1001",
+  const fetchData = async () => {
 
-    requestedAt: "09 Aug 2026, 03:20 PM",
+    try {
 
-    reason: "Size doesn't fit",
+      await dispatch(
+        getReturnById(returnId)
+      ).unwrap();
 
-    description:
-      "The product is good but the size is slightly larger than expected.",
+    } catch (error) {
 
-    customer: {
-      name: "Rahul Kumar",
-      email: "rahul@example.com",
-      phone: "+91 98765 43210",
-    },
+      toast.error(
+        error?.message ||
+        error?.data?.message ||
+        "Failed to fetch return"
+      );
 
-    shippingAddress: {
-      address: "Main Road, Civil Township",
-      city: "Rourkela",
-      state: "Odisha",
-      pinCode: "769004",
-    },
+    }
 
-    product: {
-      name: "Premium Oversized T-Shirt",
-      size: "L",
-      quantity: 1,
-      price: 1499,
-      image:
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
-    },
-
-    payment: {
-      method: "Razorpay",
-      status: "Paid",
-      razorpayOrderId: "order_RZP123456",
-      razorpayPaymentId: "pay_RZP123456",
-    },
-
-    refundAmount: 1499,
   };
 
 
-  // =================================================
-  // STATUS STEPS
-  // =================================================
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+
+  // ==================================================
+  // UPDATE RETURN STATUS
+  // ==================================================
+
+  const handleStatusChange = async (status) => {
+
+    let url = "";
+
+
+    if (status === "Approved") {
+
+      url = "?returnStatus=Approved";
+
+    } else if (status === "Rejected") {
+
+      url = "?returnStatus=Rejected";
+
+    } else if (status === "Received") {
+
+      url = "?returnStatus=Received";
+
+    } else if (status === "Refunded") {
+
+      url = "?returnStatus=Refunded";
+
+    } else if (status === "Completed") {
+
+      url = "?returnStatus=Completed";
+
+    }
+
+
+    try {
+
+      await dispatch(
+        updateReturn({
+          returnId,
+          url
+        })
+      ).unwrap();
+
+
+      await fetchData();
+
+
+      toast.success(
+        `Return marked as ${status}`
+      );
+
+    } catch (error) {
+
+      toast.error(
+        error?.message ||
+        error?.data?.message ||
+        "Failed to update return"
+      );
+
+    }
+
+  };
+
+
+  // ==================================================
+  // RETURN STATUS STEPS
+  // ==================================================
 
   const statusSteps = [
     {
@@ -92,7 +152,7 @@ const AdminReturnDetailsPage = () => {
     },
     {
       name: "Refunded",
-      icon: CreditCard,
+      icon: RefreshCcw,
     },
     {
       name: "Completed",
@@ -101,154 +161,122 @@ const AdminReturnDetailsPage = () => {
   ];
 
 
-  const currentIndex = statusSteps.findIndex(
-    (step) => step.name === returnStatus
-  );
+  const currentIndex =
+    statusSteps.findIndex(
+      (step) =>
+        step.name ===
+        returnData?.returnStatus
+    );
 
 
-  // =================================================
-  // APPROVE
-  // =================================================
+  // ==================================================
+  // LOADING
+  // ==================================================
 
-  const handleApprove = async () => {
-    try {
-      // await approveReturn(returnRequest.id);
+  if (loading) {
 
-      setReturnStatus("Approved");
+    return (
 
-      toast.success("Return request approved");
-    } catch (error) {
-      console.error(error);
+      <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
 
-      toast.error(
-        "Failed to approve return request"
-      );
-    }
-  };
+        <div className="text-center">
 
+          <div className="spinner-luxury mx-auto mb-4" />
 
-  // =================================================
-  // REJECT
-  // =================================================
+          <p className="text-sm text-[#9B7B75] font-medium">
+            Loading...
+          </p>
 
-  const handleReject = async () => {
-    try {
-      // await rejectReturn(returnRequest.id);
+        </div>
 
-      setReturnStatus("Rejected");
+      </div>
 
-      toast.success("Return request rejected");
-    } catch (error) {
-      console.error(error);
+    );
 
-      toast.error(
-        "Failed to reject return request"
-      );
-    }
-  };
+  }
 
 
-  // =================================================
-  // MARK RECEIVED
-  // =================================================
+  // ==================================================
+  // RETURN NOT FOUND
+  // ==================================================
 
-  const handleReceived = async () => {
-    try {
-      // await markReturnReceived(returnRequest.id);
+  if (!returnData) {
 
-      setReturnStatus("Received");
+    return (
 
-      toast.success("Return marked as received");
-    } catch (error) {
-      console.error(error);
+      <div className="min-h-screen bg-luxury flex items-center justify-center px-4">
 
-      toast.error(
-        "Failed to update return"
-      );
-    }
-  };
+        <div className="text-center">
 
+          <Package
+            size={48}
+            className="mx-auto text-muted-foreground"
+          />
 
-  // =================================================
-  // REFUND
-  // =================================================
+          <h2 className="mt-4 text-xl font-bold text-foreground">
+            Return not found
+          </h2>
 
-  const handleRefund = async () => {
-    try {
-      // await createRefund(returnRequest.id);
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-5 rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground"
+          >
+            Go Back
+          </button>
 
-      setRefundStatus("Processing");
+        </div>
 
-      toast.success(
-        "Refund processing started"
-      );
+      </div>
 
-      // In production, update this based on
-      // your Razorpay refund API response.
+    );
 
-    } catch (error) {
-      console.error(error);
-
-      setRefundStatus("Failed");
-
-      toast.error(
-        "Failed to process refund"
-      );
-    }
-  };
+  }
 
 
-  // =================================================
-  // COMPLETE
-  // =================================================
+  // ==================================================
+  // PRODUCT
+  // ==================================================
 
-  const handleComplete = async () => {
-    try {
-      // await completeReturn(returnRequest.id);
+  const returnProduct =
+    returnData?.products;
 
-      setReturnStatus("Completed");
 
-      setRefundStatus("Completed");
+  const product =
+    returnProduct?.product;
 
-      toast.success(
-        "Return completed successfully"
-      );
-    } catch (error) {
-      console.error(error);
 
-      toast.error(
-        "Failed to complete return"
-      );
-    }
-  };
-
+  // ==================================================
+  // PAGE
+  // ==================================================
 
   return (
+
     <main className="min-h-screen bg-luxury px-4 py-6 sm:px-6 lg:px-8">
 
       <div className="mx-auto max-w-7xl">
 
 
-        {/* ================================================= */}
-        {/* HEADER */}
-        {/* ================================================= */}
+        {/* =========================================
+            HEADER
+        ========================================= */}
 
         <div className="mb-7">
 
+
           <button
-            onClick={() =>
-              // navigate("/admin/returns")
-              navigate(-1)
-            }
+            onClick={() => navigate(-1)}
             className="mb-5 flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
           >
+
             <ArrowLeft size={18} />
 
             Back to Returns
+
           </button>
 
 
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+
 
             <div>
 
@@ -256,40 +284,114 @@ const AdminReturnDetailsPage = () => {
                 STYQLO ADMIN
               </p>
 
+
               <h1 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">
                 Return Details
               </h1>
 
+
               <p className="mt-2 text-sm text-muted-foreground">
 
-                #{returnRequest.id}
+                #{returnData?._id} ·{" "}
 
-                {" · "}
-
-                Order #{returnRequest.orderId}
+                {returnData?.createdAt &&
+                  new Date(
+                    returnData.createdAt
+                  ).toLocaleString(
+                    "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    }
+                  )}
 
               </p>
 
             </div>
 
 
-            {/* STATUS */}
+            {/* CURRENT STATUS */}
 
             <div
-              className={`flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold ${
-                returnStatus === "Pending"
+              className={`
+                flex w-fit items-center gap-2 rounded-full
+                border px-4 py-2 text-sm font-semibold
+
+                ${returnData?.returnStatus ===
+                  "Pending"
                   ? "border-amber-200 bg-amber-50 text-amber-700"
-                  : returnStatus === "Rejected"
-                    ? "border-red-200 bg-red-50 text-red-700"
-                    : returnStatus === "Completed"
-                      ? "border-green-200 bg-green-50 text-green-700"
-                      : "border-primary/20 bg-primary/10 text-primary"
-              }`}
+                  : ""
+                }
+
+                ${returnData?.returnStatus ===
+                  "Approved"
+                  ? "border-blue-200 bg-blue-50 text-blue-700"
+                  : ""
+                }
+
+                ${returnData?.returnStatus ===
+                  "Rejected"
+                  ? "border-rose-200 bg-rose-50 text-rose-700"
+                  : ""
+                }
+
+                ${returnData?.returnStatus ===
+                  "Received"
+                  ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                  : ""
+                }
+
+                ${returnData?.returnStatus ===
+                  "Refunded"
+                  ? "border-purple-200 bg-purple-50 text-purple-700"
+                  : ""
+                }
+
+                ${returnData?.returnStatus ===
+                  "Completed"
+                  ? "border-green-200 bg-green-50 text-green-700"
+                  : ""
+                }
+              `}
             >
 
-              <Clock3 size={16} />
+              {returnData?.returnStatus ===
+                "Rejected" ? (
 
-              {returnStatus}
+                <XCircle size={16} />
+
+              ) : returnData?.returnStatus ===
+                "Refunded" ? (
+
+                <RefreshCcw size={16} />
+
+              ) : returnData?.returnStatus ===
+                "Received" ? (
+
+                <Package size={16} />
+
+              ) : returnData?.returnStatus ===
+                "Completed" ? (
+
+                <CheckCircle2 size={16} />
+
+              ) : returnData?.returnStatus ===
+                "Approved" ? (
+
+                <CheckCircle2 size={16} />
+
+              ) : (
+
+                <Clock3 size={16} />
+
+              )}
+
+
+              {returnData?.returnStatus}
 
             </div>
 
@@ -298,106 +400,53 @@ const AdminReturnDetailsPage = () => {
         </div>
 
 
-        {/* ================================================= */}
-        {/* RETURN PROGRESS */}
-        {/* ================================================= */}
+        {/* =========================================
+            RETURN PROGRESS
+        ========================================= */}
 
-        {returnStatus !== "Rejected" && (
-
-          <section className="card-luxury mb-6 p-5 sm:p-7">
-
-            <div>
-
-              <h2 className="text-lg font-bold text-foreground">
-                Return Progress
-              </h2>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Track the return and refund process.
-              </p>
-
-            </div>
+        <section className="card-luxury mb-6 p-5 sm:p-7">
 
 
-            {/* DESKTOP */}
+          <div>
 
-            <div className="mt-8 hidden md:block">
+            <h2 className="text-lg font-bold text-foreground">
+              Return Progress
+            </h2>
 
-              <div className="relative flex items-start justify-between">
+            <p className="mt-1 text-sm text-muted-foreground">
+              Manage the current return status.
+            </p>
 
-                {/* BASE LINE */}
-
-                <div className="absolute left-0 right-0 top-4 h-0.5 bg-border" />
-
-
-                {/* PROGRESS LINE */}
-
-                <div
-                  className="absolute left-0 top-4 h-0.5 bg-primary transition-all duration-500"
-                  style={{
-                    width:
-                      currentIndex >= 0
-                        ? `${(currentIndex /
-                            (statusSteps.length - 1)) *
-                          100}%`
-                        : "0%",
-                  }}
-                />
+          </div>
 
 
-                {statusSteps.map(
-                  (step, index) => {
+          {/* DESKTOP */}
 
-                    const Icon =
-                      step.icon;
+          <div className="mt-8 hidden md:block">
 
-                    const completed =
-                      index <= currentIndex;
-
-                    return (
-
-                      <div
-                        key={step.name}
-                        className="relative z-10 flex flex-col items-center"
-                      >
-
-                        <div
-                          className={`flex h-9 w-9 items-center justify-center rounded-full border-2 ${
-                            completed
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-border bg-card text-muted-foreground"
-                          }`}
-                        >
-
-                          <Icon size={17} />
-
-                        </div>
+            <div className="relative flex items-start justify-between">
 
 
-                        <p
-                          className={`mt-3 text-xs font-semibold ${
-                            completed
-                              ? "text-primary"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          {step.name}
-                        </p>
+              {/* BASE LINE */}
 
-                      </div>
-
-                    );
-                  }
-                )}
-
-              </div>
-
-            </div>
+              <div className="absolute left-0 right-0 top-4 h-0.5 bg-border" />
 
 
-            {/* MOBILE */}
+              {/* PROGRESS LINE */}
 
-            <div className="mt-6 space-y-3 md:hidden">
+              <div
+                className="absolute left-0 top-4 h-0.5 bg-primary transition-all duration-500"
+                style={{
+                  width:
+                    currentIndex >= 0
+                      ? `${(currentIndex /
+                        (statusSteps.length - 1)) *
+                      100
+                      }%`
+                      : "0%",
+                }}
+              />
+
 
               {statusSteps.map(
                 (step, index) => {
@@ -408,70 +457,168 @@ const AdminReturnDetailsPage = () => {
                   const completed =
                     index <= currentIndex;
 
+
                   return (
 
                     <div
                       key={step.name}
-                      className={`flex items-center gap-3 rounded-xl border p-3 ${
-                        completed
-                          ? "border-primary/20 bg-primary/5"
-                          : "border-border"
-                      }`}
+                      className="relative z-10 flex flex-col items-center"
                     >
 
                       <div
-                        className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                          completed
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground"
-                        }`}
+                        className={`
+                          flex h-9 w-9
+                          items-center justify-center
+                          rounded-full border-2
+                          transition-all
+
+                          ${completed
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-card text-muted-foreground"
+                          }
+                        `}
                       >
 
                         <Icon size={17} />
 
                       </div>
 
-                      <span
-                        className={`text-sm font-semibold ${
-                          completed
+
+                      <p
+                        className={`
+                          mt-3 text-xs font-semibold
+
+                          ${completed
                             ? "text-primary"
                             : "text-muted-foreground"
-                        }`}
+                          }
+                        `}
                       >
+
                         {step.name}
-                      </span>
+
+                      </p>
 
                     </div>
 
                   );
+
                 }
               )}
 
             </div>
 
+          </div>
 
-            {/* ACTIONS */}
 
-            <div className="mt-8 border-t border-border pt-6">
+          {/* MOBILE */}
 
-              {returnStatus === "Pending" && (
+          <div className="mt-6 space-y-3 md:hidden">
 
-                <div className="flex flex-col gap-3 sm:flex-row">
+            {statusSteps.map(
+              (step, index) => {
+
+                const Icon =
+                  step.icon;
+
+                const completed =
+                  index <= currentIndex;
+
+
+                return (
+
+                  <div
+                    key={step.name}
+                    className={`
+                      flex items-center gap-3
+                      rounded-xl border p-3
+
+                      ${completed
+                        ? "border-primary/20 bg-primary/5"
+                        : "border-border"
+                      }
+                    `}
+                  >
+
+                    <div
+                      className={`
+                        flex h-9 w-9
+                        items-center justify-center
+                        rounded-full
+
+                        ${completed
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                        }
+                      `}
+                    >
+
+                      <Icon size={17} />
+
+                    </div>
+
+
+                    <span
+                      className={`
+                        text-sm font-semibold
+
+                        ${completed
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                        }
+                      `}
+                    >
+
+                      {step.name}
+
+                    </span>
+
+                  </div>
+
+                );
+
+              }
+            )}
+
+          </div>
+
+
+          {/* ======================================
+              ACTIONS
+          ====================================== */}
+
+          <div className="mt-8 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row">
+
+
+            {/* PENDING */}
+
+            {returnData?.returnStatus ===
+              "Pending" && (
+
+                <>
 
                   <button
-                    onClick={handleApprove}
+                    onClick={() =>
+                      handleStatusChange(
+                        "Approved"
+                      )
+                    }
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
                   >
 
                     <Check size={18} />
 
-                    Approve Return
+                    Accept Return
 
                   </button>
 
 
                   <button
-                    onClick={handleReject}
+                    onClick={() =>
+                      handleStatusChange(
+                        "Rejected"
+                      )
+                    }
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-3.5 font-semibold text-red-600 transition-luxury hover:bg-red-100"
                   >
 
@@ -481,69 +628,86 @@ const AdminReturnDetailsPage = () => {
 
                   </button>
 
-                </div>
+                </>
 
               )}
 
 
-              {returnStatus === "Approved" && (
+            {/* APPROVED */}
+
+            {returnData?.returnStatus ===
+              "Approved" && (
 
                 <button
-                  onClick={handleReceived}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+                  onClick={() =>
+                    handleStatusChange(
+                      "Received"
+                    )
+                  }
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
                 >
 
                   <Package size={18} />
 
-                  Mark Product as Received
+                  Mark as Received
 
                 </button>
 
               )}
 
 
-              {returnStatus === "Received" && (
+            {/* RECEIVED */}
+
+            {returnData?.returnStatus ===
+              "Received" && (
 
                 <button
-                  onClick={handleRefund}
-                  disabled={
-                    refundStatus ===
-                    "Processing"
+                  onClick={() =>
+                    handleStatusChange(
+                      "Refunded"
+                    )
                   }
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
                 >
 
-                  <CreditCard size={18} />
+                  <RefreshCcw size={18} />
 
-                  {refundStatus ===
-                  "Processing"
-                    ? "Refund Processing..."
-                    : "Process Refund"}
+                  Mark as Refunded
 
                 </button>
 
               )}
 
 
-              {returnStatus === "Refunded" && (
+            {/* REFUNDED */}
+
+            {returnData?.returnStatus ===
+              "Refunded" && (
 
                 <button
-                  onClick={handleComplete}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+                  onClick={() =>
+                    handleStatusChange(
+                      "Completed"
+                    )
+                  }
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
                 >
 
                   <CheckCircle2 size={18} />
 
-                  Complete Return
+                  Mark as Completed
 
                 </button>
 
               )}
 
 
-              {returnStatus === "Completed" && (
+            {/* COMPLETED */}
 
-                <div className="flex items-center justify-center gap-2 rounded-xl bg-green-50 py-3.5 font-semibold text-green-700">
+            {returnData?.returnStatus ===
+              "Completed" && (
+
+                <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-50 py-3.5 font-semibold text-green-700">
 
                   <CheckCircle2 size={18} />
 
@@ -554,42 +718,46 @@ const AdminReturnDetailsPage = () => {
               )}
 
 
-              {returnStatus === "Rejected" && (
+            {/* REJECTED */}
 
-                <div className="flex items-center justify-center gap-2 rounded-xl bg-red-50 py-3.5 font-semibold text-red-700">
+            {returnData?.returnStatus ===
+              "Rejected" && (
+
+                <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-50 py-3.5 font-semibold text-red-700">
 
                   <XCircle size={18} />
 
-                  Return Request Rejected
+                  Return Rejected
 
                 </div>
 
               )}
 
-            </div>
+          </div>
 
-          </section>
-
-        )}
+        </section>
 
 
-        {/* ================================================= */}
-        {/* MAIN GRID */}
-        {/* ================================================= */}
+        {/* =========================================
+            MAIN CONTENT
+        ========================================= */}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
 
 
-          {/* ================================================= */}
-          {/* LEFT */}
-          {/* ================================================= */}
+          {/* ======================================
+              LEFT
+          ====================================== */}
 
           <div className="space-y-6">
 
 
-            {/* PRODUCT */}
+            {/* ==================================
+                RETURNED PRODUCT
+            ================================== */}
 
             <section className="card-luxury overflow-hidden">
+
 
               <div className="border-b border-border p-5 sm:p-6">
 
@@ -606,41 +774,77 @@ const AdminReturnDetailsPage = () => {
 
               <div className="flex gap-4 p-5 sm:p-6">
 
-                <div className="h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-32 sm:w-32">
+
+                {/* IMAGE */}
+
+                <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-28 sm:w-28">
 
                   <img
-                    src={returnRequest.product.image}
-                    alt={returnRequest.product.name}
+                    src={
+                      product?.images?.[0]?.url
+                    }
+                    alt={
+                      product?.name
+                    }
                     className="h-full w-full object-cover"
                   />
 
                 </div>
 
 
-                <div className="min-w-0">
+                {/* PRODUCT INFO */}
 
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {returnRequest.product.name}
+                <div className="min-w-0 flex-1">
+
+                  <h3 className="font-semibold text-foreground">
+
+                    {
+                      product?.name
+                    }
+
                   </h3>
 
-                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
 
-                    <span>
-                      Size:{" "}
-                      {returnRequest.product.size}
-                    </span>
+                  <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
+
+
+                    {returnProduct?.size && (
+
+                      <span>
+                        Size:{" "}
+                        {
+                          returnProduct.size
+                        }
+                      </span>
+
+                    )}
+
 
                     <span>
                       Quantity:{" "}
-                      {returnRequest.product.quantity}
+                      {
+                        returnProduct?.quantity
+                      }
                     </span>
+
+
+                    {/* <span>
+                      Returned:{" "}
+                      {
+                        returnProduct?.returnedQuantity
+                      }
+                    </span> */}
 
                   </div>
 
-                  <p className="mt-4 text-xl font-bold text-foreground">
+
+                  <p className="mt-3 font-bold text-foreground">
 
                     ₹
-                    {returnRequest.product.price.toLocaleString(
+                    {Number(
+                      returnProduct?.price ||
+                      0
+                    ).toLocaleString(
                       "en-IN"
                     )}
 
@@ -653,9 +857,12 @@ const AdminReturnDetailsPage = () => {
             </section>
 
 
-            {/* RETURN REASON */}
+            {/* ==================================
+                RETURN INFORMATION
+            ================================== */}
 
             <section className="card-luxury p-5 sm:p-6">
+
 
               <div className="flex items-center gap-3">
 
@@ -668,14 +875,15 @@ const AdminReturnDetailsPage = () => {
 
                 </div>
 
+
                 <div>
 
                   <h2 className="font-bold text-foreground">
-                    Return Reason
+                    Return Information
                   </h2>
 
                   <p className="text-xs text-muted-foreground">
-                    Customer's return request
+                    Return request details
                   </p>
 
                 </div>
@@ -683,24 +891,79 @@ const AdminReturnDetailsPage = () => {
               </div>
 
 
-              <div className="mt-5 rounded-2xl border border-border bg-primary/5 p-5">
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
 
-                <p className="font-semibold text-foreground">
-                  {returnRequest.reason}
-                </p>
 
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {returnRequest.description}
-                </p>
+                {/* REASON */}
+
+                <div>
+
+                  <p className="text-xs text-muted-foreground">
+                    Reason
+                  </p>
+
+                  <p className="mt-1 font-semibold text-foreground">
+
+                    {
+                      returnData?.reason ||
+                      "N/A"
+                    }
+
+                  </p>
+
+                </div>
+
+
+                {/* QUANTITY */}
+
+                <div>
+
+                  <p className="text-xs text-muted-foreground">
+                    Return Quantity
+                  </p>
+
+                  <p className="mt-1 font-semibold text-foreground">
+
+                    {
+                      returnProduct?.quantity ||
+                      0
+                    }
+
+                  </p>
+
+                </div>
+
+
+                {/* DESCRIPTION */}
+
+                <div className="sm:col-span-2">
+
+                  <p className="text-xs text-muted-foreground">
+                    Description
+                  </p>
+
+                  <p className="mt-1 font-semibold text-foreground">
+
+                    {
+                      returnData?.description ||
+                      "No description provided"
+                    }
+
+                  </p>
+
+                </div>
 
               </div>
 
             </section>
 
 
-            {/* CUSTOMER */}
+            {/* ==================================
+                CUSTOMER
+            ================================== */}
 
             <section className="card-luxury p-5 sm:p-6">
+
 
               <div className="flex items-center gap-3">
 
@@ -713,18 +976,24 @@ const AdminReturnDetailsPage = () => {
 
                 </div>
 
+
                 <div>
 
                   <h2 className="font-bold text-foreground">
                     Customer Information
                   </h2>
 
+                  <p className="text-xs text-muted-foreground">
+                    Customer details
+                  </p>
+
                 </div>
 
               </div>
 
 
-              <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+
 
                 <div>
 
@@ -733,7 +1002,12 @@ const AdminReturnDetailsPage = () => {
                   </p>
 
                   <p className="mt-1 font-semibold text-foreground">
-                    {returnRequest.customer.name}
+
+                    {
+                      returnData?.user?.fullName ||
+                      returnData?.order?.shippingAddress?.fullName
+                    }
+
                   </p>
 
                 </div>
@@ -745,13 +1019,16 @@ const AdminReturnDetailsPage = () => {
                     Phone
                   </p>
 
-                  <p className="mt-1 flex items-center gap-2 font-semibold text-foreground">
+                  <div className="mt-1 flex items-center gap-2 font-semibold text-foreground">
 
                     <Phone size={15} />
 
-                    {returnRequest.customer.phone}
+                    {
+                      returnData?.user?.phoneNumber ||
+                      returnData?.order?.shippingAddress?.phoneNumber
+                    }
 
-                  </p>
+                  </div>
 
                 </div>
 
@@ -763,7 +1040,11 @@ const AdminReturnDetailsPage = () => {
                   </p>
 
                   <p className="mt-1 break-all font-semibold text-foreground">
-                    {returnRequest.customer.email}
+
+                    {
+                      returnData?.user?.email
+                    }
+
                   </p>
 
                 </div>
@@ -773,9 +1054,12 @@ const AdminReturnDetailsPage = () => {
             </section>
 
 
-            {/* ADDRESS */}
+            {/* ==================================
+                SHIPPING ADDRESS
+            ================================== */}
 
             <section className="card-luxury p-5 sm:p-6">
+
 
               <div className="flex items-center gap-3">
 
@@ -788,11 +1072,16 @@ const AdminReturnDetailsPage = () => {
 
                 </div>
 
+
                 <div>
 
                   <h2 className="font-bold text-foreground">
-                    Customer Address
+                    Delivery Address
                   </h2>
+
+                  <p className="text-xs text-muted-foreground">
+                    Original order shipping information
+                  </p>
 
                 </div>
 
@@ -801,17 +1090,63 @@ const AdminReturnDetailsPage = () => {
 
               <div className="mt-5 rounded-2xl border border-border bg-primary/5 p-5">
 
-                <p className="text-sm leading-6 text-muted-foreground">
 
-                  {returnRequest.shippingAddress.address}
+                <p className="font-semibold text-foreground">
+
+                  {
+                    returnData?.order
+                      ?.shippingAddress
+                      ?.fullName
+                  }
+
+                </p>
+
+
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+
+                  {
+                    returnData?.order
+                      ?.shippingAddress
+                      ?.streetAddress
+                  }
+
                   <br />
 
-                  {returnRequest.shippingAddress.city},{" "}
-                  {returnRequest.shippingAddress.state}
+                  {
+                    returnData?.order
+                      ?.shippingAddress
+                      ?.city
+                  }
+                  ,{" "}
+
+                  {
+                    returnData?.order
+                      ?.shippingAddress
+                      ?.state
+                  }
+
                   <br />
 
                   PIN:{" "}
-                  {returnRequest.shippingAddress.pinCode}
+
+                  {
+                    returnData?.order
+                      ?.shippingAddress
+                      ?.pinCode
+                  }
+
+                </p>
+
+
+                <p className="mt-3 flex items-center gap-2 text-sm font-medium text-foreground">
+
+                  <Phone size={15} />
+
+                  {
+                    returnData?.order
+                      ?.shippingAddress
+                      ?.phoneNumber
+                  }
 
                 </p>
 
@@ -822,16 +1157,19 @@ const AdminReturnDetailsPage = () => {
           </div>
 
 
-          {/* ================================================= */}
-          {/* RIGHT */}
-          {/* ================================================= */}
+          {/* ======================================
+              RIGHT
+          ====================================== */}
 
           <div className="space-y-6">
 
 
-            {/* REFUND */}
+            {/* ==================================
+                REFUND
+            ================================== */}
 
             <section className="card-luxury p-5 sm:p-6">
+
 
               <div className="flex items-center gap-3">
 
@@ -843,6 +1181,7 @@ const AdminReturnDetailsPage = () => {
                   />
 
                 </div>
+
 
                 <div>
 
@@ -861,16 +1200,52 @@ const AdminReturnDetailsPage = () => {
 
               <div className="mt-5 space-y-4 text-sm">
 
-                <div className="flex justify-between gap-4">
+
+                <div className="flex items-center justify-between gap-4">
+
+                  <span className="text-muted-foreground">
+                    Refund Status
+                  </span>
+
+                  <span
+                    className={`
+                      rounded-full px-3 py-1
+                      text-xs font-semibold
+
+                      ${returnData?.refundStatus ===
+                        "Completed"
+                        ? "bg-green-50 text-green-700"
+                        : returnData?.refundStatus ===
+                          "Failed"
+                          ? "bg-red-50 text-red-700"
+                          : "bg-amber-50 text-amber-700"
+                      }
+                    `}
+                  >
+
+                    {
+                      returnData?.refundStatus ||
+                      "NotStarted"
+                    }
+
+                  </span>
+
+                </div>
+
+
+                <div className="flex items-center justify-between gap-4">
 
                   <span className="text-muted-foreground">
                     Refund Amount
                   </span>
 
-                  <span className="font-bold text-foreground">
+                  <span className="text-lg font-bold text-foreground">
 
                     ₹
-                    {returnRequest.refundAmount.toLocaleString(
+                    {Number(
+                      returnData?.refundAmount ||
+                      0
+                    ).toLocaleString(
                       "en-IN"
                     )}
 
@@ -879,24 +1254,324 @@ const AdminReturnDetailsPage = () => {
                 </div>
 
 
-                <div className="flex justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
 
                   <span className="text-muted-foreground">
-                    Refund Status
+                    Payment
                   </span>
 
-                  <span
-                    className={`font-semibold ${
-                      refundStatus ===
-                      "Completed"
-                        ? "text-green-600"
-                        : refundStatus ===
-                          "Failed"
-                          ? "text-red-600"
-                          : "text-primary"
-                    }`}
-                  >
-                    {refundStatus}
+                  <span className="font-semibold text-foreground">
+
+                    {
+                      returnData?.refundPayment
+                        ? "Processed"
+                        : "Not Started"
+                    }
+
+                  </span>
+
+                </div>
+
+              </div>
+
+            </section>
+
+
+            {/* ==================================
+                RETURN TIMESTAMPS
+            ================================== */}
+
+            <section className="card-luxury p-5 sm:p-6">
+
+              <h2 className="font-bold text-foreground">
+                Return Timeline
+              </h2>
+
+
+              <div className="mt-5 space-y-4">
+
+
+                {/* REQUESTED */}
+
+                <div className="rounded-xl border border-border bg-background p-4">
+
+                  <p className="text-xs text-muted-foreground">
+                    Requested
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-foreground">
+
+                    {
+                      returnData?.requestedAt
+                        ? new Date(
+                          returnData.requestedAt
+                        ).toLocaleString(
+                          "en-IN",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          }
+                        )
+                        : "N/A"
+                    }
+
+                  </p>
+
+                </div>
+
+
+                {/* APPROVED / REJECTED */}
+
+                {returnData?.returnStatus ===
+                  "Approved" && (
+
+                    <div className="rounded-xl border border-border bg-background p-4">
+
+                      <div className="flex items-center gap-2">
+
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-green-50">
+
+                          <CheckCircle2
+                            size={14}
+                            className="text-green-600"
+                          />
+
+                        </div>
+
+                        <p className="text-xs font-semibold text-foreground">
+                          Approved
+                        </p>
+
+                      </div>
+
+
+                      <p className="mt-2 text-xs text-muted-foreground">
+
+                        {
+                          returnData?.approvedAt
+                            ? new Date(
+                              returnData.approvedAt
+                            ).toLocaleString(
+                              "en-IN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              }
+                            )
+                            : "Not yet"
+                        }
+
+                      </p>
+
+                    </div>
+
+                  )}
+
+
+                {returnData?.returnStatus ===
+                  "Rejected" && (
+
+                    <div className="rounded-xl border border-border bg-background p-4">
+
+                      <div className="flex items-center gap-2">
+
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-50">
+
+                          <XCircle
+                            size={14}
+                            className="text-red-600"
+                          />
+
+                        </div>
+
+                        <p className="text-xs font-semibold text-foreground">
+                          Rejected
+                        </p>
+
+                      </div>
+
+
+                      <p className="mt-2 text-xs text-muted-foreground">
+
+                        {
+                          returnData?.rejectedAt
+                            ? new Date(
+                              returnData.rejectedAt
+                            ).toLocaleString(
+                              "en-IN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              }
+                            )
+                            : "Not yet"
+                        }
+
+                      </p>
+
+                    </div>
+
+                  )}
+
+
+                {/* RECEIVED */}
+
+                {returnData?.receivedAt && (
+
+                  <div className="rounded-xl border border-border bg-background p-4">
+
+                    <p className="text-xs text-muted-foreground">
+                      Received
+                    </p>
+
+                    <p className="mt-1 text-sm font-semibold text-foreground">
+
+                      {
+                        new Date(
+                          returnData.receivedAt
+                        ).toLocaleString(
+                          "en-IN",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          }
+                        )
+                      }
+
+                    </p>
+
+                  </div>
+
+                )}
+
+
+                {/* REFUNDED */}
+
+                {returnData?.refundedAt && (
+
+                  <div className="rounded-xl border border-border bg-background p-4">
+
+                    <p className="text-xs text-muted-foreground">
+                      Refunded
+                    </p>
+
+                    <p className="mt-1 text-sm font-semibold text-foreground">
+
+                      {
+                        new Date(
+                          returnData.refundedAt
+                        ).toLocaleString(
+                          "en-IN",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          }
+                        )
+                      }
+
+                    </p>
+
+                  </div>
+
+                )}
+
+              </div>
+
+            </section>
+
+
+            {/* ==================================
+                ORDER PRICE DETAILS
+            ================================== */}
+
+            <section className="card-luxury p-5 sm:p-6">
+
+              <h2 className="font-bold text-foreground">
+                Original Order Price
+              </h2>
+
+
+              <div className="mt-5 space-y-4 text-sm">
+
+
+                <div className="flex justify-between">
+
+                  <span className="text-muted-foreground">
+                    Subtotal
+                  </span>
+
+                  <span className="font-medium">
+
+                    ₹
+                    {Number(
+                      returnData?.order?.subTotal ||
+                      0
+                    ).toLocaleString(
+                      "en-IN"
+                    )}
+
+                  </span>
+
+                </div>
+
+
+                <div className="flex justify-between">
+
+                  <span className="text-muted-foreground">
+                    Shipping
+                  </span>
+
+                  <span className="font-medium">
+
+                    ₹
+                    {Number(
+                      returnData?.order?.shippingCharges ||
+                      0
+                    ).toLocaleString(
+                      "en-IN"
+                    )}
+
+                  </span>
+
+                </div>
+
+
+                <div className="flex justify-between">
+
+                  <span className="text-muted-foreground">
+                    GST
+                  </span>
+
+                  <span className="font-medium">
+
+                    ₹
+                    {Number(
+                      returnData?.order?.tax ||
+                      0
+                    ).toLocaleString(
+                      "en-IN"
+                    )}
+
                   </span>
 
                 </div>
@@ -904,71 +1579,91 @@ const AdminReturnDetailsPage = () => {
 
                 <div className="border-t border-border pt-4">
 
-                  <p className="text-xs leading-5 text-muted-foreground">
+                  <div className="flex items-center justify-between">
 
-                    Refund should only be processed
-                    after the returned product has
-                    been received and verified.
+                    <span className="font-bold text-foreground">
+                      Order Total
+                    </span>
+
+                    <span className="text-xl font-bold text-primary">
+
+                      ₹
+                      {Number(
+                        returnData?.order?.totalAmount ||
+                        0
+                      ).toLocaleString(
+                        "en-IN"
+                      )}
+
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                {/* REFUND */}
+
+                <div className="border-t border-border pt-4">
+
+                  <div className="flex items-center justify-between">
+
+                    <span className="font-bold text-foreground">
+                      Refund Amount
+                    </span>
+
+                    <span className="text-xl font-bold text-green-600">
+
+                      ₹
+                      {Number(
+                        returnData?.refundAmount ||
+                        0
+                      ).toLocaleString(
+                        "en-IN"
+                      )}
+
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </section>
+
+
+            {/* ==================================
+                PAYMENT DETAILS
+            ================================== */}
+
+            <section className="card-luxury p-5 sm:p-6">
+
+              <h2 className="font-bold text-foreground">
+                Payment Details
+              </h2>
+
+
+              <div className="mt-5 space-y-4">
+
+
+                <div>
+
+                  <p className="text-xs text-muted-foreground">
+                    Payment Status
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-foreground">
+
+                    {
+                      returnData?.order
+                        ?.paymentStatus
+                    }
 
                   </p>
 
                 </div>
 
-              </div>
-
-            </section>
-
-
-            {/* PAYMENT */}
-
-            <section className="card-luxury p-5 sm:p-6">
-
-              <h2 className="font-bold text-foreground">
-                Original Payment
-              </h2>
-
-              <div className="mt-5 space-y-4 text-sm">
-
-                <div className="flex justify-between gap-4">
-
-                  <span className="text-muted-foreground">
-                    Method
-                  </span>
-
-                  <span className="font-semibold text-foreground">
-                    {returnRequest.payment.method}
-                  </span>
-
-                </div>
-
-
-                <div className="flex justify-between gap-4">
-
-                  <span className="text-muted-foreground">
-                    Status
-                  </span>
-
-                  <span className="font-semibold text-green-600">
-                    {returnRequest.payment.status}
-                  </span>
-
-                </div>
-
-              </div>
-
-            </section>
-
-
-            {/* TRANSACTION */}
-
-            <section className="card-luxury p-5 sm:p-6">
-
-              <h2 className="font-bold text-foreground">
-                Transaction Details
-              </h2>
-
-
-              <div className="mt-5 space-y-5">
 
                 <div>
 
@@ -977,48 +1672,12 @@ const AdminReturnDetailsPage = () => {
                   </p>
 
                   <p className="mt-1 break-all text-xs font-medium text-foreground">
-                    {returnRequest.payment.razorpayOrderId}
-                  </p>
 
-                </div>
+                    {
+                      returnData?.order
+                        ?.razorpayOrderId
+                    }
 
-
-                <div>
-
-                  <p className="text-xs text-muted-foreground">
-                    Razorpay Payment ID
-                  </p>
-
-                  <p className="mt-1 break-all text-xs font-medium text-foreground">
-                    {returnRequest.payment.razorpayPaymentId}
-                  </p>
-
-                </div>
-
-              </div>
-
-            </section>
-
-
-            {/* RETURN DATE */}
-
-            <section className="card-luxury p-5 sm:p-6">
-
-              <div className="flex items-center gap-3">
-
-                <Clock3
-                  size={19}
-                  className="text-primary"
-                />
-
-                <div>
-
-                  <p className="text-xs text-muted-foreground">
-                    Return Requested
-                  </p>
-
-                  <p className="mt-1 font-semibold text-foreground">
-                    {returnRequest.requestedAt}
                   </p>
 
                 </div>
@@ -1034,7 +1693,10 @@ const AdminReturnDetailsPage = () => {
       </div>
 
     </main>
+
   );
+
 };
+
 
 export default AdminReturnDetailsPage;
