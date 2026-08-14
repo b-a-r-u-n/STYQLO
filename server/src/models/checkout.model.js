@@ -80,6 +80,11 @@ const checkOutSchema = new mongoose.Schema(
                 "Expired"
             ],
             default: "Pending"
+        },
+        paymentMethod: {
+            type: String,
+            enum: ["COD", "razorpay"],
+            required: true
         }
     },
     {timestamps: true}

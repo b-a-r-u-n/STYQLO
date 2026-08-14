@@ -1,17 +1,18 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axios from "axios";
 
-export const createOrder = createAsyncThunk("createOrder", async ({ products, inputData, subTotal, shipping, orderTotal, gst }, { rejectWithValue }) => {
-    
-    try {        
+export const createOrder = createAsyncThunk("createOrder", async ({ products, inputData, subTotal, shipping, orderTotal, gst, paymentMethod }, { rejectWithValue }) => {   
+    console.log(paymentMethod);
+     
+    try {
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/orders/`, {
             products, shippingAddress: inputData,
             subTotal, shippingCharges: shipping,
             totalAmount: orderTotal,
-            tax: gst
+            tax: gst,
+            paymentMethod
         }, { withCredentials: true });
-
-        return response.data.data;
+        return response?.data?.data;
     } catch (error) {
         return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -92,13 +93,15 @@ const orderSlice = createSlice({
             state.loading = false;
             state.currentOrderId = action.payload._id;
             state.success = true;
+            // console.log(action.payload);
+            
             
         })
         builder.addCase(createOrder.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload;
             state.success = false;
-            console.log(action.payload);
+            // console.log(action.payload);
             
         })
 
@@ -137,7 +140,7 @@ const orderSlice = createSlice({
         builder.addCase(getOrderById.fulfilled, (state, action) => {
             state.loading = false;
             state.success = true;
-            state.orderData = action.payload;            
+            // state.orderData = action.payload;            
         })
         builder.addCase(getOrderById.rejected, (state, action) => {
             state.loading = false;

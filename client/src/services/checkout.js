@@ -1,13 +1,14 @@
 import axios from "axios";
 
-const createCheckout = async ({ products, inputData, subTotal, shipping, orderTotal, gst }) => {
+const createCheckout = async ({ products, inputData, subTotal, shipping, orderTotal, gst, paymentMethod }) => {
     
     try {        
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/checkout/`, {
             products, shippingAddress: inputData,
             subTotal, shippingCharges: shipping,
             totalAmount: orderTotal,
-            tax: gst
+            tax: gst,
+            paymentMethod
         }, {withCredentials: true});
 
         return response.data.data;

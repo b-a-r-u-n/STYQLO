@@ -2,17 +2,29 @@ import React from 'react';
 import { CircleCheckBig, ShoppingBag } from "lucide-react";
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUserOrders } from '../../features/orderSlice';
+import { getOrderById, getUserOrders } from '../../features/orderSlice';
 import toast from 'react-hot-toast';
 import { useEffect } from 'react';
 
 const OrderSuccessPage = () => {
 
-  const { loading, orderDatas } = useSelector(state => state.order)
+  const { loading, currentOrderId, orderData } = useSelector(state => state.order)
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
+
+  // useEffect(() => {
+  //   const fetchOrder = async () => {
+  //     try {
+  //       await dispatch(getOrderById(currentOrderId)).unwrap();
+  //     } catch (error) {
+  //       toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+  //     }
+  //   }
+
+  //   fetchOrder();
+  // },[])
 
 
   if (location.state?.from !== "checkout" && location.state?.from !== "pending") {
@@ -23,7 +35,7 @@ const OrderSuccessPage = () => {
     navigate("/orders");
   }
 
-  if (loading && !orderDatas.length) {
+  if (loading && !orderData) {
     return (
       <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
         <div className="text-center">

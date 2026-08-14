@@ -30,7 +30,8 @@ import cartRoutes from "./routes/cart.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import returnRoutes from "./routes/return.routes.js";
-import checkoutRoutes from "./routes/checkout.routes.js"
+import checkoutRoutes from "./routes/checkout.routes.js";
+import shiprocketRoutes from "./routes/shiprocket.route.js";
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
@@ -40,6 +41,7 @@ app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/return", returnRoutes);
 app.use("/api/v1/checkout", checkoutRoutes);
+app.use("/api/v1/shiprocket", shiprocketRoutes);
 
 
 export default app;

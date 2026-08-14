@@ -102,6 +102,11 @@ const orderSchema = new mongoose.Schema(
         orderGroupId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true
+        },
+        paymentMethod: {
+            type: String,
+            enum: ["COD", "razorpay"],
+            required: true
         }
     },
     {

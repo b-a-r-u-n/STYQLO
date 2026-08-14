@@ -20,7 +20,7 @@ export const loadScript = (src) => {
 }
 
 
-const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTotal, shipping, orderTotal, gst, navigate, dispatch) => {
+const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTotal, shipping, orderTotal, gst, paymentMethod, navigate, dispatch, location) => {
 
   try {
     const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js')
@@ -31,7 +31,7 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
       return;
     }
 
-    const checkoutData = await createCheckout({products, inputData, subTotal, shipping, orderTotal, gst});
+    const checkoutData = await createCheckout({products, inputData, subTotal, shipping, orderTotal, gst, paymentMethod});
 
     // console.log("checkoutData", checkoutData);
     
@@ -59,8 +59,10 @@ const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTo
           // console.log(verify);
           
           if (verify.success) {
+
+            if (location.state?.from === "cart")
+              await dispatch(clearCart());
             
-            await dispatch(clearCart());
             await dispatch(clearBuy());
             
             navigate("/payment/success", {

@@ -63,8 +63,12 @@ const createOrder = asyncHandler(async (req, res) => {
         subTotal,
         tax,
         shippingCharges,
-        totalAmount
+        totalAmount,
+        paymentMethod
     } = req.body;
+
+    // console.log(paymentMethod); 
+    
 
     if (!products || !products.length)
         throw new apiError(400, "Products are required");
@@ -83,6 +87,9 @@ const createOrder = asyncHandler(async (req, res) => {
 
     if (totalAmount === undefined)
         throw new apiError(400, "Total amount is required");
+
+    if (!paymentMethod)
+        throw new apiError(400, "Payment method is required");
 
 
     // Generate one ID for this checkout
@@ -134,7 +141,9 @@ const createOrder = asyncHandler(async (req, res) => {
 
             paymentStatus: "Pending",
 
-            orderGroupId
+            orderGroupId,
+
+            paymentMethod
         });
 
 
@@ -278,7 +287,7 @@ const getOrderById = asyncHandler(async (req, res) => {
         })
         .lean();
 
-        order.returns = returns;
+        order.returns = returns;       
 
     res
         .status(200)

@@ -249,14 +249,10 @@ const OrderDetailsPage = () => {
 
   const fetchData = async () => {
     try {
-      await dispatch(
-        getOrderById(orderId)
-      ).unwrap();
+      await dispatch(getOrderById(orderId)).unwrap();
 
     } catch (error) {
-      toast.error(
-        "Failed to fetch orders"
-      );
+      toast.error("Failed to fetch orders");
     }
   };
 
