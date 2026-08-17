@@ -345,7 +345,7 @@ const createOrders = async (checkout, payment, paymentEntity, session) => {
 
                     orderGroupId,
 
-                    paymentMethod: "razorpay"
+                    paymentMethod: "Razorpay"
                 }
             ],
             {

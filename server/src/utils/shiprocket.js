@@ -3,7 +3,7 @@ import apiError from "./apiError.js";
 
 const getShiprocketToken = async () => {
     try {
-        const response = await axios.post("https://apiv2.shiprocket.in/v1/external/auth/login",
+        const response = await axios.post(`${process.env.SHIPROCKET_BASE_URL}/auth/login`,
             {
                 email: process.env.SHIPROCKET_API_EMAIL,
                 password: process.env.SHIPROCKET_API_SECRET
@@ -24,5 +24,7 @@ const getShiprocketToken = async () => {
         console.error("Error while getting Shiprocket token:", error);
     }
 }
+
+const createShiprocketOrder = async () => {}
 
 export { getShiprocketToken }

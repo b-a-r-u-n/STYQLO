@@ -8,6 +8,7 @@ import { getSingleUser } from '../../features/userSlice';
 import { clearBuy, clearCart, handleBuy, handlePrice } from '../../features/cartSlice';
 import { displayRazorpay } from '../../services/razorpay';
 import { createOrder } from '../../features/orderSlice';
+import axios from 'axios';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -62,6 +63,8 @@ const CheckoutPage = () => {
   const [loadingg, setLoadingg] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState("razorpay");
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [pincodeAvailable, setPincodeAvailable] = useState(null);
 
   // const [buyItem, setBuyItem] = useState(buyItem ? buyItem : {});
 
@@ -80,6 +83,43 @@ const CheckoutPage = () => {
       state: address.state || "",
       pinCode: address.pinCode || "",
     });
+  };
+
+  const handleCheckPincode = async () => {
+    const pinCode = inputData.pinCode?.toString().trim();
+
+    if (!pinCode || pinCode.length !== 6) {
+      toast.error("Please enter a valid 6-digit PIN code");
+      return;
+    }
+   
+
+    try {
+      setCheckingAvailability(true);
+      setPincodeAvailable(null);
+
+      const response = await axios.get(
+        `https://apiv2.shiprocket.in/v1/external/courier/serviceability/?pickup_postcode=751004&delivery_postcode=${pinCode}&weight=1&cod=1`
+      );
+
+      console.log(response);
+      
+
+      if (response.data?.data?.available) {
+        setPincodeAvailable(true);
+        toast.success("Delivery is available at this PIN code");
+      } else {
+        setPincodeAvailable(false);
+        toast.error("Delivery is not available at this PIN code");
+      }
+    } catch (error) {
+      setPincodeAvailable(false);
+      toast.error(
+        error.response?.data?.message || "Failed to check PIN code"
+      );
+    } finally {
+      setCheckingAvailability(false);
+    }
   };
 
   // const generateWhatsAppMessage = () => {
@@ -260,7 +300,7 @@ const CheckoutPage = () => {
        * Your existing Razorpay flow remains
        * exactly the same.
       */
-     
+
       if (paymentMethod === "razorpay") {
 
         displayRazorpay(
@@ -478,7 +518,7 @@ const CheckoutPage = () => {
                   required
                 />
 
-                <Input
+                {/* <Input
                   label="PIN Code"
                   name="pinCode"
                   type="number"
@@ -486,7 +526,54 @@ const CheckoutPage = () => {
                   value={inputData.pinCode}
                   onChange={handleInputChange}
                   required
-                />
+                /> */}
+
+                <div className="sm:col-span-2">
+
+                  <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+
+                    <div className="flex-1">
+                      <Input
+                        label="PIN Code"
+                        name="pinCode"
+                        type="number"
+                        placeholder="110001"
+                        value={inputData.pinCode}
+                        onChange={(e) => {
+                          handleInputChange(e);
+                          setPincodeAvailable(null);
+                        }}
+                        required
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      onClick={handleCheckPincode}
+                      disabled={checkingAvailability}
+                      className="w-full sm:w-auto h-[46px] px-5 justify-center whitespace-nowrap"
+                    >
+                      {checkingAvailability ? "Checking..." : "Check Availability"}
+                    </Button>
+
+                  </div>
+
+                  {pincodeAvailable === true && (
+                    <p className="text-xs text-green-600 mt-2">
+                      ✓ Delivery available at this PIN code
+                    </p>
+                  )}
+
+                  {pincodeAvailable === false && (
+                    <p className="text-xs text-red-500 mt-2">
+                      ✕ Delivery is not available at this PIN code
+                    </p>
+                  )}
+
+                </div>
+
 
               </div>
 
@@ -854,10 +941,10 @@ const CheckoutPage = () => {
                 className="w-full justify-center py-3.5"
                 size="lg"
                 type="submit"
-                disabled={loadingg}
+                disabled={loadingg || !checkingAvailability}
               >
 
-                {
+                {                  
                   loadingg
                     ? "Loading"
                     : paymentMethod === "razorpay"

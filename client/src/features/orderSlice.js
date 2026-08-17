@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axios from "axios";
 
 export const createOrder = createAsyncThunk("createOrder", async ({ products, inputData, subTotal, shipping, orderTotal, gst, paymentMethod }, { rejectWithValue }) => {   
-    console.log(paymentMethod);
+    // console.log(paymentMethod);
      
     try {
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/orders/`, {
@@ -140,7 +140,7 @@ const orderSlice = createSlice({
         builder.addCase(getOrderById.fulfilled, (state, action) => {
             state.loading = false;
             state.success = true;
-            // state.orderData = action.payload;            
+            state.orderData = action.payload;            
         })
         builder.addCase(getOrderById.rejected, (state, action) => {
             state.loading = false;
