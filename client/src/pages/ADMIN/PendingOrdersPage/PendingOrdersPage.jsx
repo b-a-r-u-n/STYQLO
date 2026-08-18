@@ -28,7 +28,7 @@ const PendingOrdersPage = () => {
     fetchData();
   }, [])
 
-  const handleAcceptAndReject = async (orderId, string) => {
+  const handleAcceptAndReject = async (orderId, string, order) => {
     let url = "";
     if (string === "accepted")
       url = "?orderStatus=Confirmed";
@@ -38,7 +38,7 @@ const PendingOrdersPage = () => {
     try {
       const res = await dispatch(updateOrder({orderId, url})).unwrap();
       fetchData();
-      // console.log(res);
+      console.log(order);
       
       toast.success(`Order ${string} successfully`);
     } catch (error) {
@@ -369,7 +369,7 @@ const PendingOrdersPage = () => {
 
                         <button
                           onClick={() =>
-                            handleAcceptAndReject(order?._id, "accepted")
+                            handleAcceptAndReject(order?._id, "accepted", order)
                           }
                           className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
                         >

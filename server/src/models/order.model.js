@@ -107,6 +107,42 @@ const orderSchema = new mongoose.Schema(
             type: String,
             enum: ["COD", "Razorpay"],
             required: true
+        },
+        orderId: {
+            type: String,
+            unique: true,
+            required: true
+        },
+        shiprocket: {
+            orderId: {
+                type: String,
+                default: null
+            },
+
+            shipmentId: {
+                type: String,
+                default: null
+            },
+
+            awbCode: {
+                type: String,
+                default: null
+            },
+
+            courierCompanyId: {
+                type: String,
+                default: null
+            },
+
+            courierName: {
+                type: String,
+                default: null
+            },
+
+            status: {
+                type: String,
+                default: null
+            }
         }
     },
     {

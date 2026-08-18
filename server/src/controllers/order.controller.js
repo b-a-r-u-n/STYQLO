@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js";
+import generateSequenceId from "../utils/generateSequence.js";
 
 
 // const createOrder = asyncHandler(async (req, res) => {
@@ -91,6 +92,7 @@ const createOrder = asyncHandler(async (req, res) => {
     if (!paymentMethod)
         throw new apiError(400, "Payment method is required");
 
+    const orderId = await generateSequenceId("order", "STYQLO");
 
     // Generate one ID for this checkout
     const orderGroupId = new mongoose.Types.ObjectId();
@@ -143,7 +145,9 @@ const createOrder = asyncHandler(async (req, res) => {
 
             orderGroupId,
 
-            paymentMethod
+            paymentMethod,
+            
+            orderId
         });
 
 
@@ -164,7 +168,9 @@ const createOrder = asyncHandler(async (req, res) => {
         totalAmount: order.totalAmount,
         orderStatus: order.orderStatus,
         paymentStatus: order.paymentStatus,
-        orderGroupId: order.orderGroupId
+        orderGroupId: order.orderGroupId,
+        paymentMethod: order.paymentMethod,
+        orderId: order.orderId
     }));
 
 

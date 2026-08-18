@@ -86,26 +86,24 @@ const CheckoutPage = () => {
   };
 
   const handleCheckPincode = async () => {
+    
     const pinCode = inputData.pinCode?.toString().trim();
 
     if (!pinCode || pinCode.length !== 6) {
       toast.error("Please enter a valid 6-digit PIN code");
       return;
     }
-   
 
     try {
       setCheckingAvailability(true);
       setPincodeAvailable(null);
 
+
       const response = await axios.get(
-        `https://apiv2.shiprocket.in/v1/external/courier/serviceability/?pickup_postcode=751004&delivery_postcode=${pinCode}&weight=1&cod=1`
-      );
+        `${import.meta.env.VITE_BASE_URL}/shiprocket/check-serviceability?pincode=${pinCode}`
+      );     
 
-      console.log(response);
-      
-
-      if (response.data?.data?.available) {
+      if (response.data?.data?.data?.available_courier_companies.length > 0) {
         setPincodeAvailable(true);
         toast.success("Delivery is available at this PIN code");
       } else {
@@ -941,7 +939,7 @@ const CheckoutPage = () => {
                 className="w-full justify-center py-3.5"
                 size="lg"
                 type="submit"
-                disabled={loadingg || !checkingAvailability}
+                disabled={loadingg || !pincodeAvailable}
               >
 
                 {                  

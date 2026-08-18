@@ -7,6 +7,7 @@ import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { razorpayOrder, verifyRazorpayPaymentSignature, verifyRazorpayWebhookSignature } from "../utils/razorpay.js";
+import generateSequenceId from "../utils/generateSequence.js";
 
 
 // const createRazorpayOrder = asyncHandler(async (req, res) => {
@@ -288,6 +289,8 @@ import { razorpayOrder, verifyRazorpayPaymentSignature, verifyRazorpayWebhookSig
 const createOrders = async (checkout, payment, paymentEntity, session) => {
     const orderGroupId = new mongoose.Types.ObjectId();
 
+    const orderId = await generateSequenceId("order", "STYQLO");
+
     const createdOrders = [];
 
     for (const item of checkout.products) {
@@ -345,7 +348,9 @@ const createOrders = async (checkout, payment, paymentEntity, session) => {
 
                     orderGroupId,
 
-                    paymentMethod: "Razorpay"
+                    paymentMethod: "Razorpay",
+                    
+                    orderId
                 }
             ],
             {
