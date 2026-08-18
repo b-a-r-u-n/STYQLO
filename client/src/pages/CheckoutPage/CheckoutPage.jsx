@@ -337,7 +337,7 @@ const CheckoutPage = () => {
           paymentMethod: "COD"
         };
 
-        console.log("COD Order Data:", orderData);
+        // console.log("COD Order Data:", orderData);
 
         await dispatch(createOrder({
           products,

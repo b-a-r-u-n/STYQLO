@@ -243,7 +243,7 @@ const OrdersPage = () => {
                         </p>
 
                         <p className="mt-1 text-sm font-semibold text-foreground">
-                          #{displayData._id}
+                          #{displayData.orderId || displayData._id}
                         </p>
 
                       </div>

@@ -369,7 +369,7 @@ const OrderDetailsPage = () => {
             </h1>
 
             <p className="mt-2 text-sm text-muted-foreground">
-              Order #{orderData._id}
+              Order #{orderData.orderId || orderData._id}
             </p>
 
           </div>
