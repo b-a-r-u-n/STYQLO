@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllOrders, updateOrder } from "../../../features/orderSlice";
+import { createShiprocketOrder } from "../../../services/courier";
 
 const PendingOrdersPage = () => {
 
@@ -36,9 +37,17 @@ const PendingOrdersPage = () => {
       url = "?orderStatus=Rejected";
 
     try {
-      const res = await dispatch(updateOrder({orderId, url})).unwrap();
-      fetchData();
-      console.log(order);
+      // const res = await dispatch(updateOrder({orderId, url})).unwrap();
+      // fetchData();
+      // console.log(order);
+
+      if(string === "accepted"){
+        
+        const res = await createShiprocketOrder(orderId);
+        
+        console.log(res);
+        console.log("Hello");
+      }
       
       toast.success(`Order ${string} successfully`);
     } catch (error) {
@@ -280,7 +289,7 @@ const PendingOrdersPage = () => {
 
                       <div className="rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary">
 
-                        {order.payment?.paymentMethod}
+                        {order.payment?.paymentMethod || order.paymentMethod}
 
                       </div>
 
