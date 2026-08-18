@@ -2,7 +2,7 @@ import { Order } from "../models/order.model.js";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import { checkPinCode, createShiprocketOrder, getShiprocketToken } from "../utils/shiprocket.js";
+import { assignRecommendedCourier, checkCourierServiceability, checkPinCode, createShiprocketOrder, getShiprocketToken } from "../utils/shiprocket.js";
 
 const createShipmentOrder = asyncHandler(async (req, res) => {
 
@@ -37,11 +37,11 @@ const createShipmentOrder = asyncHandler(async (req, res) => {
 
     const shiprocketResponse = await createShiprocketOrder(order);
 
-    if(!shiprocketResponse)
+    if (!shiprocketResponse)
         throw new apiError(500, "Error while creating Shiprocket shipment");
 
-    console.log(shiprocketResponse);
-    
+    // console.log(shiprocketResponse);
+
     order.shiprocket = {
         orderId: String(shiprocketResponse.order_id),
         shipmentId: String(shiprocketResponse.shipment_id),
@@ -86,4 +86,78 @@ const checkServiceability = asyncHandler(async (req, res) => {
 
 })
 
-export { createShipmentOrder, checkServiceability }
+const assignBestCourierAndGenerateAWB = asyncHandler(async (req, res) => {
+    const { orderId } = req.params;
+
+    if (!orderId)
+        throw new apiError(400, "Order ID is required");
+
+    const order = await Order.findById(orderId)
+
+    if (!order)
+        throw new apiError(404, "Order not found");
+
+    if (!order.shiprocket?.orderId)
+        throw new apiError(400, "Shiprocket order has not been created");
+
+    // 1. Check courier serviceability
+    const serviceability = await checkCourierServiceability({
+        orderId: order?.shiprocket?.orderId,
+        pickupPostcode: process.env.SHIPROCKET_PICKUP_PINCODE,
+        deliveryPostcode: order?.shippingAddress?.pinCode
+    })
+
+    if (!serviceability)
+        throw new apiError(500, "Error while checking courier serviceability");
+
+    // 2. Get Shiprocket's recommended courier
+    const recommendedCourierId = serviceability?.data?.recommended_courier_company_id;
+
+    if (!recommendedCourierId)
+        throw new apiError(400, "No recommended courier available")
+
+    // 3. Generate AWB
+    const awbResponse = await assignRecommendedCourier({
+        shipmentId: order?.shiprocket?.shipmentId,
+        courierId: recommendedCourierId
+    })
+
+    if (awbResponse?.awb_assign_status !== 1)
+        throw new apiError(500, "Error while assigning recommended courier");
+
+    const awb = awbResponse?.response?.data;
+
+    order.shiprocket = {
+        ...order.shiprocket,
+
+        awbCode:
+            awb?.awb_code || null,
+
+        courierCompanyId:
+            awb?.courier_company_id
+                ? String(awb.courier_company_id)
+                : null,
+
+        courierName:
+            awb?.courier_name || null,
+
+        status: "AWB Generated"
+    };
+
+    await order.save();
+
+    const data = {
+        courierName: awb?.courier_name,
+        courierCompanyId: awb?.courier_company_id,
+        awbCode: awb?.awb_code,
+        shipmentId: order.shiprocket.shipmentId
+    }
+
+    res
+        .status(200)
+        .json(
+            new apiResponse(200, "Best courier assigned and AWB generated", data)
+        )
+})
+
+export { createShipmentOrder, checkServiceability, assignBestCourierAndGenerateAWB }

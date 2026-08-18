@@ -33,7 +33,7 @@ const getShiprocketToken = async () => {
     }
 }
 
-const checkPinCode = async (pincode) => {   
+const checkPinCode = async (pincode) => {
     try {
         const response = await axios.get(`${process.env.SHIPROCKET_BASE_URL}/courier/serviceability/`,
             {
@@ -112,7 +112,7 @@ const createShiprocketOrder = async (order) => {
         "weight": 0.5
     }
 
-    const response = await axios.post(`${import.meta.env.SHIPROCKET_BASE_URL}/orders/create/adhoc`,
+    const response = await axios.post(`${process.env.SHIPROCKET_BASE_URL}/orders/create/adhoc`,
         data,
         {
             headers: {
@@ -128,4 +128,48 @@ const createShiprocketOrder = async (order) => {
     return response?.data;
 }
 
-export { getShiprocketToken, checkPinCode, createShiprocketOrder }
+const checkCourierServiceability = async ({ orderId, pickupPostcode, deliveryPostcode }) => {
+
+    const response = await axios.get(`${process.env.SHIPROCKET_BASE_URL}/courier/serviceability/`,
+        {
+            params: {
+                pickup_postcode: pickupPostcode,
+                delivery_postcode: deliveryPostcode,
+                order_id: orderId
+            },
+            headers: {
+                Authorization: `Bearer ${shiprocketToken}`,
+                "Content-Type": "application/json"
+            }
+        }
+
+    )
+
+    if (!response)
+        throw new apiError(500, "Error while checking courier serviceability");
+
+    return response.data;
+
+}
+
+const assignRecommendedCourier = async ({ shipmentId, courierId }) => {
+    const response = await axios.post(`${process.env.SHIPROCKET_BASE_URL}/courier/assign/awb`,
+        {
+            shipment_id: shipmentId,
+            courier_id: courierId
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${shiprocketToken}`,
+                "Content-Type": "application/json"
+            }
+        }
+    )
+
+    if(!response)
+        throw new apiError(500, "Error while assigning recommended courier");
+
+    return response.data;
+}
+
+export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignRecommendedCourier }
