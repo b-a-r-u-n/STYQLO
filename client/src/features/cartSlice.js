@@ -115,8 +115,8 @@ const cartSlice = createSlice({
             state.success = true;
             // console.log(action.payload.data);
 
-            const newItem = action.payload.data;
-
+            const newItem = action.payload.data;         
+            
             const existingItem = state.cartData.find(
                 (item) => item.productId._id === newItem.productId._id && item.size === newItem.size
             );

@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { addToCart } from '../../features/cartSlice';
 import BargainModal from '../BargainModal/BargainModal';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product }) => {  
   const { isLoggedIn } = useSelector(state => state.auth);
   const { loading } = useSelector(state => state.cart);
 
@@ -47,6 +47,8 @@ const ProductCard = ({ product }) => {
       const result = await dispatch(addToCart({ productId: product._id, size: selectedSize })).unwrap();
       toast.success(result.message || "Added to cart");
     } catch (error) {
+      console.log(error);
+      
       toast.error(error.message || "Failed to add to cart");
     }
   };

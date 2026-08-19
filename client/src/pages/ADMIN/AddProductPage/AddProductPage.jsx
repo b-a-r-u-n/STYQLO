@@ -56,7 +56,7 @@ const AddProductPage = () => {
 
     if (!Number(inputData.stock) || Number(inputData.stock) <= 0) { toast.error("Stock must be greater than zero"); return; }
 
-    if(!Number(inputData.sku) || Number(inputData.sku) <= 0) { toast.error("SKU must be a valid number"); return; }
+    if(!inputData.sku || inputData.sku <= 0) { toast.error("SKU must be a valid number"); return; }
 
     if(!Number(inputData.hsn) || Number(inputData.hsn) <= 0) { toast.error("HSN must be a valid number"); return; }
 
@@ -81,7 +81,7 @@ const AddProductPage = () => {
       toast.success(result.message || "Product added successfully!");
       setImages([]); setPreviewImages([]);
       setInputData({ name: "", description: "", discountPrice: "", originalPrice: "", stock: "", size: "", sku: "", hsn: "", tax: "", star: "", length: "", breadth: "", height: "", weight: "" });
-    } catch (error) {
+    } catch (error) {     
       toast.error(error?.message || "Failed to add product.");
       setImages([]); setPreviewImages([]);
       setInputData({ name: "", description: "", discountPrice: "", originalPrice: "", stock: "", size: "", sku: "", hsn: "", tax: "", star: "", length: "", breadth: "", height: "", weight: "" });
@@ -107,8 +107,9 @@ const AddProductPage = () => {
 
               {/* Drop Zone */}
               <div
+                disabled={loading}
                 onClick={() => imageRef.current.click()}
-                className="border-2 border-dashed border-[#EDD5CF] rounded-2xl p-10 text-center hover:border-[#C8756A] hover:bg-[#FDF5F3] transition-all duration-200 cursor-pointer group"
+                className="border-2 border-dashed border-[#EDD5CF] rounded-2xl p-10 text-center hover:border-[#C8756A] hover:bg-[#FDF5F3] transition-all duration-200 cursor-pointer group disabled:cursor-not-allowed"
               >
                 <div className="w-14 h-14 rounded-2xl bg-[#F1DBD5] group-hover:bg-[#C8756A] flex items-center justify-center mx-auto mb-3 transition-all duration-200">
                   <ImagePlus size={24} className="text-[#C8756A] group-hover:text-white transition-colors" />
@@ -126,7 +127,8 @@ const AddProductPage = () => {
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        disabled={loading}
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:cursor-not-allowed"
                       >
                         <X size={12} />
                       </button>
@@ -135,28 +137,29 @@ const AddProductPage = () => {
                 </div>
               )}
 
-              <input type="file" accept="image/*" name="images" ref={imageRef} className="hidden" multiple onChange={handleImageChange} />
+              <input type="file" accept="image/*" name="images" ref={imageRef} className="hidden disabled:cursor-not-allowed" multiple onChange={handleImageChange} disabled={loading} />
             </div>
 
             {/* Product Name */}
-            <Input label="Product Name" type="text" name="name" placeholder="e.g. Premium Cotton Oversized T-Shirt" required value={inputData.name} onChange={handleInputChange} />
+            <Input label="Product Name" type="text" name="name" placeholder="e.g. Premium Cotton Oversized T-Shirt" required value={inputData.name} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed'/>
 
             {/* Prices */}
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Discount Price (₹)" type="number" name="discountPrice" placeholder="e.g. 799" step="0.01" required value={inputData.discountPrice} onChange={handleInputChange} />
-              <Input label="Original Price (₹)" type="number" name="originalPrice" placeholder="e.g. 999" step="0.01" value={inputData.originalPrice} onChange={handleInputChange} />
+              <Input label="Discount Price (₹)" type="number" name="discountPrice" placeholder="e.g. 799" step="0.01" required value={inputData.discountPrice} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="Original Price (₹)" type="number" name="originalPrice" placeholder="e.g. 999" step="0.01" value={inputData.originalPrice} onChange={handleInputChange} disabled={loading}className='disabled:cursor-not-allowed' />
             </div>
 
             {/* Stock + Size */}
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Stock Quantity" type="number" name="stock" placeholder="e.g. 50" required value={inputData.stock} onChange={handleInputChange} />
+              <Input label="Stock Quantity" type="number" name="stock" placeholder="e.g. 50" required value={inputData.stock} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
               <div>
                 <label className="block text-sm font-bold text-[#2C1810] mb-2">Size</label>
                 <select
                   name="size"
-                  className="w-full px-4 py-3 bg-[#FDF5F3] border border-[#EDD5CF] rounded-xl text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#C8756A]/30 focus:border-[#C8756A] transition-all"
+                  className="w-full px-4 py-3 bg-[#FDF5F3] border border-[#EDD5CF] rounded-xl text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#C8756A]/30 focus:border-[#C8756A] transition-all disabled:cursor-not-allowed"
                   value={inputData.size}
                   onChange={handleInputChange}
+                  disabled={loading}
                 >
                   <option value="">No Size</option>
                   {sizeOptions.map((size) => (
@@ -168,26 +171,26 @@ const AddProductPage = () => {
             
             {/* SKU + HSN */}
             <div className="grid grid-cols-2 gap-4">
-              <Input label="SKU" type="text" name="sku" placeholder="e.g. STYQLO-TSHIRT-001" required value={inputData.sku} onChange={handleInputChange} />
-              <Input label="HSN" type="number" name="hsn" placeholder="e.g. 6109" step="1" value={inputData.hsn} onChange={handleInputChange} />
+              <Input label="SKU" type="text" name="sku" placeholder="e.g. STYQLO-TSHIRT-001" required value={inputData.sku} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="HSN" type="number" name="hsn" placeholder="e.g. 6109" step="1" value={inputData.hsn} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
             </div>
 
             {/* tax + star */}
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Tax (%)" type="number" name="tax" placeholder="e.g. 18" step="1" required value={inputData.tax} onChange={handleInputChange} />
-              <Input label="Review Rating" type="number" name="star" placeholder="e.g. 4.5 (1–5)" step="0.1" value={inputData.star} onChange={handleInputChange} />
+              <Input label="Tax (%)" type="number" name="tax" placeholder="e.g. 18" step="1" required value={inputData.tax} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="Review Rating" type="number" name="star" placeholder="e.g. 4.5 (1–5)" step="0.1" value={inputData.star} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
             </div>
 
             {/* Length + Breadth */}
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Length (cm)" type="number" name="length" placeholder="e.g. 30" step="0.1" required value={inputData.length} onChange={handleInputChange} />
-              <Input label="Breadth (cm)" type="number" name="breadth" placeholder="e.g. 20" step="0.1" value={inputData.breadth} onChange={handleInputChange} />
+              <Input label="Length (cm)" type="number" name="length" placeholder="e.g. 30" step="0.1" required value={inputData.length} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="Breadth (cm)" type="number" name="breadth" placeholder="e.g. 20" step="0.1" value={inputData.breadth} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
             </div>
 
             {/* Height + Weight */}
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Height (cm)" type="number" name="height" placeholder="e.g. 15" step="0.1" required value={inputData.height} onChange={handleInputChange} />
-              <Input label="Weight (kg)" type="number" name="weight" placeholder="e.g. 0.5" step="0.1" value={inputData.weight} onChange={handleInputChange} />
+              <Input label="Height (cm)" type="number" name="height" placeholder="e.g. 15" step="0.1" required value={inputData.height} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="Weight (kg)" type="number" name="weight" placeholder="e.g. 0.5" step="0.1" value={inputData.weight} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
             </div>
 
             
@@ -199,10 +202,11 @@ const AddProductPage = () => {
                 name="description"
                 rows={4}
                 placeholder="e.g. Premium cotton oversized T-shirt with a soft, comfortable fit for everyday wear."
-                className="w-full px-4 py-3 bg-[#FDF5F3] border border-[#EDD5CF] rounded-xl text-[#2C1810] placeholder-[#C4A09A] focus:outline-none focus:ring-2 focus:ring-[#C8756A]/30 focus:border-[#C8756A] transition-all resize-none"
+                className="w-full px-4 py-3 bg-[#FDF5F3] border border-[#EDD5CF] rounded-xl text-[#2C1810] placeholder-[#C4A09A] focus:outline-none focus:ring-2 focus:ring-[#C8756A]/30 focus:border-[#C8756A] transition-all resize-none disabled:cursor-not-allowed"
                 required
                 value={inputData.description}
                 onChange={handleInputChange}
+                disabled={loading}
               />
             </div>
 

@@ -53,7 +53,7 @@ const addToCart = asyncHandler(async (req, res) => {
         })
     }
 
-    item = await item.populate("productId");
+    item = await item.populate("productId");   
 
     if (!item)
         throw new apiError(400, "Error while creating cart item");

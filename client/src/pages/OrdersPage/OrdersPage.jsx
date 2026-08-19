@@ -222,7 +222,7 @@ const OrdersPage = () => {
               return (
 
                 <article
-                  key={displayData._id}
+                  key={displayData?._id}
                   className="card-luxury overflow-hidden"
                 >
 
@@ -243,7 +243,7 @@ const OrdersPage = () => {
                         </p>
 
                         <p className="mt-1 text-sm font-semibold text-foreground">
-                          #{displayData.orderId || displayData._id}
+                          #{displayData?.orderId || displayData?._id}
                         </p>
 
                       </div>
@@ -259,7 +259,7 @@ const OrdersPage = () => {
 
                         <p className="mt-1 text-sm font-semibold text-foreground">
                           {
-                            new Date(displayData.updatedAt).toLocaleDateString("en-IN", {
+                            new Date(displayData?.updatedAt).toLocaleDateString("en-IN", {
                               day: "2-digit",
                               month: "short",
                               year: "numeric",
@@ -280,7 +280,7 @@ const OrdersPage = () => {
 
                       <StatusIcon size={15} />
 
-                      {displayData.orderStatus}
+                      {displayData?.orderStatus}
 
                     </div>
 
@@ -295,10 +295,10 @@ const OrdersPage = () => {
 
                     <div className="space-y-5">
 
-                      {displayData.products.map((data) => (
+                      {displayData?.products?.map((data) => (
 
                         <div
-                          key={data.product._id}
+                          key={data?.product?._id + Math.random()}
                           className="flex gap-4"
                         >
 
@@ -307,8 +307,8 @@ const OrdersPage = () => {
                           <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-24">
 
                             <img
-                              src={data.product.images[0].url}
-                              alt={data.product.name}
+                              src={data?.product?.images[0]?.url}
+                              alt={data?.product?.name}
                               className="h-full w-full object-cover"
                             />
 
@@ -320,23 +320,23 @@ const OrdersPage = () => {
                           <div className="min-w-0 flex-1">
 
                             <h3 className="truncate text-sm font-semibold text-foreground sm:text-base">
-                              {data.product.name}
+                              {data?.product?.name}
                             </h3>
 
                             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground sm:text-sm">
 
                               <span>
-                                Size: {data.size}
+                                Size: {data?.size}
                               </span>
 
                               <span>
-                                Qty: {data.quantity}
+                                Qty: {data?.quantity}
                               </span>
 
                             </div>
 
                             <p className="mt-2 font-semibold text-foreground">
-                              ₹{data.price.toLocaleString("en-IN")}
+                              ₹{data?.price?.toLocaleString("en-IN")}
                             </p>
 
                           </div>
@@ -372,7 +372,7 @@ const OrdersPage = () => {
                             </span>
 
                             <span className="font-semibold text-foreground">
-                              {displayData.paymentStatus}
+                              {displayData?.paymentStatus}
                             </span>
 
                           </div>
@@ -382,7 +382,7 @@ const OrdersPage = () => {
 
                           {/* {displayData.orderStatus === "Delivered" &&
                             order.deliveredAt && ( */}
-                          {displayData.orderStatus === "Confirmed" && (
+                          {displayData?.orderStatus === "Confirmed" && (
 
                             <div className="text-sm text-muted-foreground">
 
@@ -429,7 +429,7 @@ const OrdersPage = () => {
                             </p>
 
                             <p className="mt-1 text-xl font-bold text-foreground">
-                              ₹{displayData.totalAmount.toLocaleString("en-IN")}
+                              ₹{displayData?.totalAmount?.toLocaleString("en-IN")}
                             </p>
 
                           </div>
@@ -459,7 +459,7 @@ const OrdersPage = () => {
 
                             {/* BUY AGAIN */}
 
-                            {displayData.orderStatus === "Delivered" && (
+                            {displayData?.orderStatus === "Delivered" && (
 
                               <button
                                 className="rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary"
@@ -477,7 +477,7 @@ const OrdersPage = () => {
                               <button
                                 onClick={() =>
                                   navigate(
-                                    `/orders/${order.id}/return`
+                                    `/orders/${order?.id}/return`
                                   )
                                 }
                                 className="flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-5 py-3 text-sm font-semibold text-primary transition-luxury hover:bg-primary/10"

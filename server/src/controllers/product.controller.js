@@ -53,6 +53,91 @@ const addProduct = asyncHandler(async (req, res) => {
             throw new apiError(400, "Error while uploading image");
     }
 
+    // const existingSkuProduct = await Product.findOne({
+    //     $or: [
+    //         { sku: sku.trim() },
+    //         { "sizes.sku": sku.trim() }
+    //     ]
+    // });
+    const existingSkuProduct = await Product.findOne({"sizes.sku": sku.trim()});
+
+    if (existingSkuProduct) {
+        throw new apiError(
+            409,
+            `SKU ${sku} already exists`
+        );
+    }
+
+    const existingProduct = await Product.findOne({
+        name
+    });
+
+    if (existingProduct) {
+
+        // ---------------------------------------------
+        // Check if this product is size-based
+        // ---------------------------------------------
+
+        if (size) {
+
+            // Check whether size already exists
+            const existingSize = existingProduct.sizes.find(
+                (item) => item.size === size
+            );
+
+            if (existingSize) {
+
+                throw new apiError(
+                    409,
+                    `Size ${size} already exists for this product`
+                );
+            }
+
+
+            // Add new size
+            existingProduct.sizes.push({
+                size,
+                stock: Number(stock),
+                sku
+            });
+
+
+            // Recalculate total stock
+            existingProduct.stock =
+                existingProduct.sizes.reduce(
+                    (total, item) => total + Number(item.stock),
+                    0
+                );
+
+
+            await existingProduct.save();
+
+
+            const updatedProduct = await Product.findById(
+                existingProduct._id
+            ).select("-createdAt -updatedAt");
+
+
+            return res.status(200).json(
+                new apiResponse(
+                    200,
+                    `Size ${size} added successfully`,
+                    updatedProduct
+                )
+            );
+        }
+
+
+        // ---------------------------------------------
+        // Existing product but no size
+        // ---------------------------------------------
+
+        throw new apiError(
+            409,
+            "Product already exists"
+        );
+    }
+
     let product;
 
     if (size) {
@@ -62,9 +147,8 @@ const addProduct = asyncHandler(async (req, res) => {
             originalPrice: Number(originalPrice),
             discountPrice: Number(discountPrice),
             stock: Number(stock),
-            sizes: [{ size, stock }],
+            sizes: [{ size, stock: Number(stock), sku }],
             images: cloudinaryURLs || [],
-            sku: Number(sku),
             hsn: Number(hsn),
             tax: Number(tax) / 100,
             star: Number(star),
@@ -82,7 +166,7 @@ const addProduct = asyncHandler(async (req, res) => {
             discountPrice: Number(discountPrice),
             stock: Number(stock),
             images: cloudinaryURLs || [],
-            sku: Number(sku),
+            sizes: [{ sku }],
             hsn: Number(hsn),
             tax: Number(tax) / 100,
             star: Number(star),

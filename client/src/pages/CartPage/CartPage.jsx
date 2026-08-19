@@ -50,7 +50,7 @@ const CartPage = () => {
           <div className="h-4 w-px bg-[#E8D4D0]/60" />
           <div>
             <h1 className="text-2xl md:text-3xl font-medium tracking-wide text-[#2C1810] font-['Outfit']">Shopping Cart</h1>
-            {cartData.length > 0 && (
+            {cartData && cartData?.length > 0 && (
               <p className="text-xs text-[#8A6B65] mt-0.5">{cartData.length} item{cartData.length !== 1 ? 's' : ''}</p>
             )}
           </div>
@@ -76,8 +76,8 @@ const CartPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-3">
-              {cartData.map((item) => (
-                <CartCard key={item._id} item={item} />
+              {cartData?.map((item) => (
+                <CartCard key={item?._id} item={item} />
               ))}
 
               {/* Free shipping notice */}

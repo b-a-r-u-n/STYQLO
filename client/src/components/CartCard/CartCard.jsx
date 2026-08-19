@@ -6,6 +6,8 @@ import toast from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 
 const CartCard = ({ item }) => {
+  // console.log(item);
+  
   const { loading } = useSelector(state => state.cart);
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(item.quantity);

@@ -22,7 +22,9 @@ const ProductDetailsPage = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const sizeOrder = ["S", "M", "L", "XL", "XXL"];
-  const [rating] = useState((Math.random() * 1.5 + 3.5).toFixed(1));
+  // const [rating] = useState((Math.random() * 1.5 + 3.5).toFixed(1));
+
+  // console.log(product);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,7 +47,7 @@ const ProductDetailsPage = () => {
   const handleQuantity = (num) => {
     const newQ = quantity + num;
     if (newQ < 1) { toast.error("Minimum quantity is 1"); return; }
-    if (newQ > 100) { toast.error("Maximum quantity is 100"); return; }
+    if (newQ > 10) { toast.error("Maximum quantity is 10"); return; }
     setQuantity(newQ);
   };
 
@@ -82,8 +84,8 @@ const ProductDetailsPage = () => {
       return;
     }
     if (product?.sizes?.length > 0 && !selectedSize) { toast.error("Please select a size"); return; }
-    
-    const buyItemData = {product, quantity, size: selectedSize}
+
+    const buyItemData = { product, quantity, size: selectedSize }
 
     dispatch(handleBuy(buyItemData));
     sessionStorage.setItem("buyNow", JSON.stringify(buyItemData))
@@ -138,16 +140,46 @@ const ProductDetailsPage = () => {
               {/* Rating */}
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={i < Math.floor(rating) ? "text-amber-400 fill-amber-400" : i < rating ? "text-amber-400 fill-amber-400 opacity-50" : "text-[#E8D4D0]"}
-                    />
-                  ))}
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    const rating = product?.star || 0;
+
+                    const isFull = i < Math.floor(rating);
+                    const isHalf = i === Math.floor(rating) && rating % 1 !== 0;
+
+                    return (
+                      <div key={i} className="relative">
+                        <Star
+                          size={16}
+                          className="text-[#E8D4D0]"
+                        />
+
+                        {isFull && (
+                          <Star
+                            size={16}
+                            className="absolute inset-0 text-amber-400 fill-amber-400"
+                          />
+                        )}
+
+                        {isHalf && (
+                          <div className="absolute inset-0 overflow-hidden w-1/2">
+                            <Star
+                              size={16}
+                              className="text-amber-400 fill-amber-400"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                <span className="text-sm font-semibold text-[#2C1810]">{rating}</span>
-                <span className="text-sm text-[#8A6B65]">(verified)</span>
+
+                <span className="text-sm font-semibold text-[#2C1810]">
+                  {product?.star || 0}
+                </span>
+
+                <span className="text-sm text-[#8A6B65]">
+                  (verified)
+                </span>
               </div>
             </div>
 

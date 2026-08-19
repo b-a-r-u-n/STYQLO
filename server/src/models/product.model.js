@@ -27,14 +27,18 @@ const productSchema = new mongoose.Schema(
             {
                 size: {
                     type: String,
-                    required: true,
                     enum: ["S", "M", "L", "XL", "XXL"]
                 },
                 stock: {
                     type: Number,
                     default: 0,
                     min: 0
-                }
+                },
+                sku: {
+                    type: String,
+                    trim: true,
+                    uppercase: true,
+                },
             }
         ],
         images: [
@@ -47,10 +51,6 @@ const productSchema = new mongoose.Schema(
                 }
             }
         ],
-        sku: {
-           type: String,
-           required: true 
-        },
         hsn: {
             type: String,
             required: true
@@ -79,8 +79,8 @@ const productSchema = new mongoose.Schema(
             type: Number,
             required: true
         }
-    }, 
-    {timestamps: true}
+    },
+    { timestamps: true }
 )
 
 export const Product = mongoose.model("Product", productSchema)
