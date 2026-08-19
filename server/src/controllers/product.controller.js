@@ -9,7 +9,7 @@ const addProduct = asyncHandler(async (req, res) => {
 
     const parsedData = JSON.parse(req.body.inputData);
 
-    const { name, description, originalPrice, discountPrice, size, stock } = parsedData;
+    const { name, description, originalPrice, discountPrice, size, stock, sku, hsn, tax, star, length, breadth, height, weight } = parsedData;
 
     // console.log(parsedData);
 
@@ -18,6 +18,23 @@ const addProduct = asyncHandler(async (req, res) => {
         throw new apiError(400, "Product name is required");
     if (!description || !description.trim())
         throw new apiError(400, "Product description is required");
+    if (!sku || !sku.trim())
+        throw new apiError(400, "SKU is required");
+    if (!hsn || !hsn.trim())
+        throw new apiError(400, "HSN is required");
+    if (tax === undefined)
+        throw new apiError(400, "Tax is required");
+    if (star === undefined)
+        throw new apiError(400, "Star rating is required");
+    if (length === undefined)
+        throw new apiError(400, "Length is required");
+    if (breadth === undefined)
+        throw new apiError(400, "Breadth is required");
+    if (height === undefined)
+        throw new apiError(400, "Height is required");
+    if (weight === undefined)
+        throw new apiError(400, "Weight is required");
+
 
 
     let cloudinaryURLs;
@@ -42,21 +59,37 @@ const addProduct = asyncHandler(async (req, res) => {
         product = await Product.create({
             name,
             description,
-            originalPrice,
-            discountPrice,
-            stock,
+            originalPrice: Number(originalPrice),
+            discountPrice: Number(discountPrice),
+            stock: Number(stock),
             sizes: [{ size, stock }],
-            images: cloudinaryURLs || []
+            images: cloudinaryURLs || [],
+            sku: Number(sku),
+            hsn: Number(hsn),
+            tax: Number(tax) / 100,
+            star: Number(star),
+            length: Number(length),
+            breadth: Number(breadth),
+            height: Number(height),
+            weight: Number(weight)
         })
     }
     else {
         product = await Product.create({
             name,
             description,
-            originalPrice,
-            discountPrice,
-            stock,
-            images: cloudinaryURLs || []
+            originalPrice: Number(originalPrice),
+            discountPrice: Number(discountPrice),
+            stock: Number(stock),
+            images: cloudinaryURLs || [],
+            sku: Number(sku),
+            hsn: Number(hsn),
+            tax: Number(tax) / 100,
+            star: Number(star),
+            length: Number(length),
+            breadth: Number(breadth),
+            height: Number(height),
+            weight: Number(weight)
         })
     }
 

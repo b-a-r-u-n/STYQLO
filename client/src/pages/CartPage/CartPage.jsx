@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { CartCard } from '../../components';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button/Button';
 import { ArrowLeft, ShoppingBag, Tag, Truck } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,8 +8,10 @@ import { clearBuy, handlePrice } from '../../features/cartSlice';
 
 const CartPage = () => {
   const { loading, cartData, totalPrice, totalSubPrice, shippingPrice} = useSelector(state => state.cart);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!cartData.length) return;
@@ -125,7 +127,7 @@ const CartPage = () => {
                   </div>
                 </div>
 
-                <Link to="/checkout">
+                <Link to="/checkout" state={{from: location.pathname}}>
                   <Button variant="primary" className="w-full justify-center mb-3 py-3.5" size="lg">
                     Proceed to Checkout
                   </Button>

@@ -4,8 +4,7 @@ import apiError from "./apiError.js";
 let shiprocketToken = null;
 
 const getShiprocketToken = async () => {
-    try {
-
+    try {        
         if (shiprocketToken)
             return shiprocketToken;
 

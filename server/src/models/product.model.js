@@ -46,7 +46,39 @@ const productSchema = new mongoose.Schema(
                     type: String
                 }
             }
-        ]
+        ],
+        sku: {
+           type: String,
+           required: true 
+        },
+        hsn: {
+            type: String,
+            required: true
+        },
+        tax: {
+            type: Number,
+            default: 0
+        },
+        star: {
+            type: Number,
+            default: 4.3
+        },
+        length: {
+            type: Number,
+            required: true
+        },
+        breadth: {
+            type: Number,
+            required: true
+        },
+        height: {
+            type: Number,
+            required: true
+        },
+        weight: {
+            type: Number,
+            required: true
+        }
     }, 
     {timestamps: true}
 )

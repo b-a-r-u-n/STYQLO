@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllOrders, updateOrder } from "../../../features/orderSlice";
-import { createShiprocketOrder } from "../../../services/courier";
+import { assignBestCourierAndGenerateAWB, createShiprocketOrder } from "../../../services/courier";
 
 const PendingOrdersPage = () => {
 
@@ -29,6 +29,8 @@ const PendingOrdersPage = () => {
     fetchData();
   }, [])
 
+  const [currentPageLoading, setCurrentPageLoading] = useState(false);
+
   const handleAcceptAndReject = async (orderId, string, order) => {
     let url = "";
     if (string === "accepted")
@@ -36,23 +38,27 @@ const PendingOrdersPage = () => {
     else if (string === "rejected")
       url = "?orderStatus=Rejected";
 
+    setCurrentPageLoading(true);
+
     try {
       // const res = await dispatch(updateOrder({orderId, url})).unwrap();
       // fetchData();
       // console.log(order);
 
-      if(string === "accepted"){
-        
+      if (string === "accepted") {
+
         const res = await createShiprocketOrder(orderId);
-        
-        console.log(res);
-        console.log("Hello");
+
+        await assignBestCourierAndGenerateAWB(orderId);
       }
-      
+
       toast.success(`Order ${string} successfully`);
     } catch (error) {
       // console.error(error);
       toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+      setCurrentPageLoading(false);
+    } finally {
+      setCurrentPageLoading(false);
     }
   }
 
@@ -132,341 +138,359 @@ const PendingOrdersPage = () => {
         {/* ORDERS */}
         {/* ============================================ */}
 
-        {allOrdersData.length > 0 ? (
-
-          <div className="space-y-6">
-
-            {allOrdersData.map((order) => (
-
-              <article
-                key={order._id}
-                className="card-luxury overflow-hidden"
-              >
-
-                {/* ================================== */}
-                {/* ORDER HEADER */}
-                {/* ================================== */}
-
-                <div className="flex flex-col gap-4 border-b border-border bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-
-                  <div>
-
-                    <div className="flex flex-wrap items-center gap-3">
-
-                      <h2 className="text-lg font-bold text-foreground">
-                        #{order._id}
-                      </h2>
-
-                      <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-
-                        <Clock3 size={13} />
-
-                        Pending
-
-                      </span>
-
-                    </div>
-
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Placed on {new Date(order.createdAt).toLocaleString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true
-                      })}
-                    </p>
-
-                  </div>
-
-
-                  <div className="text-left sm:text-right">
-
-                    <p className="text-xs text-muted-foreground">
-                      Order Total
-                    </p>
-
-                    <p className="mt-1 text-xl font-bold text-foreground">
-                      ₹{order.totalAmount?.toLocaleString("en-IN")}
-                    </p>
-
-                  </div>
-
+        {
+          currentPageLoading ?
+            (
+              <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
+                <div className="text-center">
+                  <div className="spinner-luxury mx-auto mb-4" />
+                  <p className="text-sm text-[#9B7B75] font-medium">Loading...</p>
                 </div>
+              </div>
+            )
+
+            :
+
+            (
+
+              allOrdersData?.length > 0 ? (
+
+                <div className="space-y-6">
+
+                  {allOrdersData.map((order) => (
+
+                    <article
+                      key={order._id}
+                      className="card-luxury overflow-hidden"
+                    >
+
+                      {/* ================================== */}
+                      {/* ORDER HEADER */}
+                      {/* ================================== */}
+
+                      <div className="flex flex-col gap-4 border-b border-border bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+                        <div>
+
+                          <div className="flex flex-wrap items-center gap-3">
+
+                            <h2 className="text-lg font-bold text-foreground">
+                              #{order._id}
+                            </h2>
+
+                            <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+
+                              <Clock3 size={13} />
+
+                              Pending
+
+                            </span>
+
+                          </div>
+
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Placed on {new Date(order.createdAt).toLocaleString("en-IN", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true
+                            })}
+                          </p>
+
+                        </div>
 
 
-                {/* ================================== */}
-                {/* ORDER CONTENT */}
-                {/* ================================== */}
+                        <div className="text-left sm:text-right">
 
-                <div className="grid lg:grid-cols-[minmax(0,1fr)_320px]">
+                          <p className="text-xs text-muted-foreground">
+                            Order Total
+                          </p>
 
-                  {/* ================================= */}
-                  {/* LEFT - PRODUCTS */}
-                  {/* ================================= */}
+                          <p className="mt-1 text-xl font-bold text-foreground">
+                            ₹{order.totalAmount?.toLocaleString("en-IN")}
+                          </p>
 
-                  <div className="p-5 sm:p-6">
+                        </div>
 
-                    <div className="mb-5 flex items-center gap-2">
-
-                      <ShoppingBag
-                        size={18}
-                        className="text-primary"
-                      />
-
-                      <h3 className="font-bold text-foreground">
-                        Ordered Items
-                      </h3>
-
-                    </div>
+                      </div>
 
 
-                    <div className="space-y-4">
+                      {/* ================================== */}
+                      {/* ORDER CONTENT */}
+                      {/* ================================== */}
 
-                      {order.products?.map((product) => (
+                      <div className="grid lg:grid-cols-[minmax(0,1fr)_320px]">
 
-                        <div
-                          key={product._id}
-                          className="flex gap-4 rounded-2xl border border-border bg-card p-3 sm:p-4"
-                        >
+                        {/* ================================= */}
+                        {/* LEFT - PRODUCTS */}
+                        {/* ================================= */}
 
-                          {/* IMAGE */}
+                        <div className="p-5 sm:p-6">
 
-                          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-24">
+                          <div className="mb-5 flex items-center gap-2">
 
-                            <img
-                              src={product?.product?.images[0].url}
-                              alt={product?.product?.name}
-                              className="h-full w-full object-cover"
+                            <ShoppingBag
+                              size={18}
+                              className="text-primary"
                             />
+
+                            <h3 className="font-bold text-foreground">
+                              Ordered Items
+                            </h3>
 
                           </div>
 
 
-                          {/* INFO */}
+                          <div className="space-y-4">
 
-                          <div className="min-w-0 flex-1">
+                            {order.products?.map((product) => (
 
-                            <h4 className="truncate font-semibold text-foreground">
-                              {product?.product?.name}
-                            </h4>
+                              <div
+                                key={product._id}
+                                className="flex gap-4 rounded-2xl border border-border bg-card p-3 sm:p-4"
+                              >
 
-                            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                                {/* IMAGE */}
 
-                              <span>
-                                Size: {product?.size}
-                              </span>
+                                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-24">
 
-                              <span>
-                                Qty: {product?.quantity}
-                              </span>
+                                  <img
+                                    src={product?.product?.images[0].url}
+                                    alt={product?.product?.name}
+                                    className="h-full w-full object-cover"
+                                  />
+
+                                </div>
+
+
+                                {/* INFO */}
+
+                                <div className="min-w-0 flex-1">
+
+                                  <h4 className="truncate font-semibold text-foreground">
+                                    {product?.product?.name}
+                                  </h4>
+
+                                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+
+                                    <span>
+                                      Size: {product?.size}
+                                    </span>
+
+                                    <span>
+                                      Qty: {product?.quantity}
+                                    </span>
+
+                                  </div>
+
+                                  <p className="mt-2 font-semibold text-foreground">
+                                    ₹{product?.price?.toLocaleString("en-IN")}
+                                  </p>
+
+                                </div>
+
+                              </div>
+
+                            ))}
+
+                          </div>
+
+
+                          {/* PAYMENT */}
+
+                          <div className="mt-5 flex flex-wrap gap-3">
+
+                            <div className="rounded-xl bg-green-50 px-4 py-2 text-xs font-semibold text-green-700">
+
+                              Payment: {order.paymentStatus}
 
                             </div>
 
-                            <p className="mt-2 font-semibold text-foreground">
-                              ₹{product?.price?.toLocaleString("en-IN")}
+                            <div className="rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary">
+
+                              {order.payment?.paymentMethod || order.paymentMethod}
+
+                            </div>
+
+                          </div>
+
+                        </div>
+
+
+                        {/* ================================= */}
+                        {/* RIGHT - CUSTOMER */}
+                        {/* ================================= */}
+
+                        <div className="border-t border-border bg-primary/5 p-5 sm:p-6 lg:border-l lg:border-t-0">
+
+                          {/* CUSTOMER */}
+
+                          <div>
+
+                            <h3 className="font-bold text-foreground">
+                              Customer
+                            </h3>
+
+                            <div className="mt-4">
+
+                              <p className="font-semibold text-foreground">
+                                {order?.shippingAddress?.fullName}
+                              </p>
+
+                              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+
+                                <Phone size={15} />
+
+                                {order?.shippingAddress?.phoneNumber}
+
+                              </div>
+
+                            </div>
+
+                          </div>
+
+
+                          {/* ADDRESS */}
+
+                          <div className="mt-6 border-t border-border pt-5">
+
+                            <div className="flex items-center gap-2">
+
+                              <MapPin
+                                size={17}
+                                className="text-primary"
+                              />
+
+                              <h3 className="font-bold text-foreground">
+                                Delivery Address
+                              </h3>
+
+                            </div>
+
+                            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+
+                              {order.shippingAddress.streetAddress}
+                              <br />
+
+                              {order.shippingAddress.city},{" "}
+                              {order.shippingAddress.state}
+                              <br />
+
+                              PIN: {order.shippingAddress.pinCode}
+
                             </p>
 
                           </div>
 
+
+                          {/* ACTIONS */}
+
+                          <div className="mt-6 border-t border-border pt-5">
+
+                            <p className="mb-3 text-xs text-muted-foreground">
+                              Order Action
+                            </p>
+
+                            <div className="flex flex-col gap-3">
+
+                              {/* ACCEPT */}
+
+                              <button
+                                onClick={() =>
+                                  handleAcceptAndReject(order?._id, "accepted", order)
+                                }
+                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
+                              >
+
+                                <Check size={18} />
+
+                                Accept Order
+
+                              </button>
+
+
+                              {/* REJECT */}
+
+                              <button
+                                onClick={() =>
+                                  handleAcceptAndReject(order?._id, "rejected")
+                                }
+                                className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3.5 font-semibold text-red-600 transition-luxury hover:bg-red-100"
+                              >
+
+                                <X size={18} />
+
+                                Reject Order
+
+                              </button>
+
+                              {/* DETAILS */}
+
+                              <button
+                                onClick={() =>
+                                  navigate(
+                                    `/admin/orders/${order._id}`
+                                  )
+                                }
+                                className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary"
+                              >
+
+                                View Details
+
+                                <ChevronRight
+                                  size={16}
+                                />
+
+                              </button>
+
+                            </div>
+
+                          </div>
+
                         </div>
 
-                      ))}
-
-                    </div>
-
-
-                    {/* PAYMENT */}
-
-                    <div className="mt-5 flex flex-wrap gap-3">
-
-                      <div className="rounded-xl bg-green-50 px-4 py-2 text-xs font-semibold text-green-700">
-
-                        Payment: {order.paymentStatus}
-
                       </div>
 
-                      <div className="rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary">
+                    </article>
 
-                        {order.payment?.paymentMethod || order.paymentMethod}
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-
-                  {/* ================================= */}
-                  {/* RIGHT - CUSTOMER */}
-                  {/* ================================= */}
-
-                  <div className="border-t border-border bg-primary/5 p-5 sm:p-6 lg:border-l lg:border-t-0">
-
-                    {/* CUSTOMER */}
-
-                    <div>
-
-                      <h3 className="font-bold text-foreground">
-                        Customer
-                      </h3>
-
-                      <div className="mt-4">
-
-                        <p className="font-semibold text-foreground">
-                          {order?.shippingAddress?.fullName}
-                        </p>
-
-                        <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-
-                          <Phone size={15} />
-
-                          {order?.shippingAddress?.phoneNumber}
-
-                        </div>
-
-                      </div>
-
-                    </div>
-
-
-                    {/* ADDRESS */}
-
-                    <div className="mt-6 border-t border-border pt-5">
-
-                      <div className="flex items-center gap-2">
-
-                        <MapPin
-                          size={17}
-                          className="text-primary"
-                        />
-
-                        <h3 className="font-bold text-foreground">
-                          Delivery Address
-                        </h3>
-
-                      </div>
-
-                      <p className="mt-3 text-sm leading-6 text-muted-foreground">
-
-                        {order.shippingAddress.streetAddress}
-                        <br />
-
-                        {order.shippingAddress.city},{" "}
-                        {order.shippingAddress.state}
-                        <br />
-
-                        PIN: {order.shippingAddress.pinCode}
-
-                      </p>
-
-                    </div>
-
-
-                    {/* ACTIONS */}
-
-                    <div className="mt-6 border-t border-border pt-5">
-
-                      <p className="mb-3 text-xs text-muted-foreground">
-                        Order Action
-                      </p>
-
-                      <div className="flex flex-col gap-3">
-
-                        {/* ACCEPT */}
-
-                        <button
-                          onClick={() =>
-                            handleAcceptAndReject(order?._id, "accepted", order)
-                          }
-                          className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground transition-luxury hover:-translate-y-0.5 hover:shadow-hover"
-                        >
-
-                          <Check size={18} />
-
-                          Accept Order
-
-                        </button>
-
-
-                        {/* REJECT */}
-
-                        <button
-                          onClick={() =>
-                            handleAcceptAndReject(order?._id, "rejected")
-                          }
-                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3.5 font-semibold text-red-600 transition-luxury hover:bg-red-100"
-                        >
-
-                          <X size={18} />
-
-                          Reject Order
-
-                        </button>
-
-                        {/* DETAILS */}
-
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/admin/orders/${order._id}`
-                            )
-                          }
-                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-luxury hover:border-primary hover:text-primary"
-                        >
-
-                          View Details
-
-                          <ChevronRight
-                            size={16}
-                          />
-
-                        </button>
-
-                      </div>
-
-                    </div>
-
-                  </div>
+                  ))}
 
                 </div>
 
-              </article>
+              ) : (
 
-            ))}
+                /* ============================================ */
+                /* EMPTY STATE */
+                /* ============================================ */
 
-          </div>
+                <div className="card-luxury flex flex-col items-center justify-center px-6 py-24 text-center">
 
-        ) : (
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
 
-          /* ============================================ */
-          /* EMPTY STATE */
-          /* ============================================ */
+                    <Package
+                      size={40}
+                      className="text-primary"
+                    />
 
-          <div className="card-luxury flex flex-col items-center justify-center px-6 py-24 text-center">
+                  </div>
 
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+                  <h2 className="mt-6 text-2xl font-bold text-foreground">
+                    No Pending Orders
+                  </h2>
 
-              <Package
-                size={40}
-                className="text-primary"
-              />
+                  <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+                    You're all caught up. New customer orders will appear here
+                    when they are placed.
+                  </p>
 
-            </div>
+                </div>
 
-            <h2 className="mt-6 text-2xl font-bold text-foreground">
-              No Pending Orders
-            </h2>
+              )
 
-            <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              You're all caught up. New customer orders will appear here
-              when they are placed.
-            </p>
-
-          </div>
-
-        )}
+            )
+        }
 
       </div>
 

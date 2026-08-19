@@ -122,6 +122,9 @@ const assignBestCourierAndGenerateAWB = asyncHandler(async (req, res) => {
         courierId: recommendedCourierId
     })
 
+    console.log("awbResponse", awbResponse);
+    
+
     if (awbResponse?.awb_assign_status !== 1)
         throw new apiError(500, "Error while assigning recommended courier");
 

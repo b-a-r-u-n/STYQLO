@@ -14,6 +14,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
+  
 
   const { userLocal, loading } = useSelector(state => state.user);
   const { user } = useSelector(state => state.auth);
@@ -349,29 +350,13 @@ const CheckoutPage = () => {
           paymentMethod: "COD"
         })).unwrap();
 
-        /*
-         * Connect your existing createOrder
-         * API here.
-         *
-         * Example:
-         *
-         * await dispatch(createOrder(orderData)).unwrap();
-         *
-         * Then:
-         *
-         * if (buyItem) {
-         *   dispatch(clearBuy());
-         * } else {
-         *   await dispatch(clearCart()).unwrap();
-         * }
-         *
-         * navigate("/order/success");
-         */
 
-        toast.success("COD order data ready");
+        toast.success("Order successful");
+        
 
-        if (location.state?.from === "cart")
+        if (location.state?.from === "/cart") {
           await dispatch(clearCart());
+        }
 
         await dispatch(clearBuy());
 
