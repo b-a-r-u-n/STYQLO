@@ -140,8 +140,9 @@ const UpdateProductPage = () => {
                 Product Images <span className="text-[#9B7B75] font-normal">(max 5)</span>
               </label>
               <div
+                disabled={loading}
                 onClick={() => imageRef.current.click()}
-                className="border-2 border-dashed border-[#EDD5CF] rounded-2xl p-8 text-center hover:border-[#C8756A] hover:bg-[#FDF5F3] transition-all duration-200 cursor-pointer group"
+                className="border-2 border-dashed border-[#EDD5CF] rounded-2xl p-8 text-center hover:border-[#C8756A] hover:bg-[#FDF5F3] transition-all duration-200 cursor-pointer group disabled:cursor-not-allowed"
               >
                 <div className="w-12 h-12 rounded-xl bg-[#F1DBD5] group-hover:bg-[#C8756A] flex items-center justify-center mx-auto mb-2 transition-all duration-200">
                   <ImagePlus size={22} className="text-[#C8756A] group-hover:text-white transition-colors" />
@@ -156,9 +157,10 @@ const UpdateProductPage = () => {
                     <div key={nanoid()} className="relative group rounded-xl overflow-hidden border border-[#EDD5CF] bg-[#FDF5F3] aspect-square">
                       <img src={image.url || image} className="w-full h-full object-contain p-2" loading="lazy" />
                       <button
+                        disabled={loading}
                         type="button"
                         onClick={() => removeImage(index, image)}
-                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:cursor-not-allowed"
                       >
                         <X size={12} />
                       </button>
@@ -167,18 +169,18 @@ const UpdateProductPage = () => {
                 </div>
               )}
 
-              <input type="file" accept="image/*" name="images" ref={imageRef} className="hidden" multiple onChange={handleImageChange} />
+              <input type="file" accept="image/*" name="images" ref={imageRef} className="hidden disabled:cursor-not-allowed" disabled={loading} multiple onChange={handleImageChange} />
             </div>
 
-            <Input label="Product Name" type="text" name="name" placeholder="Enter product name" required value={inputData?.name} onChange={handleInputChange} />
+            <Input label="Product Name" type="text" name="name" placeholder="Enter product name" required value={inputData?.name} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
 
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Discount Price (₹)" type="number" name="discountPrice" placeholder="0" step="0.01" required value={inputData?.discountPrice} onChange={handleInputChange} />
-              <Input label="Original Price (₹)" type="number" name="originalPrice" placeholder="0" step="0.01" value={inputData?.originalPrice} onChange={handleInputChange} />
+              <Input label="Discount Price (₹)" type="number" name="discountPrice" placeholder="0" step="0.01" required value={inputData?.discountPrice} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="Original Price (₹)" type="number" name="originalPrice" placeholder="0" step="0.01" value={inputData?.originalPrice} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Stock Quantity" type="number" name="stock" placeholder="0" required value={inputData.stock} onChange={handleInputChange} />
+              <Input label="Stock Quantity" type="number" name="stock" placeholder="0" required value={inputData.stock} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
               <Input label="Size" type="text" name="size" placeholder="e.g. XL" required value={inputData.size} disabled={inputData.size ? true : false} className='disabled:cursor-not-allowed' />
               
             </div>
