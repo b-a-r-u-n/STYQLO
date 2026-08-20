@@ -21,6 +21,9 @@ const cartItemSchema = new mongoose.Schema(
         size: {
             type: String,
             enum: ["S", "M", "L", "XL", "XXL"]
+        },
+        tax: {
+            type: Number
         }
     }, {timestamps: true}
 )

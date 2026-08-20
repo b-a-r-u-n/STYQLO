@@ -12,9 +12,9 @@ export const getCartData = createAsyncThunk("getCartData", async (_, { rejectWit
     }
 })
 
-export const addToCart = createAsyncThunk("addToCart", async ({ productId, quantity, size }, { rejectWithValue }) => {
+export const addToCart = createAsyncThunk("addToCart", async ({ productId, quantity, size, tax }, { rejectWithValue }) => {
     try {
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/cart/add-to-cart`, { productId, quantity, size }, { withCredentials: true });
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/cart/add-to-cart`, { productId, quantity, size, tax }, { withCredentials: true });
         // console.log("productId", productId);
 
         return response.data;
@@ -72,10 +72,11 @@ const cartSlice = createSlice({
     initialState,
     reducers: {
         handlePrice: (state, action) => {
-            const { subTotal, shipping } = action.payload;
-            state.totalPrice = subTotal + shipping;
+            const { subTotal, shipping, tax } = action.payload;
+            state.totalPrice = Math.round(subTotal + shipping + tax);
             state.shippingPrice = shipping;
             state.totalSubPrice = subTotal;
+            state.tax = Math.round(tax);
         },
         handleBuy: (state, action) => {
             const {product, quantity, size} = action.payload;

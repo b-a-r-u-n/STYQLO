@@ -1,15 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axios from "axios";
 
-export const createOrder = createAsyncThunk("createOrder", async ({ products, inputData, subTotal, shipping, orderTotal, gst, paymentMethod }, { rejectWithValue }) => {   
+export const createOrder = createAsyncThunk("createOrder", async ({ products, inputData, subTotal, shipping, totalPrice, tax, paymentMethod }, { rejectWithValue }) => {   
     // console.log(paymentMethod);
      
     try {
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/orders/`, {
             products, shippingAddress: inputData,
             subTotal, shippingCharges: shipping,
-            totalAmount: orderTotal,
-            tax: gst,
+            totalAmount: totalPrice,
+            tax: tax,
             paymentMethod
         }, { withCredentials: true });
         return response?.data?.data;

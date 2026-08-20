@@ -1,10 +1,10 @@
 import axios from "axios"
-// const createOrder = async (products, inputData, subTotal, shipping, orderTotal, gst) => {
+// const createOrder = async (products, inputData, subTotal, shipping, totalPrice, tax) => {
 //     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/orders/`, {
 //         products, shippingAddress: inputData, 
 //         subTotal, shippingCharges: shipping, 
-//         totalAmount: orderTotal,
-//         tax: gst
+//         totalAmount: totalPrice,
+//         tax: tax
 //     }, { withCredentials: true });
 
 //     return response.data.data;

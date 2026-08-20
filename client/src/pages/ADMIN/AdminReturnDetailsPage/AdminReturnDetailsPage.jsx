@@ -1559,7 +1559,7 @@ const AdminReturnDetailsPage = () => {
                 <div className="flex justify-between">
 
                   <span className="text-muted-foreground">
-                    GST
+                    tax
                   </span>
 
                   <span className="font-medium">

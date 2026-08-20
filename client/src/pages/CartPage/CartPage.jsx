@@ -7,17 +7,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearBuy, handlePrice } from '../../features/cartSlice';
 
 const CartPage = () => {
-  const { loading, cartData, totalPrice, totalSubPrice, shippingPrice} = useSelector(state => state.cart);
+  const { loading, cartData, totalPrice, totalSubPrice, shippingPrice, tax} = useSelector(state => state.cart);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  
 
   useEffect(() => {
     if (!cartData.length) return;
     const subTotal = cartData.reduce((acc, item) => acc + item.quantity * item.productId.discountPrice, 0);
     const shipping = subTotal < 500 ? 99 : 0;
-    const tax = Math.round(subTotal * 0.05)
+    // const tax = Math.round(subTotal * 0.05)
+    const tax = cartData.reduce((acc, item) => acc + ((item.quantity * item.productId.discountPrice) * item.productId.tax), 0);
     dispatch(handlePrice({ subTotal, shipping, tax }));
   }, [cartData, dispatch]);
 
@@ -33,7 +35,7 @@ const CartPage = () => {
     );
   }
 
-  const tax = Number((totalSubPrice * 0.05).toFixed(0));
+  // const tax = Number((totalSubPrice * 0.05).toFixed(0));
 
   return (
     <div className="min-h-screen bg-[#FBF8F5]">
@@ -103,14 +105,14 @@ const CartPage = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-[#8A6B65]">Tax</span>
-                    <span className="font-semibold text-[#2C1810] font-['Outfit']">₹{tax}</span>
+                    <span className="font-semibold text-[#2C1810] font-['Outfit']">₹{tax?.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-[#8A6B65] flex items-center gap-1.5">
                       <Truck size={14} /> Shipping
                     </span>
                     <span className={`font-semibold ${shippingPrice === 0 ? 'text-emerald-600 font-bold' : 'text-[#2C1810]'}`}>
-                      {shippingPrice === 0 ? 'FREE' : `₹${shippingPrice}`}
+                      {shippingPrice === 0 ? 'FREE' : `₹${shippingPrice?.toFixed(2)}`}
                     </span>
                   </div>
 
@@ -123,7 +125,7 @@ const CartPage = () => {
 
                   <div className="border-t border-[#E8D4D0]/60 pt-3 flex justify-between">
                     <span className="font-bold text-[#2C1810]">Total</span>
-                    <span className="text-xl font-bold text-[#2C1810] font-['Outfit']">₹{totalPrice + tax}</span>
+                    <span className="text-xl font-bold text-[#2C1810] font-['Outfit']">₹{(totalPrice).toFixed(2)}</span>
                   </div>
                 </div>
 

@@ -49,7 +49,7 @@ const ProductCard = ({ product }) => {
     } catch (error) {
       console.log(error);
       
-      toast.error(error.message || "Failed to add to cart");
+      toast.error(error?.message || "Failed to add to cart");
     }
   };
 
