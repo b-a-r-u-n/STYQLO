@@ -8,14 +8,15 @@ import toast from 'react-hot-toast';
 import { getSingleProduct, updateProduct } from '../../../features/productSlice';
 
 const UpdateProductPage = () => {
-  const { loading, product } = useSelector(state => state.product);
+  const { loading, product, selectedSize } = useSelector(state => state.product);
   const dispatch = useDispatch();
   const { id } = useParams();
   const navigate = useNavigate();
   const imageRef = useRef();
 
   const [inputData, setInputData] = useState({
-    name: "", description: "", discountPrice: 0, originalPrice: 0, stock: 0, size: ""
+    name: "", description: "", discountPrice: "", originalPrice: "", stock: "", size: "",
+    sku: "", hsn: "", tax: "", star: "", length: "", breadth: "", height: "", weight: ""
   });
   const [images, setImages] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
@@ -37,17 +38,27 @@ const UpdateProductPage = () => {
 
   useEffect(() => {
     if (product) {
+      const currentData = product.sizes.filter((item) => item?.size === selectedSize )          
+
       setInputData({
-        name: product.name || "",
-        description: product.description || "",
-        discountPrice: product.discountPrice || 0,
-        originalPrice: product.originalPrice || 0,
-        stock: product.stock || 0,
-        size: product.sizes?.length > 0 ? product.sizes[0].size : "",
+        name: product?.name || "",
+        description: product?.description || "",
+        discountPrice: product?.discountPrice || "",
+        originalPrice: product?.originalPrice || "",
+        stock: currentData[0]?.stock || "",
+        size: currentData[0]?.size || selectedSize || "",
+        sku: currentData[0]?.sku,
+        hsn: product?.hsn || "",
+        tax: product?.tax || "",
+        star: product?.star || "",
+        length: product?.length || "",
+        breadth: product?.breadth || "",
+        height: product?.height || "",
+        weight: product?.weight || ""
       });
       setPreviewImages(product?.images?.map((img) => ({ type: "old", url: img.url, publicId: img.publicId })));
     }
-  }, [product]);
+  }, [product, selectedSize]);
 
   const handleInputChange = (e) => setInputData({ ...inputData, [e.target.name]: e.target.value });
 
@@ -81,6 +92,8 @@ const UpdateProductPage = () => {
     images.forEach((img) => formData.append("images", img));
     formData.append("removedImages", JSON.stringify(removedImages));
 
+    // console.log(inputData);
+    
     setIsLoading(true);
     try {
       const result = await dispatch(updateProduct({ formData, productId: id })).unwrap();
@@ -92,7 +105,7 @@ const UpdateProductPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  };  
 
   if (loading && !product) {
     return (
@@ -166,19 +179,32 @@ const UpdateProductPage = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <Input label="Stock Quantity" type="number" name="stock" placeholder="0" required value={inputData.stock} onChange={handleInputChange} />
-              <div>
-                <label className="block text-sm font-bold text-[#2C1810] mb-2">Size</label>
-                <select
-                  name="size"
-                  className="w-full px-4 py-3 bg-[#FDF5F3] border border-[#EDD5CF] rounded-xl text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#C8756A]/30 focus:border-[#C8756A] transition-all"
-                  value={inputData.size}
-                  onChange={handleInputChange}
-                >
-                  {sizeOptions.map((size) => (
-                    <option value={size} key={size}>{size}</option>
-                  ))}
-                </select>
-              </div>
+              <Input label="Size" type="text" name="size" placeholder="e.g. XL" required value={inputData.size} disabled={inputData.size ? true : false} className='disabled:cursor-not-allowed' />
+              
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="SKU" type="text" name="sku" placeholder="e.g. STYQLO-TSHIRT-001" required value={inputData.sku} 
+              onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="HSN" type="number" name="hsn" placeholder="e.g. 6109" step="1" value={inputData.hsn} onChange={handleInputChange} disabled={inputData.size ? true : false} className='disabled:cursor-not-allowed' />
+            </div>
+
+            {/* tax + star */}
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Tax (%)" type="number" name="tax" placeholder="e.g. 18" step="1" required value={inputData.tax} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="Review Rating" type="number" name="star" placeholder="e.g. 4.5 (1–5)" step="0.1" value={inputData.star} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+            </div>
+
+            {/* Length + Breadth */}
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Length (cm)" type="number" name="length" placeholder="e.g. 30" step="0.1" required value={inputData.length} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="Breadth (cm)" type="number" name="breadth" placeholder="e.g. 20" step="0.1" value={inputData.breadth} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+            </div>
+
+            {/* Height + Weight */}
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Height (cm)" type="number" name="height" placeholder="e.g. 15" step="0.1" required value={inputData.height} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              <Input label="Weight (kg)" type="number" name="weight" placeholder="e.g. 0.5" step="0.1" value={inputData.weight} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
             </div>
 
             <div>

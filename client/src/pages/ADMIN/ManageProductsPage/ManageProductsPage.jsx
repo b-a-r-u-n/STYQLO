@@ -5,7 +5,8 @@ import { Edit, Plus, Trash2, Package } from 'lucide-react';
 import { Badge } from '../../../components';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
-import { getAllProducts, removeProduct, removeLocalProduct, addLocalProduct } from '../../../features/productSlice';
+import { getAllProducts, removeProduct, removeLocalProduct, addLocalProduct, changeSelectedSize } from '../../../features/productSlice';
+import { useState } from 'react';
 
 const ManageProductsPage = () => {
   const navigate = useNavigate();
@@ -23,7 +24,25 @@ const ManageProductsPage = () => {
     fetchData();
   }, []);
 
-  const handleEdit = (product) => navigate(`/admin/product/${product._id}/edit`);
+  const [selectedSize, setSelectedSize] = useState(null);
+
+  const handleButton = (size, productId) => {
+    const newValue = selectedSize?.productId === productId && selectedSize?.size === size ? null : { size, productId }
+
+    setSelectedSize(newValue);
+
+    dispatch(changeSelectedSize(newValue));
+
+  };
+
+  const handleEdit = (product) => {
+    if(!selectedSize){
+      toast.error("Please select a size to edit");
+      return;
+    }
+
+    navigate(`/admin/product/${product._id}/edit`);
+  }
 
   const handleRemove = async (product, index) => {
     dispatch(removeLocalProduct(product._id));
@@ -36,7 +55,7 @@ const ManageProductsPage = () => {
     }
   };
 
-  const sizeOrder = ["S", "M", "L", "XL", "XXL"];
+  const sizeOrder = ["S", "M", "L", "XL", "XXL", "XXXL"];
   const getSizeStockMap = (sizes = []) => {
     const map = {};
     sizes.forEach((s) => { map[(s.size || s).toUpperCase()] = s.stock || 0; });
@@ -109,10 +128,19 @@ const ManageProductsPage = () => {
                           {sizeOrder.map((size) => {
                             const sizeMap = getSizeStockMap(product.sizes);
                             const stock = sizeMap[size] || 0;
+                            const isSelected = selectedSize?.size === size && selectedSize?.productId === product._id
+
                             return (
-                              <Badge key={size} variant={stock > 0 ? "success" : "error"}>
-                                {size}: {stock}
-                              </Badge>
+                              <button
+                                key={size}
+                                onClick={() => handleButton(size, product._id)}
+                              >
+                                <Badge
+                                  variant={isSelected ? "secondary" : stock > 0 ? "success" : "error"}
+                                >
+                                  {size}: {stock}
+                                </Badge>
+                              </button>
                             );
                           })}
                         </div>
@@ -122,6 +150,48 @@ const ManageProductsPage = () => {
                         </Badge>
                       )}
                     </td>
+                    {/* <td className="px-5 py-4">
+        {product?.sizes?.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {sizeOrder.map((size) => {
+              const sizeMap = getSizeStockMap(product.sizes);
+              const selectedSize = selectedSizes[product._id];
+              const stock = sizeMap[size] || 0;
+
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => handleButton(product._id, size)}
+                >
+                  <Badge
+                    variant={stock > 0 ? "success" : "error"}
+                    className={
+                      selectedSize === size
+                        ? "bg-[#2C1810] text-purple-500 border-[#2C1810]"
+                        : ""
+                    }
+                  >
+                    {size}: {stock}
+                  </Badge>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <Badge
+            variant={
+              product?.stock > 20
+                ? "success"
+                : product?.stock > 0
+                ? "warning"
+                : "error"
+            }
+          >
+            {product?.stock} in stock
+          </Badge>
+        )}
+      </td> */}
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
                         <button

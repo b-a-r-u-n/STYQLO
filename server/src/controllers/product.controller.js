@@ -59,7 +59,8 @@ const addProduct = asyncHandler(async (req, res) => {
     //         { "sizes.sku": sku.trim() }
     //     ]
     // });
-    const existingSkuProduct = await Product.findOne({"sizes.sku": sku.trim()});
+    
+    const existingSkuProduct = await Product.findOne({ "sizes.sku": sku.trim() });
 
     if (existingSkuProduct) {
         throw new apiError(
@@ -218,7 +219,8 @@ const updateProduct = asyncHandler(async (req, res) => {
 
     const removedImages = JSON.parse(req.body.removedImages || "[]");
 
-    const { name, description, originalPrice, discountPrice, stock, size } = parsedInputData;
+    const { name, description, originalPrice, discountPrice, stock, size, sku, hsn, tax, star, length, breadth, height, weight } = parsedInputData;
+    // console.log(parsedInputData);
 
     // console.log("removedImages", removedImages);
 
@@ -232,6 +234,22 @@ const updateProduct = asyncHandler(async (req, res) => {
         throw new apiError(400, "Discount Price is required");
     if (stock === undefined)
         throw new apiError(400, "Stock is required");
+    if (!sku || !sku.trim())
+        throw new apiError(400, "SKU is required");
+    if (!hsn || !hsn.trim())
+        throw new apiError(400, "HSN is required");
+    if (tax === undefined)
+        throw new apiError(400, "Tax is required");
+    if (star === undefined)
+        throw new apiError(400, "Star rating is required");
+    if (length === undefined)
+        throw new apiError(400, "Length is required");
+    if (breadth === undefined)
+        throw new apiError(400, "Breadth is required");
+    if (height === undefined)
+        throw new apiError(400, "Height is required");
+    if (weight === undefined)
+        throw new apiError(400, "Weight is required");
 
     let cloudinaryURLs = [];
     if (req?.files && req.files.length > 0) {
@@ -306,15 +324,38 @@ const updateProduct = asyncHandler(async (req, res) => {
                     }
                 }
             )
+            product.stock =
+                product.sizes.reduce(
+                    (total, item) => total + Number(item.stock),
+                    0
+                );
+
+
+            await product.save();
         } else {
+
+            const existingSkuProduct = await Product.findOne({ "sizes.sku": sku.trim() });
+
+            if (existingSkuProduct) {
+                throw new apiError(409, `SKU ${sku} already exists`);
+            }
+
             await Product.findByIdAndUpdate(
                 productId,
                 {
                     $push: {
-                        sizes: { size, stock }
+                        sizes: { size, stock, sku }
                     }
                 }
             )
+            product.stock =
+                product.sizes.reduce(
+                    (total, item) => total + Number(item.stock),
+                    0
+                );
+
+
+            await product.save();
         }
     }
 

@@ -57,7 +57,8 @@ const initialState = {
     product: null,
     loading: false,
     error: null,
-    success: false
+    success: false,
+    selectedSize: null
 }
 
 const productSlice = createSlice({
@@ -75,6 +76,11 @@ const productSlice = createSlice({
             if (state.productsLocal) {
                 state.productsLocal.splice(index, 0, product); // ✅ insert at index
             }
+        },
+        changeSelectedSize: (state, action) => {
+            // const {size} = action?.payload;
+            // console.log(action?.payload?.size);
+            state.selectedSize = action?.payload?.size;
         }
     },
     extraReducers: (builder) => {
@@ -154,6 +160,6 @@ const productSlice = createSlice({
     }
 })
 
-export const { removeLocalProduct, addLocalProduct } = productSlice.actions;
+export const { removeLocalProduct, addLocalProduct, changeSelectedSize } = productSlice.actions;
 
 export default productSlice.reducer;
