@@ -20,7 +20,7 @@ export const loadScript = (src) => {
 }
 
 
-const displayRazorpay = async (loadingg, setLoadingg, products, inputData, subTotal, shipping, totalPrice, tax, paymentMethod, navigate, dispatch, location) => {
+const displayRazorpay = async ({loadingg, setLoadingg, products, inputData, subTotal, shipping, totalPrice, tax, paymentMethod, navigate, dispatch, location}) => {
 
   try {
     const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js')

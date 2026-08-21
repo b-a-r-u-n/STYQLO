@@ -14,7 +14,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  
+
 
   const { userLocal, loading } = useSelector(state => state.user);
   const { user } = useSelector(state => state.auth);
@@ -30,7 +30,9 @@ const CheckoutPage = () => {
 
     const shipping = subTotal < 500 ? 99 : 0;
 
-    dispatch(handlePrice({ subTotal, shipping }));
+    const tax = cartData.reduce((acc, item) => acc + ((item.quantity * item.productId.discountPrice) * item.productId.tax), 0);
+
+    dispatch(handlePrice({ subTotal, shipping, tax }));
   }, [cartData, dispatch]);
 
   useEffect(() => {
@@ -87,7 +89,7 @@ const CheckoutPage = () => {
   };
 
   const handleCheckPincode = async () => {
-    
+
     const pinCode = inputData.pinCode?.toString().trim();
 
     if (!pinCode || pinCode.length !== 6) {
@@ -102,7 +104,7 @@ const CheckoutPage = () => {
 
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/shiprocket/check-serviceability?pincode=${pinCode}`
-      );     
+      );
 
       if (response.data?.data?.data?.available_courier_companies.length > 0) {
         setPincodeAvailable(true);
@@ -225,10 +227,10 @@ const CheckoutPage = () => {
     : totalSubPrice;
 
   const shipping = buyItem
-    ? (buyItem.discountPrice < 500 ? 99 : 0)
+    ? (buyItem.discountPrice * buyItem.quantity < 500 ? 99 : 0)
     : shippingPrice;
 
-  const gst = Number((subTotal * 0.05).toFixed(0)); // 5% GST
+  const gst = buyItem ? Number(Math.round((buyItem.discountPrice * buyItem.quantity) * buyItem.tax)) : tax // 5% GST
 
   const orderTotal = subTotal + shipping + gst;
 
@@ -302,20 +304,20 @@ const CheckoutPage = () => {
 
       if (paymentMethod === "razorpay") {
 
-        displayRazorpay(
+        displayRazorpay({
           loadingg,
           setLoadingg,
           products,
           inputData,
           subTotal,
           shipping,
-          orderTotal,
-          gst,
+          totalPrice: orderTotal,
+          tax: gst,
           paymentMethod,
           navigate,
           dispatch,
           location
-        );
+        });
 
       }
 
@@ -328,16 +330,6 @@ const CheckoutPage = () => {
 
       else if (paymentMethod === "cod") {
 
-        const orderData = {
-          products,
-          shippingAddress: inputData,
-          subTotal,
-          tax: gst,
-          shippingCharges: shipping,
-          totalAmount: orderTotal,
-          paymentMethod: "COD"
-        };
-
         // console.log("COD Order Data:", orderData);
 
         await dispatch(createOrder({
@@ -345,14 +337,14 @@ const CheckoutPage = () => {
           inputData,
           subTotal,
           shipping,
-          orderTotal,
-          gst,
+          totalPrice: orderTotal,
+          tax: gst,
           paymentMethod: "COD"
         })).unwrap();
 
 
         toast.success("Order successful");
-        
+
 
         if (location.state?.from === "/cart") {
           await dispatch(clearCart());
@@ -700,7 +692,7 @@ const CheckoutPage = () => {
                     </div>
 
                     <p className="text-sm font-bold text-[#2C1810] font-['Outfit']">
-                      ₹{buyItem.discountPrice * buyItem.quantity}
+                      ₹{buyItem.discountPrice}
                     </p>
 
                   </div>
@@ -742,7 +734,7 @@ const CheckoutPage = () => {
                       </div>
 
                       <p className="text-sm font-bold text-[#2C1810] font-['Outfit']">
-                        ₹{item.productId.discountPrice * item.quantity}
+                        ₹{item.productId.discountPrice}
                       </p>
 
                     </div>
@@ -850,7 +842,7 @@ const CheckoutPage = () => {
                   </span>
 
                   <span className="font-semibold text-[#2C1810] font-['Outfit']">
-                    ₹{subTotal}
+                    ₹{subTotal?.toFixed(2)}
                   </span>
 
                 </div>
@@ -862,7 +854,7 @@ const CheckoutPage = () => {
                   </span>
 
                   <span className="font-semibold text-[#2C1810] font-['Outfit']">
-                    ₹{gst}
+                    ₹{gst?.toFixed(2)}
                   </span>
 
                 </div>
@@ -874,22 +866,16 @@ const CheckoutPage = () => {
                   </span>
 
                   <span
-                    className={`font-semibold ${(
-                      buyItem
-                        ? buyItem.discountPrice < 500
-                          ? 99
-                          : 0
-                        : shippingPrice
-                    ) === 0
-                      ? 'text-emerald-600 font-bold'
-                      : 'text-[#2C1810]'
+                    className={`font-semibold ${shipping === 0
+                        ? 'text-emerald-600 font-bold'
+                        : 'text-[#2C1810]'
                       }`}
                   >
 
                     {
                       shipping === 0
                         ? "FREE"
-                        : `₹${shipping}`
+                        : `₹${shipping.toFixed(2)}`
                     }
 
                   </span>
@@ -903,7 +889,7 @@ const CheckoutPage = () => {
                   </span>
 
                   <span className="text-xl font-bold text-[#2C1810] font-['Outfit']">
-                    ₹{orderTotal}
+                    ₹{orderTotal?.toFixed(2)}
                   </span>
 
                 </div>
@@ -927,7 +913,7 @@ const CheckoutPage = () => {
                 disabled={loadingg || !pincodeAvailable}
               >
 
-                {                  
+                {
                   loadingg
                     ? "Loading"
                     : paymentMethod === "razorpay"
