@@ -1,4 +1,5 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const createShiprocketOrder = async (orderId) => {
     
@@ -8,19 +9,21 @@ const createShiprocketOrder = async (orderId) => {
         // console.log("res", res);
         
     } catch (error) {
-        return error.response?.data?.message || error.message;
+        throw error;
     }
 }
 
-const assignBestCourierAndGenerateAWB = async (orderId) => {
+const getCourierDetails = async (orderId) => {
     try {
-        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/assign-best-courier-and-generate-awb`, {withCredentials: true})
+        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/get-couriers`, {withCredentials: true})
 
-        console.log("res", res);
+        // console.log("res", res);
+        return res.data;
         
     } catch (error) {
-        return error.response?.data?.message || error.message;
+        // console.log("error", error.response);
+        throw error;
     }
 }
 
-export {createShiprocketOrder, assignBestCourierAndGenerateAWB}
+export {createShiprocketOrder, getCourierDetails}

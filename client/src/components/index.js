@@ -5,6 +5,7 @@ import BargainModal from "./BargainModal/BargainModal";
 import { Button } from "./Button/Button";
 import Card from "./Card/Card";
 import CartCard from "./CartCard/CartCard";
+import CourierModal from "./CourierModal/CourierModal";
 import FeatureStrip from "./FeatureStrip/FeatureStrip";
 import Footer from "./Footer/Footer";
 import Input from "./Input/Input";
@@ -14,4 +15,4 @@ import ProductCarousel from "./ProductCarousel/ProductCarousel";
 import ProfileEditModal from "./ProfileEditModal/ProfileEditModal";
 import ReturnModal from "./ReturnModal/ReturnModal";
 
-export {Navbar, Footer, ProductCard, Card, Input, ProfileEditModal, AdminSidebar, AdminRedirect, Badge, Button, ProductCarousel, CartCard, FeatureStrip, BargainModal, ReturnModal}
+export {Navbar, Footer, ProductCard, Card, Input, ProfileEditModal, AdminSidebar, AdminRedirect, Badge, Button, ProductCarousel, CartCard, FeatureStrip, BargainModal, ReturnModal, CourierModal}

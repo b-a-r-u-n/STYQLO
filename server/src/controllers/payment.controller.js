@@ -291,6 +291,8 @@ const createOrders = async (checkout, payment, paymentEntity, session) => {
 
     const orderId = await generateSequenceId("order", "STYQLO");
 
+    const invoiceNumber = await generateSequenceId("invoice", "INV");
+
     const createdOrders = [];
 
     for (const item of checkout.products) {
@@ -309,7 +311,7 @@ const createOrders = async (checkout, payment, paymentEntity, session) => {
 
         const itemTotal =
             itemSubTotal +
-            itemTax +
+            Math.round(itemTax) +
             itemShipping;
 
 
@@ -331,7 +333,7 @@ const createOrders = async (checkout, payment, paymentEntity, session) => {
 
                     subTotal: itemSubTotal,
 
-                    tax: itemTax,
+                    tax: Math.round(itemTax),
 
                     shippingCharges: itemShipping,
 
@@ -350,7 +352,8 @@ const createOrders = async (checkout, payment, paymentEntity, session) => {
 
                     paymentMethod: "Razorpay",
                     
-                    orderId
+                    orderId,
+                    invoiceNumber
                 }
             ],
             {

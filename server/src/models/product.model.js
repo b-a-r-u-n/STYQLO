@@ -52,7 +52,7 @@ const productSchema = new mongoose.Schema(
             }
         ],
         hsn: {
-            type: String,
+            type: Number,
             required: true
         },
         tax: {

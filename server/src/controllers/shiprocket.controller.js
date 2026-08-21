@@ -40,7 +40,7 @@ const createShipmentOrder = asyncHandler(async (req, res) => {
     if (!shiprocketResponse)
         throw new apiError(500, "Error while creating Shiprocket shipment");
 
-    // console.log(shiprocketResponse);
+    // console.log("shiprocketResponse", shiprocketResponse);
 
     order.shiprocket = {
         orderId: String(shiprocketResponse.order_id),
@@ -86,7 +86,7 @@ const checkServiceability = asyncHandler(async (req, res) => {
 
 })
 
-const assignBestCourierAndGenerateAWB = asyncHandler(async (req, res) => {
+const getCourierDetails = asyncHandler(async (req, res) => {
     const { orderId } = req.params;
 
     if (!orderId)
@@ -110,57 +110,60 @@ const assignBestCourierAndGenerateAWB = asyncHandler(async (req, res) => {
     if (!serviceability)
         throw new apiError(500, "Error while checking courier serviceability");
 
-    // 2. Get Shiprocket's recommended courier
-    const recommendedCourierId = serviceability?.data?.recommended_courier_company_id;
-
-    if (!recommendedCourierId)
-        throw new apiError(400, "No recommended courier available")
-
-    // 3. Generate AWB
-    const awbResponse = await assignRecommendedCourier({
-        shipmentId: order?.shiprocket?.shipmentId,
-        courierId: recommendedCourierId
-    })
-
-    console.log("awbResponse", awbResponse);
+    // console.log(serviceability?.data?.available_courier_companies);
     
 
-    if (awbResponse?.awb_assign_status !== 1)
-        throw new apiError(500, "Error while assigning recommended courier");
+    // 2. Get Shiprocket's recommended courier
+    // const recommendedCourierId = serviceability?.data?.recommended_courier_company_id;
 
-    const awb = awbResponse?.response?.data;
+    // if (!recommendedCourierId)
+    //     throw new apiError(400, "No recommended courier available")
 
-    order.shiprocket = {
-        ...order.shiprocket,
+    // // 3. Generate AWB
+    // const awbResponse = await assignRecommendedCourier({
+    //     shipmentId: order?.shiprocket?.shipmentId,
+    //     courierId: recommendedCourierId
+    // })
 
-        awbCode:
-            awb?.awb_code || null,
+    // console.log("awbResponse", awbResponse);
+    
 
-        courierCompanyId:
-            awb?.courier_company_id
-                ? String(awb.courier_company_id)
-                : null,
+    // if (awbResponse?.awb_assign_status !== 1)
+    //     throw new apiError(500, "Error while assigning recommended courier");
 
-        courierName:
-            awb?.courier_name || null,
+    // const awb = awbResponse?.response?.data;
 
-        status: "AWB Generated"
-    };
+    // order.shiprocket = {
+    //     ...order.shiprocket,
 
-    await order.save();
+    //     awbCode:
+    //         awb?.awb_code || null,
 
-    const data = {
-        courierName: awb?.courier_name,
-        courierCompanyId: awb?.courier_company_id,
-        awbCode: awb?.awb_code,
-        shipmentId: order.shiprocket.shipmentId
-    }
+    //     courierCompanyId:
+    //         awb?.courier_company_id
+    //             ? String(awb.courier_company_id)
+    //             : null,
+
+    //     courierName:
+    //         awb?.courier_name || null,
+
+    //     status: "AWB Generated"
+    // };
+
+    // await order.save();
+
+    // const data = {
+    //     courierName: awb?.courier_name,
+    //     courierCompanyId: awb?.courier_company_id,
+    //     awbCode: awb?.awb_code,
+    //     shipmentId: order.shiprocket.shipmentId
+    // }
 
     res
         .status(200)
         .json(
-            new apiResponse(200, "Best courier assigned and AWB generated", data)
+            new apiResponse(200, "Courier details fetched successfully", serviceability?.data?.available_courier_companies)
         )
 })
 
-export { createShipmentOrder, checkServiceability, assignBestCourierAndGenerateAWB }
+export { createShipmentOrder, checkServiceability, getCourierDetails }

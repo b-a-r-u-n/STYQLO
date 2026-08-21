@@ -94,6 +94,8 @@ const createOrder = asyncHandler(async (req, res) => {
 
     const orderId = await generateSequenceId("order", "STYQLO");
 
+    const invoiceNumber = await generateSequenceId("invoice", "INV");
+
     // Generate one ID for this checkout
     const orderGroupId = new mongoose.Types.ObjectId();
 
@@ -112,7 +114,7 @@ const createOrder = asyncHandler(async (req, res) => {
 
         const itemTotalAmount =
             itemSubTotal +
-            itemTax +
+            Math.round(itemTax) +
             itemShippingCharges;
 
 
@@ -133,7 +135,7 @@ const createOrder = asyncHandler(async (req, res) => {
 
             subTotal: itemSubTotal,
 
-            tax: itemTax,
+            tax: Math.round(itemTax),
 
             shippingCharges: itemShippingCharges,
 
@@ -147,7 +149,9 @@ const createOrder = asyncHandler(async (req, res) => {
 
             paymentMethod,
             
-            orderId
+            orderId,
+
+            invoiceNumber
         });
 
 

@@ -4,7 +4,8 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllOrders, updateOrder } from "../../../features/orderSlice";
-import { assignBestCourierAndGenerateAWB, createShiprocketOrder } from "../../../services/courier";
+import { createShiprocketOrder, getCourierDetails } from "../../../services/courier";
+import { CourierModal } from "../../../components";
 
 const PendingOrdersPage = () => {
 
@@ -30,6 +31,9 @@ const PendingOrdersPage = () => {
   }, [])
 
   const [currentPageLoading, setCurrentPageLoading] = useState(false);
+  const [showCourierModal, setShowCourierModal] = useState(false);
+  const [couriers, setCouriers] = useState([]);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const handleAcceptAndReject = async (orderId, string, order) => {
     let url = "";
@@ -41,21 +45,27 @@ const PendingOrdersPage = () => {
     setCurrentPageLoading(true);
 
     try {
-      // const res = await dispatch(updateOrder({orderId, url})).unwrap();
-      // fetchData();
+      const res = await dispatch(updateOrder({orderId, url})).unwrap();
       // console.log(order);
 
       if (string === "accepted") {
 
-        const res = await createShiprocketOrder(orderId);
+        await createShiprocketOrder(orderId);
 
-        await assignBestCourierAndGenerateAWB(orderId);
+        const response = await getCourierDetails(orderId);
+
+        console.log(response.data);
+        setCouriers(response?.data || response || []);
+        setSelectedOrderId(orderId);
+        setShowCourierModal(true);
+
       }
 
-      toast.success(`Order ${string} successfully`);
+      // toast.success(`Order ${string} successfully`);
+      fetchData();
     } catch (error) {
       // console.error(error);
-      toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+      toast.error(error.response?.data?.message || error?.message || "Failed to fetch orders");
       setCurrentPageLoading(false);
     } finally {
       setCurrentPageLoading(false);
@@ -493,6 +503,18 @@ const PendingOrdersPage = () => {
         }
 
       </div>
+
+      <CourierModal
+        isOpen={showCourierModal}
+        onClose={() => setShowCourierModal(false)}
+        couriers={couriers}
+        onSelectCourier={(courier) => {
+          console.log("Order:", selectedOrderId);
+          console.log("Selected courier:", courier);
+
+          // Call your Shiprocket assign/generate AWB API here
+        }}
+      />
 
     </main>
   );

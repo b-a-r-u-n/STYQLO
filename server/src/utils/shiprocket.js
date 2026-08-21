@@ -4,7 +4,7 @@ import apiError from "./apiError.js";
 let shiprocketToken = null;
 
 const getShiprocketToken = async () => {
-    try {        
+    try {
         if (shiprocketToken)
             return shiprocketToken;
 
@@ -66,12 +66,22 @@ const checkPinCode = async (pincode) => {
 }
 
 const createShiprocketOrder = async (order) => {
+    // console.log("order", order);
+    // console.log("order.products[0].product", order.products[0].product);
+
+    const size = order?.products[0]?.size;
+    // console.log(size);
+
+    const sizesData = order?.products[0]?.product?.sizes?.filter((item) => item.size === size)
+    // console.log(sizesData[0]);
+
     const data = {
         order_id: order.orderId,
         order_date: new Date(order.updatedAt)
             .toISOString()
             .split("T")[0],
         pickup_location: "Primary",
+        invoice_number: order.invoiceNumber,
         billing_customer_name: order.shippingAddress.fullName,
         billing_last_name: "",
         billing_address: order.shippingAddress.streetAddress,
@@ -94,22 +104,28 @@ const createShiprocketOrder = async (order) => {
         //         "hsn": 441122
         //     }
         // ],
-        order_items: order.products.map(item => ({
-            name: item.product.name,
-            sku: item.product._id.toString(),
-            units: item.quantity,
-            selling_price: item.price,
-            tax: order.tax / item.quantity,
-            // "hsn": 
-        })),
+        order_items: order.products.map(item => {
+            const gstInclusivePrice =
+                item.price * (1 + item.product.tax);
+            return {
+                name: item.product.name,
+                sku: sizesData[0]?.sku,
+                units: item.quantity,
+                selling_price: Number(gstInclusivePrice),
+                tax: item.product.tax * 100,
+                hsn: item?.product?.hsn
+            }
+        }),
         "payment_method": order.paymentMethod === "COD" ? "COD" : "Prepaid",
         "shipping_charges": order.shippingCharges,
-        "sub_total": order.subTotal,
-        "length": 10,
-        "breadth": 10,
-        "height": 10,
-        "weight": 0.5
+        "sub_total": order.totalAmount,
+        "length": order?.products[0]?.product?.length,
+        "breadth": order?.products[0]?.product?.breadth,
+        "height": order?.products[0]?.product?.height,
+        "weight": order?.products[0]?.product?.weight
     }
+
+    // console.log(data);
 
     const response = await axios.post(`${process.env.SHIPROCKET_BASE_URL}/orders/create/adhoc`,
         data,
@@ -165,7 +181,7 @@ const assignRecommendedCourier = async ({ shipmentId, courierId }) => {
         }
     )
 
-    if(!response)
+    if (!response)
         throw new apiError(500, "Error while assigning recommended courier");
 
     return response.data;
