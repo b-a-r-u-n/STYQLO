@@ -106,7 +106,7 @@ const createShiprocketOrder = async (order) => {
         // ],
         order_items: order.products.map(item => {
             const gstInclusivePrice =
-                item.price * (1 + item.product.tax);
+                item.price + (item.price * item.product.tax);
             return {
                 name: item.product.name,
                 sku: sizesData[0]?.sku,
@@ -167,7 +167,7 @@ const checkCourierServiceability = async ({ orderId, pickupPostcode, deliveryPos
 
 }
 
-const assignRecommendedCourier = async ({ shipmentId, courierId }) => {
+const assignCourierAndGenerateAWB = async ({ shipmentId, courierId }) => {
     const response = await axios.post(`${process.env.SHIPROCKET_BASE_URL}/courier/assign/awb`,
         {
             shipment_id: shipmentId,
@@ -187,4 +187,4 @@ const assignRecommendedCourier = async ({ shipmentId, courierId }) => {
     return response.data;
 }
 
-export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignRecommendedCourier }
+export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignCourierAndGenerateAWB }

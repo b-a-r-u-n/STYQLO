@@ -2,7 +2,7 @@ import { Order } from "../models/order.model.js";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import { assignRecommendedCourier, checkCourierServiceability, checkPinCode, createShiprocketOrder, getShiprocketToken } from "../utils/shiprocket.js";
+import { assignCourierAndGenerateAWB, checkCourierServiceability, checkPinCode, createShiprocketOrder, getShiprocketToken } from "../utils/shiprocket.js";
 
 const createShipmentOrder = asyncHandler(async (req, res) => {
 
@@ -166,4 +166,68 @@ const getCourierDetails = asyncHandler(async (req, res) => {
         )
 })
 
-export { createShipmentOrder, checkServiceability, getCourierDetails }
+const generateAWB = asyncHandler(async (req, res) => {
+
+    const {courierId} = req.body;
+
+    const {orderId} = req.params;
+
+    if(!courierId)
+        throw new apiError(400, "Courier ID is required");
+
+    const order = await Order.findById(orderId);
+
+    if (!order)
+        throw new apiError(404, "Order not found");
+
+    if (!order.shiprocket?.orderId)
+        throw new apiError(400, "Shiprocket order has not been created");
+
+    // Generate AWB
+    const awbResponse = await assignCourierAndGenerateAWB({
+        shipmentId: order?.shiprocket?.shipmentId,
+        courierId
+    })
+
+    console.log("awbResponse", awbResponse);
+    
+
+    if (awbResponse?.awb_assign_status !== 1)
+        throw new apiError(500, awbResponse?.response?.data?.awb_assign_error || "Error while assigning recommended courier");
+
+    const awb = awbResponse?.response?.data;
+
+    order.shiprocket = {
+        ...order.shiprocket,
+
+        awbCode:
+            awb?.awb_code || null,
+
+        courierCompanyId:
+            awb?.courier_company_id
+                ? String(awb.courier_company_id)
+                : null,
+
+        courierName:
+            awb?.courier_name || null,
+
+        status: "AWB Generated"
+    };
+
+    await order.save();
+
+    const data = {
+        courierName: awb?.courier_name,
+        courierCompanyId: awb?.courier_company_id,
+        awbCode: awb?.awb_code,
+        shipmentId: order.shiprocket.shipmentId
+    }
+
+    res
+    .status(200)
+    .json(
+        new apiResponse(200, "AWB generated successfully", data)
+    )
+})
+
+export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB }

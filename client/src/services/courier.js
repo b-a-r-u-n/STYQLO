@@ -25,5 +25,17 @@ const getCourierDetails = async (orderId) => {
         throw error;
     }
 }
+const generateAWB = async ({orderId, courierId}) => {
+    try {
+        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/generate-awb`, {courierId}, {withCredentials: true})
 
-export {createShiprocketOrder, getCourierDetails}
+        // console.log("res", res);
+        return res;
+        
+    } catch (error) {
+        console.log("error", error.response);
+        throw error;
+    }
+}
+
+export {createShiprocketOrder, getCourierDetails, generateAWB}
