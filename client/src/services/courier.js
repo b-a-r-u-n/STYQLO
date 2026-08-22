@@ -33,7 +33,7 @@ const generateAWB = async ({orderId, courierId}) => {
         return res;
         
     } catch (error) {
-        console.log("error", error.response);
+        // console.log("error", error.response);
         throw error;
     }
 }
