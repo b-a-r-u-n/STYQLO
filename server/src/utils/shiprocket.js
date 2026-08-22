@@ -118,7 +118,7 @@ const createShiprocketOrder = async (order) => {
         }),
         "payment_method": order.paymentMethod === "COD" ? "COD" : "Prepaid",
         "shipping_charges": order.shippingCharges,
-        "sub_total": order.totalAmount,
+        "sub_total": order.totalAmount - order.shippingCharges,
         "length": order?.products[0]?.product?.length,
         "breadth": order?.products[0]?.product?.breadth,
         "height": order?.products[0]?.product?.height,
