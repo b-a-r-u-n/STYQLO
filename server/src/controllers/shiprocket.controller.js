@@ -2,7 +2,7 @@ import { Order } from "../models/order.model.js";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import { assignCourierAndGenerateAWB, checkCourierServiceability, checkPinCode, createShiprocketOrder, getShiprocketToken } from "../utils/shiprocket.js";
+import { assignCourierAndGenerateAWB, checkCourierServiceability, checkPinCode, createShiprocketOrder, generateLabelAndInvoice, getShiprocketToken } from "../utils/shiprocket.js";
 
 const createShipmentOrder = asyncHandler(async (req, res) => {
 
@@ -230,4 +230,41 @@ const generateAWB = asyncHandler(async (req, res) => {
     )
 })
 
-export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB }
+const generateShipmentLabelAndInvoice = asyncHandler(async (req, res) => {
+    const {orderId} = req.params;
+
+    const order = await Order.findById(orderId);
+
+    if(!order)
+        throw new apiError(404, "Order not found.");
+
+    const shipmentId = order?.shiprocket?.shipmentId;
+
+    if(!shipmentId)
+        throw new apiError(400, "Shiprocket shipment not found.");
+
+    if(!order?.shiprocket?.awbCode)
+        throw new apiError(400, "AWB must be generated before creating label.");
+
+    const result = await generateLabelAndInvoice([Number(shipmentId)]);
+
+    console.log("Shiprocket Label + Invoice Response:", result);
+
+    if ( !result || result.error_count > 0 || !result.file_url)
+        throw new apiError(400, "Failed to generate label and invoice.");
+
+    order.shiprocket = {
+        ...order.shiprocket,
+        invoiceAndLabel: result?.file_url
+    }
+
+    await order.save();
+
+    res
+    .status(200)
+    .json(
+        new apiResponse(200, "Label and invoice generated successfully.", result)
+    )
+})
+
+export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB, generateShipmentLabelAndInvoice }
