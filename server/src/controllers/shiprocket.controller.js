@@ -2,7 +2,7 @@ import { Order } from "../models/order.model.js";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import { assignCourierAndGenerateAWB, checkCourierServiceability, checkPinCode, createShiprocketOrder, generateLabelAndInvoice, getShiprocketToken, requestShipmentPickup } from "../utils/shiprocket.js";
+import { assignCourierAndGenerateAWB, checkCourierServiceability, checkPinCode, createShiprocketOrder, generateLabelAndInvoice, generateManifest, getShiprocketToken, requestShipmentPickup } from "../utils/shiprocket.js";
 
 const createShipmentOrder = asyncHandler(async (req, res) => {
 
@@ -286,23 +286,77 @@ const requestPickup = asyncHandler(async (req, res) => {
     if (order?.shiprocket?.pickupStatus === "REQUESTED")
         throw new apiError(400, "Pickup has already been requested.");
 
-    const result = await requestShipmentPickup(shipmentId);
-
     order.shiprocket.pickupStatus = "REQUESTED";
 
-    if (result?.pickup_scheduled_date)
-        order.shiprocket.pickupStatus = result?.pickup_scheduled_date;
+    const result = await requestShipmentPickup(shipmentId);
 
-    if(!result?.pickup_scheduled_date)
+    console.log("Shiprocket Pickup Response:", result);
+
+    if (!result || result?.pickup_status !== 1) {
         order.shiprocket.pickupStatus = "FAILED";
+        await order.save();
+        throw new apiError(400, "Failed to request pickup.");
+    }
+
+    order.shiprocket.pickupStatus = "SCHEDULED";
+
+    if (result?.response?.pickup_scheduled_date && result?.response?.pickup_token_number) {
+        order.shiprocket.pickupScheduledDate = result?.response?.pickup_scheduled_date;
+        order.shiprocket.pickupTokenNumber = result?.response?.pickup_token_number;
+    }
 
     await order.save();
 
     res
-    .status(200)
-    .json(
-        new apiResponse(200, "Pickup requested successfully", result)
-    )
+        .status(200)
+        .json(
+            new apiResponse(200, "Pickup requested successfully", result)
+        )
 })
 
-export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB, generateShipmentLabelAndInvoice, requestPickup }
+const createManifest = asyncHandler(async (req, res) => {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+    if (!order)
+        throw new apiError(400, "Order not found.");
+
+    if (!order?.shiprocket?.shipmentId)
+        throw new apiError(400, "Shiprocket shipment not found.");
+
+    if (!order?.shiprocket?.awbCode)
+        throw new apiError(400, "AWB must be generated first.");
+
+    if (order?.shiprocket?.pickupStatus !== "SCHEDULED")
+        throw new apiError(400, "Pickup must be scheduled before generating manifest.");
+
+    if (order?.shiprocket?.manifestStatus === "GENERATED")
+        res
+            .status(200)
+            .json(
+                new apiResponse(200, "Manifest already generated", order?.shiprocket?.manifestUrl)
+            )
+
+    const result = await generateManifest(order?.shiprocket?.orderId)
+
+    if (!result || !result?.manifest_url) {
+        order.shiprocket.manifestStatus = "FAILED";
+        await order.save();
+        throw new apiError(400, "Failed to generate manifest.");
+    }
+
+    order.shiprocket.manifestStatus = "GENERATED";
+    order.shiprocket.manifestUrl = result?.manifest_url;
+
+    await order.save();
+
+    res
+        .status(200)
+        .json(
+            new apiResponse(200, "Manifest generated successfully", {})
+        )
+
+
+})
+
+export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB, generateShipmentLabelAndInvoice, requestPickup, createManifest }

@@ -164,10 +164,26 @@ const orderSchema = new mongoose.Schema(
                 ],
                 default: "NOT_REQUESTED"
             },
-
             pickupScheduledDate: {
                 type: Date,
                 default: null
+            },
+            pickupTokenNumber: {
+                type: String,
+                default: null
+            },
+            manifestUrl: {
+                type: String,
+                default: null
+            },
+            manifestStatus: {
+                type: String,
+                enum: [
+                    "NOT_GENERATED",
+                    "GENERATED",
+                    "FAILED"
+                ],
+                default: "NOT_GENERATED"
             }
         }
     },

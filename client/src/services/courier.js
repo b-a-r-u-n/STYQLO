@@ -61,4 +61,13 @@ const requestPickup = async (orderId) => {
     }
 }
 
-export { createShiprocketOrder, getCourierDetails, generateAWB, generateLabelAndInvoice, requestPickup }
+const createManifest = async (orderId) => {
+    try {
+        await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/manifest`, {withCredentials: true});
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+export { createShiprocketOrder, getCourierDetails, generateAWB, generateLabelAndInvoice, requestPickup, createManifest }

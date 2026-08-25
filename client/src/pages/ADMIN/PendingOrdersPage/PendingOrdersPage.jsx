@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllOrders, updateOrder } from "../../../features/orderSlice";
-import { createShiprocketOrder, generateAWB, generateLabelAndInvoice, getCourierDetails, requestPickup } from "../../../services/courier";
+import { createManifest, createShiprocketOrder, generateAWB, generateLabelAndInvoice, getCourierDetails, requestPickup } from "../../../services/courier";
 import { CourierModal, ShipmentModal } from "../../../components";
 
 const PendingOrdersPage = () => {
@@ -607,6 +607,8 @@ const PendingOrdersPage = () => {
             console.log("Request pickup Response:", response);
 
             setShipmentStep("pickup-requested");
+
+            await createManifest(selectedOrderId);
 
           } catch (error) {
             toast.error(error.response?.data?.message || error?.message || "Failed to request pickup");

@@ -140,6 +140,10 @@ const createShiprocketOrder = async (order) => {
     if (!response)
         throw new apiError(500, "Error while creating Shiprocket order");
 
+    // console.log("response", response);
+    // console.log("response.data", response.data);
+
+
     return response?.data;
 }
 
@@ -222,4 +226,21 @@ const requestShipmentPickup = async (shipmentId) => {
     return response.data;
 };
 
-export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignCourierAndGenerateAWB, generateLabelAndInvoice, requestShipmentPickup }
+const generateManifest = async (shipmentId) => {
+    const response = await axios.post(
+        `${SHIPROCKET_BASE_URL}/manifests/generate`,
+        {
+            shipment_id: [Number(shipmentId)]
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${shiprocketToken}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+
+    return response.data;
+}
+
+export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignCourierAndGenerateAWB, generateLabelAndInvoice, requestShipmentPickup, generateManifest }
