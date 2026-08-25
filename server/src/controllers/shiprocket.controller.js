@@ -331,7 +331,7 @@ const createManifest = asyncHandler(async (req, res) => {
         throw new apiError(400, "Pickup must be scheduled before generating manifest.");
 
     if (order?.shiprocket?.manifestStatus === "GENERATED")
-        res
+        return res
             .status(200)
             .json(
                 new apiResponse(200, "Manifest already generated", order?.shiprocket?.manifestUrl)

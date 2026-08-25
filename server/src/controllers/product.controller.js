@@ -234,9 +234,9 @@ const updateProduct = asyncHandler(async (req, res) => {
         throw new apiError(400, "Discount Price is required");
     if (stock === undefined)
         throw new apiError(400, "Stock is required");
-    if (!sku || !sku.trim())
+    if (!sku)
         throw new apiError(400, "SKU is required");
-    if (!hsn || !hsn.trim())
+    if (!hsn)
         throw new apiError(400, "HSN is required");
     if (tax === undefined)
         throw new apiError(400, "Tax is required");

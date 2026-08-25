@@ -193,7 +193,7 @@ const assignCourierAndGenerateAWB = async ({ shipmentId, courierId }) => {
 
 const generateLabelAndInvoice = async (shipmentIds) => {
     const response = await axios.post(
-        `${SHIPROCKET_BASE_URL}/courier/generate/label-invoice`,
+        `${process.env.SHIPROCKET_BASE_URL}/courier/generate/label-invoice`,
         {
             shipment_ids: shipmentIds
         },
@@ -211,7 +211,7 @@ const generateLabelAndInvoice = async (shipmentIds) => {
 const requestShipmentPickup = async (shipmentId) => {
 
     const response = await axios.post(
-        `${SHIPROCKET_BASE_URL}/courier/generate/pickup`,
+        `${process.env.SHIPROCKET_BASE_URL}/courier/generate/pickup`,
         {
             shipment_id: [Number(shipmentId)]
         },

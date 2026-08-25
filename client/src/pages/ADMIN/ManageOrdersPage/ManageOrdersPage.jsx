@@ -367,20 +367,7 @@ const ManageOrdersPage = () => {
                       <div className="sm:text-right flex items-center justify-center gap-3">
 
                         <div>
-                          <p className="text-xs text-muted-foreground">
-                            Order Total
-                          </p>
-
-                          <p className="mt-1 text-2xl font-bold text-foreground">
-                            ₹
-                            {order.totalAmount.toLocaleString(
-                              "en-IN"
-                            )}
-                          </p>
-                        </div>
-
-                        <div>
-                          {order?.shiprocket?.invoiceAndLabel && (
+                          {(
                                 <a
                                     href={order?.shiprocket?.invoiceAndLabel}
                                     target="_blank"
@@ -392,6 +379,34 @@ const ManageOrdersPage = () => {
                                     Label
                                 </a>
                             )}
+                        </div>
+
+                        <div>
+                          {(
+                                <a
+                                    href={order?.shiprocket?.manifestUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 px-4 font-semibold text-foreground transition 
+                                    cursor-pointer hover:border-primary hover:text-primary"
+                                >
+                                    <Download size={18} />
+                                    Manifest
+                                </a>
+                            )}
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Order Total
+                          </p>
+
+                          <p className="mt-1 text-2xl font-bold text-foreground">
+                            ₹
+                            {order.totalAmount.toLocaleString(
+                              "en-IN"
+                            )}
+                          </p>
                         </div>
 
                       </div>

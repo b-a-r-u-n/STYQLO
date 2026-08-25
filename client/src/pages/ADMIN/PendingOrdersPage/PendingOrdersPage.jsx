@@ -64,10 +64,11 @@ const PendingOrdersPage = () => {
         setSelectedOrderId(orderId);
         setShowCourierModal(true);
 
+      } else if (string === "rejected") {
+        toast.success(`Order ${string} successfully`);
+        fetchData();
       }
 
-      toast.success(`Order ${string} successfully`);
-      fetchData();
     } catch (error) {
       // console.error(error);
       toast.error(error.response?.data?.message || error?.message || "Failed to fetch orders");
@@ -525,19 +526,19 @@ const PendingOrdersPage = () => {
             setShowShipmentModal(true);
             setShipmentStep("generating-awb");
 
-            setAwbData({courier_name: "Delhivery", awb_code: 123445});
-            setTimeout(() => {
-              console.log(awbData);
-              setShipmentStep("awb-generated");
-            }, 10000);
+            // setAwbData({courier_name: "Delhivery", awb_code: 123445});
+            // setTimeout(() => {
+            //   console.log(awbData);
+            //   setShipmentStep("awb-generated");
+            // }, 10000);
 
-            // const response = await generateAWB({ orderId: selectedOrderId, courierId: courier?.courier_company_id });
+            const response = await generateAWB({ orderId: selectedOrderId, courierId: courier?.courier_company_id });
 
-            // console.log("AWB Response:", response);
+            console.log("AWB Response:", response);
 
-            // setAwbData(response?.data || response);
+            setAwbData(response?.data?.data || response);
 
-            // setShipmentStep("awb-generated");
+            setShipmentStep("awb-generated");
 
           } catch (error) {
             // console.error(error);
@@ -571,16 +572,16 @@ const PendingOrdersPage = () => {
 
             console.log("Label Response:", response);
 
-            setLabelData(response?.data || response)
+            setLabelData(response?.data?.data || response)
 
             setShipmentStep("label-generated");
-            
+
           } catch (error) {
             toast.error(error.response?.data?.message || error?.message || "Failed to generate label and invoice");
             showShipmentModal(false);
             setShipmentStep("error");
           }
-          
+
         }}
 
         onMarkPacked={async () => {
@@ -599,7 +600,7 @@ const PendingOrdersPage = () => {
         onRequestPickup={async () => {
           // Shiprocket pickup 
           try {
-            
+
             setShipmentStep("requesting-pickup");
 
             const response = await requestPickup(selectedOrderId);
@@ -609,6 +610,9 @@ const PendingOrdersPage = () => {
             setShipmentStep("pickup-requested");
 
             await createManifest(selectedOrderId);
+
+            toast.success(`Order accepted successfully`);
+            fetchData();
 
           } catch (error) {
             toast.error(error.response?.data?.message || error?.message || "Failed to request pickup");
