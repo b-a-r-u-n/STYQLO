@@ -4,8 +4,8 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllOrders, updateOrder } from "../../../features/orderSlice";
-import { createShiprocketOrder, generateAWB, getCourierDetails } from "../../../services/courier";
-import { CourierModal } from "../../../components";
+import { createShiprocketOrder, generateAWB, generateLabelAndInvoice, getCourierDetails, requestPickup } from "../../../services/courier";
+import { CourierModal, ShipmentModal } from "../../../components";
 
 const PendingOrdersPage = () => {
 
@@ -34,6 +34,11 @@ const PendingOrdersPage = () => {
   const [showCourierModal, setShowCourierModal] = useState(false);
   const [couriers, setCouriers] = useState([]);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [showShipmentModal, setShowShipmentModal] = useState(false);
+  const [shipmentStep, setShipmentStep] = useState(null);
+  const [selectedCourier, setSelectedCourier] = useState(null);
+  const [awbData, setAwbData] = useState(null);
+  const [labelData, setLabelData] = useState(null);
 
   const handleAcceptAndReject = async (orderId, string, order) => {
     let url = "";
@@ -54,14 +59,14 @@ const PendingOrdersPage = () => {
 
         const response = await getCourierDetails(orderId);
 
-        // console.log(response.data);
+        console.log(response.data);
         setCouriers(response?.data || response || []);
         setSelectedOrderId(orderId);
         setShowCourierModal(true);
 
       }
 
-      // toast.success(`Order ${string} successfully`);
+      toast.success(`Order ${string} successfully`);
       fetchData();
     } catch (error) {
       // console.error(error);
@@ -510,21 +515,104 @@ const PendingOrdersPage = () => {
         couriers={couriers}
         onSelectCourier={async (courier) => {
           try {
-            setCurrentPageLoading(true);
+            // setCurrentPageLoading(true);
             // console.log("Order:", selectedOrderId);
             // console.log("Selected courier:", courier);
             // console.log("Selected courier Id:", courier.courier_company_id);
 
-            await generateAWB({orderId: selectedOrderId, courierId: courier.courier_company_id});
+            setSelectedCourier(courier);
+            setShowCourierModal(false);
+            setShowShipmentModal(true);
+            setShipmentStep("generating-awb");
+
+            setAwbData({courier_name: "Delhivery", awb_code: 123445});
+            setTimeout(() => {
+              console.log(awbData);
+              setShipmentStep("awb-generated");
+            }, 10000);
+
+            // const response = await generateAWB({ orderId: selectedOrderId, courierId: courier?.courier_company_id });
+
+            // console.log("AWB Response:", response);
+
+            // setAwbData(response?.data || response);
+
+            // setShipmentStep("awb-generated");
+
           } catch (error) {
             // console.error(error);
-            toast.error(error.response?.data?.message || error?.message || "Failed to fetch orders");
-            setCurrentPageLoading(false);
-          } finally {
-            setCurrentPageLoading(false);
+            toast.error(error.response?.data?.message || error?.message || "Failed to generate AWB");
+            // setCurrentPageLoading(false);
+            setShowShipmentModal(false);
           }
 
           // Call your Shiprocket assign/generate AWB API here
+        }}
+      />
+
+      <ShipmentModal
+        isOpen={showShipmentModal}
+        onClose={() => setShowShipmentModal(false)}
+        step={shipmentStep}
+        order={allOrdersData.find(
+          (order) => order._id === selectedOrderId
+        )}
+        selectedCourier={selectedCourier}
+        awbData={awbData}
+        labelData={labelData}
+
+        onGenerateLabel={async () => {
+          // next Shiprocket API
+          try {
+
+            setShipmentStep("generating-label");
+
+            const response = await generateLabelAndInvoice(selectedOrderId);
+
+            console.log("Label Response:", response);
+
+            setLabelData(response?.data || response)
+
+            setShipmentStep("label-generated");
+            
+          } catch (error) {
+            toast.error(error.response?.data?.message || error?.message || "Failed to generate label and invoice");
+            showShipmentModal(false);
+            setShipmentStep("error");
+          }
+          
+        }}
+
+        onMarkPacked={async () => {
+          // update order status to 
+          try {
+            await dispatch(updateOrder({ orderId, url: "?orderStatus=Packed" })).unwrap();
+
+            setShipmentStep("packed")
+          } catch (error) {
+            toast.error(error.response?.data?.message || error?.message || "Failed to Update status");
+            showShipmentModal(false);
+            setShipmentStep("error");
+          }
+        }}
+
+        onRequestPickup={async () => {
+          // Shiprocket pickup 
+          try {
+            
+            setShipmentStep("requesting-pickup");
+
+            const response = await requestPickup(selectedOrderId);
+
+            console.log("Request pickup Response:", response);
+
+            setShipmentStep("pickup-requested");
+
+          } catch (error) {
+            toast.error(error.response?.data?.message || error?.message || "Failed to request pickup");
+            showShipmentModal(false);
+            setShipmentStep("error");
+          }
         }}
       />
 

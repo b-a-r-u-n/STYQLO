@@ -319,13 +319,16 @@ const getAllOrders = asyncHandler(async (req, res) => {
         throw new apiError(403, "You are not authorized to access this resource");
 
     const filter = {};
+    
 
     if (req.query?.orderStatus)
         filter.orderStatus = req.query?.orderStatus;
     if (req.query?.orderId)
         filter._id = req.query?.orderId;
     if (req.query?._id)
-        filter._id = req.query?._id;    
+        filter._id = req.query?._id;
+    if (req.query?.orderIdd)
+        filter.orderId = req.query?.orderIdd;
 
     const orders = await Order.find(filter)
         .sort({ updatedAt: -1 })

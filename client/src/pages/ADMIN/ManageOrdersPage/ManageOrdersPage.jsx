@@ -84,7 +84,7 @@ const ManageOrdersPage = () => {
       return toast.error("Please enter a search term");
 
     try {
-      await dispatch(getAllOrders(`?_id=${search}`)).unwrap();
+      await dispatch(getAllOrders(`?orderIdd=${search}`)).unwrap();
     } catch (error) {
       toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
     }
@@ -237,7 +237,7 @@ const ManageOrdersPage = () => {
           </div>
 
           <div
-            rounded-2xl
+            className="rounded-2xl"
           >
             <button
               onClick={handleSearch}
@@ -335,7 +335,7 @@ const ManageOrdersPage = () => {
                         <div className="flex flex-wrap items-center gap-3">
 
                           <h2 className="text-lg font-bold text-foreground">
-                            #{order._id}
+                            #{order?.orderId}
                           </h2>
 
                           <span

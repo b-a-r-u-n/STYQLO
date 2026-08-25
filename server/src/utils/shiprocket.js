@@ -204,4 +204,22 @@ const generateLabelAndInvoice = async (shipmentIds) => {
     return response.data;
 }
 
-export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignCourierAndGenerateAWB, generateLabelAndInvoice }
+const requestShipmentPickup = async (shipmentId) => {
+
+    const response = await axios.post(
+        `${SHIPROCKET_BASE_URL}/courier/generate/pickup`,
+        {
+            shipment_id: [Number(shipmentId)]
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${shiprocketToken}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+
+    return response.data;
+};
+
+export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignCourierAndGenerateAWB, generateLabelAndInvoice, requestShipmentPickup }

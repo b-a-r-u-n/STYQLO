@@ -152,6 +152,22 @@ const orderSchema = new mongoose.Schema(
             invoiceAndLabel: {
                 type: String,
                 default: null
+            },
+            pickupStatus: {
+                type: String,
+                enum: [
+                    "NOT_REQUESTED",
+                    "REQUESTED",
+                    "SCHEDULED",
+                    "PICKED_UP",
+                    "FAILED"
+                ],
+                default: "NOT_REQUESTED"
+            },
+
+            pickupScheduledDate: {
+                type: Date,
+                default: null
             }
         }
     },
