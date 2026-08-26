@@ -181,13 +181,13 @@ const UpdateProductPage = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <Input label="Stock Quantity" type="number" name="stock" placeholder="0" required value={inputData.stock} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
-              <Input label="Size" type="text" name="size" placeholder="e.g. XL" required value={inputData.size} disabled={inputData.size ? true : false} className='disabled:cursor-not-allowed' />
+              <Input label="Size" type="text" name="size" placeholder="e.g. XL" required value={inputData.size} onChange={handleInputChange} disabled={inputData.size ? true : false} className='disabled:cursor-not-allowed' />
               
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Input label="SKU" type="text" name="sku" placeholder="e.g. STYQLO-TSHIRT-001" required value={inputData.sku} 
-              onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+              onChange={handleInputChange} disabled={loading || inputData.size && inputData.sku ? true : false} className='disabled:cursor-not-allowed' />
               <Input label="HSN" type="number" name="hsn" placeholder="e.g. 6109" step="1" value={inputData.hsn} onChange={handleInputChange} disabled={inputData.size ? true : false} className='disabled:cursor-not-allowed' />
             </div>
 
