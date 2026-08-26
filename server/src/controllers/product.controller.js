@@ -220,7 +220,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     const removedImages = JSON.parse(req.body.removedImages || "[]");
 
     const { name, description, originalPrice, discountPrice, stock, size, sku, hsn, tax, star, length, breadth, height, weight } = parsedInputData;
-    console.log(parsedInputData);
+    // console.log(parsedInputData);
 
     // console.log("removedImages", removedImages);
 
