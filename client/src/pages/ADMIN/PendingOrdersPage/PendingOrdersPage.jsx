@@ -62,7 +62,7 @@ const PendingOrdersPage = () => {
 
         const response = await getCourierDetails(orderId);
 
-        console.log(response.data);
+        // console.log(response.data);
         setCouriers(response?.data || response || []);
         setSelectedOrderId(orderId);
         setShowCourierModal(true);
@@ -534,7 +534,7 @@ const PendingOrdersPage = () => {
 
             const response = await generateAWB({ orderId: selectedOrderId, courierId: courier?.courier_company_id });
 
-            console.log("AWB Response:", response);
+            // console.log("AWB Response:", response);
 
             setAwbData(response?.data || response);
 
@@ -577,7 +577,7 @@ const PendingOrdersPage = () => {
 
             const response = await generateLabelAndInvoice(selectedOrderId);
 
-            console.log("Label Response:", response);
+            // console.log("Label Response:", response);
 
             setLabelData(response?.data || response)
 
@@ -619,7 +619,7 @@ const PendingOrdersPage = () => {
 
             const response = await requestPickup(selectedOrderId);
 
-            console.log("Request pickup Response:", response);
+            // console.log("Request pickup Response:", response);
 
             setPickupData(response?.data);
 
@@ -637,7 +637,7 @@ const PendingOrdersPage = () => {
             setShipmentStep("generating-manifest");
 
             const response = await createManifest(selectedOrderId);
-            console.log("Manifest generate Response:", response);
+            // console.log("Manifest generate Response:", response);
 
             setManifestData(response?.data);
 
