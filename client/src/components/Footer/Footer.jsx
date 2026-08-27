@@ -9,7 +9,8 @@ const Footer = () => {
       <div className="h-1 bg-gradient-to-r from-[#C8756A] via-[#D4A398] to-[#C8756A]" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
+        {/* <div className="flex flex-wrap justify-evenly"> */}
 
           {/* Brand */}
           <div className="md:col-span-1">
@@ -57,9 +58,7 @@ const Footer = () => {
             <ul className="space-y-3">
               {[
                 { to: "/products", label: "All Products" },
-                { to: "/categories", label: "Categories" },
                 { to: "/about", label: "About Us" },
-                { to: "/contact", label: "Contact" },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link
@@ -80,10 +79,33 @@ const Footer = () => {
             </h4>
             <ul className="space-y-3">
               {[
-                { to: "/help-center", label: "Help Center" },
-                { to: "/track-order", label: "Track Order" },
-                { to: "/returns-refunds", label: "Returns & Refunds" },
-                { to: "/shipping-info", label: "Shipping Info" },
+                { to: "/contact", label: "Contact Us" },
+                { to: "/size-guide", label: "Size and guide" },
+                { to: "/faq", label: "FAQ" },
+              ].map(({ to, label }) => (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    className="text-[#C4A09A] hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Policies */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-[#D4A398] mb-5">
+              Policies & Legal
+            </h4>
+            <ul className="space-y-3">
+              {[
+                { to: "/shipping-policy", label: "Shipping Policy" },
+                { to: "/return-policy", label: "Return Policy" },
+                { to: "/privacy-policy", label: "Privacy Policy" },
+                { to: "/terms", label: "Terms & Conditions" },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link
@@ -120,17 +142,17 @@ const Footer = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-white/10 mt-12 pt-8 flex flex-col items-center justify-between gap-4">
           <p className="text-sm text-[#9B7B75] flex items-center gap-1.5">
             &copy; {new Date().getFullYear()} STYQLO. Made with{' '}
             <Heart size={12} className="text-[#C8756A] fill-[#C8756A]" />
             {' '}in India
           </p>
           <div className="flex gap-6">
-            {["Privacy Policy", "Terms of Service"].map((item) => (
-              <a key={item} href="#" className="text-xs text-[#9B7B75] hover:text-[#D4A398] transition-colors">
-                {item}
-              </a>
+            {[{text: "Privacy Policy", to: "privacy-policy"}, {text: "Terms of Service", to: "terms"}].map((item) => (
+              <Link key={item.to} to={`/${item.to}`} className="text-xs text-[#9B7B75] hover:text-[#D4A398] transition-colors">
+                {item.text}
+              </Link>
             ))}
           </div>
         </div>

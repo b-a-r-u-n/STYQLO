@@ -20,7 +20,7 @@ import { checkAuth } from './features/authSlice.js'
 import { getCartData } from './features/cartSlice.js'
 
 // Lazy-loaded pages
-const ProductsPage = lazy(() => import("./pages/ProductsPage/ProductsPage.jsx"))
+const ProductsPage = lazy(() => import("./pages/ProductsPage/ProductsPage.jsx"));
 const ProductDetailsPage = lazy(() => import("./pages/ProductDetailsPage/ProductDetailsPage.jsx"))
 const ProfilePage = lazy(() => import("./pages/ProfilePage/ProfilePage.jsx"))
 const EditAndAddAddress = lazy(() => import("./pages/EditAndAddAddress/EditAndAddAddress.jsx"))
@@ -35,6 +35,14 @@ const PaymentVerificationFailedPage = lazy(() => import("./pages/PaymentVerifica
 const PaymentPending = lazy(() => import("./pages/PaymentPending/PaymentPending.jsx"))
 const OrdersPage = lazy(() => import("./pages/OrdersPage/OrdersPage.jsx"))
 const OrderDetailsPage = lazy(() => import("./pages/OrderDetailsPage/OrderDetailsPage.jsx"))
+const TermsPage = lazy(() => import("./pages/TermsPage/TermsPage.jsx"))
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage/PrivacyPolicyPage.jsx"))
+const ReturnPolicyPage = lazy(() => import("./pages/ReturnPolicyPage/ReturnPolicyPage.jsx"));
+const ShippingPolicyPage = lazy(() => import("./pages/ShippingPolicyPage/ShippingPolicyPage.jsx"));
+const FAQPage = lazy(() => import("./pages/FAQPage/FAQPage.jsx"));
+const SizeGuidePage = lazy(() => import("./pages/SizeGuidePage/SizeGuidePage.jsx"));
+const ContactPage = lazy(() => import("./pages/ContactPage/ContactPage.jsx"));
+const AboutPage = lazy(() => import("./pages/AboutPage/AboutPage.jsx"));
 
 const DashboardPage = lazy(() => import("./pages/ADMIN/DashboardPage/DashboardPage.jsx"))
 const AddProductPage = lazy(() => import("./pages/ADMIN/AddProductPage/AddProductPage.jsx"))
@@ -55,6 +63,14 @@ const router = createBrowserRouter(
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<ProductsPage />} />
         <Route path="products" element={<ProductsPage />} />
+        <Route path="terms" element={<TermsPage />} />
+        <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="return-policy" element={<ReturnPolicyPage />} />
+        <Route path="shipping-policy" element={<ShippingPolicyPage />} />
+        <Route path="faq" element={<FAQPage />} />
+        <Route path="size-guide" element={<SizeGuidePage />} />
+        <Route path="contact" element={<ContactPage />} />
+        <Route path="about" element={<AboutPage />} />
         <Route path="product/:id" element={<ProductDetailsPage />} />
         <Route
           path=":id/profile"
