@@ -4,6 +4,52 @@ import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { assignCourierAndGenerateAWB, checkCourierServiceability, checkPinCode, createShiprocketOrder, generateInvoice, generateLabel, generateManifest, getShiprocketToken, requestShipmentPickup } from "../utils/shiprocket.js";
 
+const parseShiprocketDate = (value) => {
+
+    if (!value) {
+        return null;
+    }
+
+    const match = value.match(
+        /^(\d{2}) (\d{2}) (\d{4}) (\d{2}):(\d{2}):(\d{2})$/
+    );
+
+    if (!match) {
+        return null;
+    }
+
+    const [
+        ,
+        day,
+        month,
+        year,
+        hour,
+        minute,
+        second
+    ] = match;
+
+    return new Date(
+        `${year}-${month}-${day}T${hour}:${minute}:${second}+05:30`
+    );
+};
+
+const parseScanDate = (value) => {
+
+    if (!value) {
+        return null;
+    }
+
+    const [date, time] = value.split(" ");
+
+    if (!date || !time) {
+        return null;
+    }
+
+    return new Date(
+        `${date}T${time}+05:30`
+    );
+};
+
 const createShipmentOrder = asyncHandler(async (req, res) => {
 
     const { orderId } = req.params;
@@ -38,7 +84,7 @@ const createShipmentOrder = asyncHandler(async (req, res) => {
     const shiprocketResponse = await createShiprocketOrder(order);
 
     // console.log("shiprocketResponse", shiprocketResponse);
-    
+
 
     if (!shiprocketResponse)
         throw new apiError(500, "Error while creating Shiprocket shipment");
@@ -111,7 +157,7 @@ const getCourierDetails = asyncHandler(async (req, res) => {
     })
 
     if (!serviceability)
-        throw new apiError(500, "Error while checking courier serviceability");   
+        throw new apiError(500, "Error while checking courier serviceability");
 
     res
         .status(200)
@@ -231,7 +277,7 @@ const generateShipmentLabelAndInvoice = asyncHandler(async (req, res) => {
 
     if (!order?.shiprocket?.shipmentId)
         throw new apiError(400, "Shiprocket shipment not found.");
-    
+
     if (!order?.shiprocket?.orderId)
         throw new apiError(400, "Shiprocket shipment not found.");
 
@@ -245,9 +291,9 @@ const generateShipmentLabelAndInvoice = asyncHandler(async (req, res) => {
     // console.log("Shiprocket Label Response:", label);
     // console.log("Shiprocket Invoice Response:", invoice);
 
-    if(!invoice || !invoice?.invoice_url)
+    if (!invoice || !invoice?.invoice_url)
         throw new apiError(400, "Failed to generate invoice.");
-    if(!label || !label?.label_url)
+    if (!label || !label?.label_url)
         throw new apiError(400, "Failed to generate label.");
 
     order.shiprocket = {
@@ -261,7 +307,7 @@ const generateShipmentLabelAndInvoice = asyncHandler(async (req, res) => {
     res
         .status(200)
         .json(
-            new apiResponse(200, "Label and invoice generated successfully.", { invoice: invoice?.invoice_url, label: label?.label_url})
+            new apiResponse(200, "Label and invoice generated successfully.", { invoice: invoice?.invoice_url, label: label?.label_url })
         )
 })
 
@@ -357,4 +403,286 @@ const createManifest = asyncHandler(async (req, res) => {
 
 })
 
-export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB, generateShipmentLabelAndInvoice, requestPickup, createManifest }
+const shiprocketWebhook = asyncHandler(async (req, res) => {
+    try {
+
+        const data = req.body;
+        // console.log(data);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Basic validation
+        |--------------------------------------------------------------------------
+        */
+
+        if (!data) {
+            return res.status(200).json({
+                success: true
+            });
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AWB is required
+        |--------------------------------------------------------------------------
+        */
+
+        if (!data.awb) {
+
+            console.log(
+                "Shiprocket webhook received without AWB"
+            );
+
+            return res.status(200).json({
+                success: true
+            });
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Find STYQLO order using AWB
+        |--------------------------------------------------------------------------
+        */
+
+        const order = await Order.findOne({
+            "shiprocket.awbCode": String(data.awb)
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Order not found
+        |--------------------------------------------------------------------------
+        */
+
+        if (!order) {
+
+            console.log(
+                `No STYQLO order found for AWB: ${data.awb}`
+            );
+
+            // Still return 200 so Shiprocket
+            // does not repeatedly retry.
+            return res.status(200).json({
+                success: true
+            });
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Initialize tracking object
+        |--------------------------------------------------------------------------
+        */
+
+        if (!order.shiprocket.tracking) {
+
+            order.shiprocket.tracking = {
+                currentStatus: null,
+                currentStatusId: null,
+                shipmentStatus: null,
+                shipmentStatusId: null,
+                currentTimestamp: null,
+                etd: null,
+                scans: []
+            };
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update latest tracking status
+        |--------------------------------------------------------------------------
+        */
+
+        order.shiprocket.tracking.currentStatus = data.current_status || null;
+
+        order.shiprocket.tracking.currentStatusId = data.current_status_id || null;
+
+        order.shiprocket.tracking.shipmentStatus = data.shipment_status || null;
+
+        order.shiprocket.tracking.shipmentStatusId = data.shipment_status_id || null;
+
+        order.shiprocket.tracking.currentTimestamp = parseShiprocketDate(data.current_timestamp);
+
+        order.shiprocket.tracking.etd = data.etd ? new Date(data.etd) : null;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update courier information
+        |--------------------------------------------------------------------------
+        */
+
+        if (data.courier_name) {
+            order.shiprocket.courierName = data.courier_name;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Process tracking scans
+        |--------------------------------------------------------------------------
+        */
+
+        const existingScans = order.shiprocket.tracking.scans || [];
+
+        const incomingScans = Array.isArray(data.scans) ? data.scans : [];
+
+
+        for (const scan of incomingScans) {
+
+            const scanDate = parseScanDate(scan.date);
+
+            const scanActivity = scan.activity || "";
+
+            const scanLocation = scan.location || "";
+
+
+            /*
+            |--------------------------------------------------------------
+            | Prevent duplicate scans
+            |--------------------------------------------------------------
+            */
+
+            const alreadyExists = existingScans.some(existing => {
+
+                const sameDate =
+                    existing.date &&
+                    scanDate &&
+                    existing.date.getTime() ===
+                    scanDate.getTime();
+
+                const sameActivity =
+                    existing.activity ===
+                    scanActivity;
+
+                const sameLocation =
+                    existing.location ===
+                    scanLocation;
+
+                return (
+                    sameDate &&
+                    sameActivity &&
+                    sameLocation
+                );
+            }
+            );
+
+
+            if (!alreadyExists) {
+
+                existingScans.push({
+                    date: scanDate,
+
+                    status:
+                        scan.status || null,
+
+                    activity:
+                        scan.activity || null,
+
+                    location:
+                        scan.location || null,
+
+                    srStatus:
+                        scan["sr-status"] || null,
+
+                    srStatusLabel:
+                        scan["sr-status-label"] || null
+                });
+            }
+        }
+
+
+        order.shiprocket.tracking.scans = existingScans;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update pickup status
+        |--------------------------------------------------------------------------
+        */
+
+        const currentStatus = (data.current_status || "").toUpperCase();
+
+
+        if (currentStatus === "PICKED UP") {
+            order.shiprocket.pickupStatus = "PICKED_UP";
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update STYQLO Order Status
+        |--------------------------------------------------------------------------
+        */
+
+        if (currentStatus === "PICKED UP" || currentStatus === "SHIPPED" || currentStatus === "IN TRANSIT" || currentStatus === "OUT FOR DELIVERY") {
+            order.orderStatus = "Shipped";
+        }
+
+
+        else if (currentStatus === "DELIVERED") {
+            order.orderStatus = "Delivered";
+        }
+
+
+        else if (currentStatus === "CANCELLED" || currentStatus === "CANCELED") {
+            order.orderStatus = "Cancelled";
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Save order
+        |--------------------------------------------------------------------------
+        */
+
+        await order.save();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Log
+        |--------------------------------------------------------------------------
+        */
+
+        console.log(`Shiprocket tracking updated | ` + `Order: ${order._id} | ` + `AWB: ${data.awb} | ` + `Status: ${currentStatus}`);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | IMPORTANT
+        |--------------------------------------------------------------------------
+        | Shiprocket expects HTTP 200.
+        |--------------------------------------------------------------------------
+        */
+
+        return res.status(200).json({
+            success: true
+        });
+
+    }
+
+    catch (error) {
+
+        console.error("Shiprocket webhook error:", error);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Important:
+        | Even in processing errors, return 200 to prevent
+        | unnecessary repeated webhook calls.
+        |--------------------------------------------------------------------------
+        */
+
+        return res.status(200).json({
+            success: false
+        });
+    }
+})
+
+export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB, generateShipmentLabelAndInvoice, requestPickup, createManifest, shiprocketWebhook }

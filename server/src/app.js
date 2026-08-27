@@ -32,6 +32,7 @@ import paymentRoutes from "./routes/payment.routes.js";
 import returnRoutes from "./routes/return.routes.js";
 import checkoutRoutes from "./routes/checkout.routes.js";
 import shiprocketRoutes from "./routes/shiprocket.route.js";
+import shiprocketWebhookRoutes from "./routes/shiprocket-webhook.routes.js"
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
@@ -42,6 +43,7 @@ app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/return", returnRoutes);
 app.use("/api/v1/checkout", checkoutRoutes);
 app.use("/api/v1/shiprocket", shiprocketRoutes);
+app.use("/api/v1/webhooks", shiprocketWebhookRoutes)
 
 
 export default app;

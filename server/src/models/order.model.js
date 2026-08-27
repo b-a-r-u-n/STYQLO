@@ -188,6 +188,71 @@ const orderSchema = new mongoose.Schema(
                     "FAILED"
                 ],
                 default: "NOT_GENERATED"
+            },
+            tracking: {
+                currentStatus: {
+                    type: String,
+                    default: null
+                },
+
+                currentStatusId: {
+                    type: Number,
+                    default: null
+                },
+
+                shipmentStatus: {
+                    type: String,
+                    default: null
+                },
+
+                shipmentStatusId: {
+                    type: Number,
+                    default: null
+                },
+
+                currentTimestamp: {
+                    type: Date,
+                    default: null
+                },
+
+                etd: {
+                    type: Date,
+                    default: null
+                },
+
+                scans: [
+                    {
+                        date: {
+                            type: Date,
+                            default: null
+                        },
+
+                        status: {
+                            type: String,
+                            default: null
+                        },
+
+                        activity: {
+                            type: String,
+                            default: null
+                        },
+
+                        location: {
+                            type: String,
+                            default: null
+                        },
+
+                        srStatus: {
+                            type: String,
+                            default: null
+                        },
+
+                        srStatusLabel: {
+                            type: String,
+                            default: null
+                        }
+                    }
+                ]
             }
         }
     },
