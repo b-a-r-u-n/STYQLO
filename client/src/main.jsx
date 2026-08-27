@@ -43,6 +43,7 @@ const FAQPage = lazy(() => import("./pages/FAQPage/FAQPage.jsx"));
 const SizeGuidePage = lazy(() => import("./pages/SizeGuidePage/SizeGuidePage.jsx"));
 const ContactPage = lazy(() => import("./pages/ContactPage/ContactPage.jsx"));
 const AboutPage = lazy(() => import("./pages/AboutPage/AboutPage.jsx"));
+const DisclaimerPage = lazy(() => import("./pages/DisclaimerPage/DisclaimerPage.jsx"));
 
 const DashboardPage = lazy(() => import("./pages/ADMIN/DashboardPage/DashboardPage.jsx"))
 const AddProductPage = lazy(() => import("./pages/ADMIN/AddProductPage/AddProductPage.jsx"))
@@ -65,6 +66,7 @@ const router = createBrowserRouter(
         <Route path="products" element={<ProductsPage />} />
         <Route path="terms" element={<TermsPage />} />
         <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="disclaimer" element={<DisclaimerPage />} />
         <Route path="return-policy" element={<ReturnPolicyPage />} />
         <Route path="shipping-policy" element={<ShippingPolicyPage />} />
         <Route path="faq" element={<FAQPage />} />

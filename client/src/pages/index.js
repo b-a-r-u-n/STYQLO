@@ -2,6 +2,7 @@ import AboutPage from "./AboutPage/AboutPage";
 import CartPage from "./CartPage/CartPage";
 import CheckoutPage from "./CheckoutPage/CheckoutPage";
 import ContactPage from "./ContactPage/ContactPage";
+import DisclaimerPage from "./DisclaimerPage/DisclaimerPage";
 import EditAndAddAddress from "./EditAndAddAddress/EditAndAddAddress";
 import FAQPage from "./FAQPage/FAQPage";
 import HomePage from "./HomePage/HomePage";
@@ -22,4 +23,4 @@ import SizeGuidePage from "./SizeGuidePage/SizeGuidePage";
 import TermsPage from "./TermsPage/TermsPage";
 import UpdateUserProfilePage from "./UpdateUserProfilePage/UpdateUserProfilePage";
 
-export {HomePage, LoginPage, SignupPage, ProductsPage, ProfilePage, CartPage, UpdateUserProfilePage, EditAndAddAddress, CheckoutPage, NotFoundPage, OrderSuccessPage, PaymentVerificationFailed, PaymentPending, OrdersPage, OrderDetailsPage, TermsPage, PrivacyPolicyPage, ReturnPolicyPage, ShippingPolicyPage, FAQPage, SizeGuidePage, ContactPage, AboutPage}
+export {HomePage, LoginPage, SignupPage, ProductsPage, ProfilePage, CartPage, UpdateUserProfilePage, EditAndAddAddress, CheckoutPage, NotFoundPage, OrderSuccessPage, PaymentVerificationFailed, PaymentPending, OrdersPage, OrderDetailsPage, TermsPage, PrivacyPolicyPage, ReturnPolicyPage, ShippingPolicyPage, FAQPage, SizeGuidePage, ContactPage, AboutPage, DisclaimerPage}
