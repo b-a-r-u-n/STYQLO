@@ -136,7 +136,7 @@ const AdminOrderDetailsPage = () => {
               </h1>
 
               <p className="mt-2 text-sm text-muted-foreground">
-                #{orderData?._id} · {new Date(orderData?.createdAt).toLocaleString("en-IN", {
+                #{orderData?.orderId} · {new Date(orderData?.createdAt).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",

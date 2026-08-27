@@ -1,4 +1,4 @@
-import { AlertCircle, ArrowLeft, Check, CheckCircle2, Clock3, CreditCard, MapPin, Package, RefreshCcw, RotateCcw, Truck, XCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check, CheckCircle2, CircleX, Clock3, CreditCard, MapPin, Package, RefreshCcw, RotateCcw, Truck, XCircle } from "lucide-react";
 
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
@@ -39,11 +39,35 @@ const isReturnEligible = (orderData) => {
 // --------------------------------------------------
 
 const StatusIcon = ({ status }) => {
+  if (status === "Pending") {
+    return (
+      <Clock3
+        size={18}
+        className="text-amber-700"
+      />
+    );
+  }
+  if (status === "Confirmed") {
+    return (
+      <CheckCircle2
+        size={18}
+        className="text-blue-700"
+      />
+    );
+  }
+  if (status === "Packed") {
+    return (
+      <Package
+        size={18}
+        className="text-purple-700"
+      />
+    );
+  }
   if (status === "Delivered") {
     return (
       <CheckCircle2
         size={18}
-        className="text-green-600"
+        className="text-green-700"
       />
     );
   }
@@ -52,7 +76,7 @@ const StatusIcon = ({ status }) => {
     return (
       <Truck
         size={18}
-        className="text-blue-600"
+        className="text-indigo-700"
       />
     );
   }
@@ -61,7 +85,16 @@ const StatusIcon = ({ status }) => {
     return (
       <XCircle
         size={18}
-        className="text-red-600"
+        className="text-red-700"
+      />
+    );
+  }
+
+  if (status === "Rejected") {
+    return (
+      <CircleX
+        size={18}
+        className="text-rose-700"
       />
     );
   }
@@ -249,7 +282,7 @@ const OrderDetailsPage = () => {
 
   const fetchData = async () => {
     try {
-      await dispatch(getOrderById(orderId)).unwrap();      
+      await dispatch(getOrderById(orderId)).unwrap();
     } catch (error) {
       toast.error("Failed to fetch orders");
     }
@@ -299,6 +332,41 @@ const OrderDetailsPage = () => {
     );
 
   }, [orderData]);
+
+  // --------------------------------------------------
+  // STATUS STEPS
+  // --------------------------------------------------
+
+  const statusSteps = [
+    {
+      name: "Pending",
+      icon: Clock3,
+    },
+    {
+      name: "Confirmed",
+      icon: CheckCircle2,
+    },
+    {
+      name: "Packed",
+      icon: Package,
+    },
+    {
+      name: "Shipped",
+      icon: Truck,
+    },
+    {
+      name: "Delivered",
+      icon: Check,
+    },
+  ];
+
+  // --------------------------------------------------
+  // CHECK MOBILE
+  // --------------------------------------------------
+
+  const currentIndex = statusSteps.findIndex(
+    (step) => step.name === orderData?.orderStatus
+  );
 
 
   // --------------------------------------------------
@@ -379,9 +447,10 @@ const OrderDetailsPage = () => {
 
           {/* <div className="flex w-fit items-center gap-2 rounded-full border border-green-100 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700"> */}
 
-          <div className={`flex w-fit items-center gap-2 rounded-full border  px-4 py-2 text-sm font-semibold orderData?.orderStatus === "Pending" && "border-amber-200 bg-amber-50 text-amber-700"} ${orderData.orderStatus === "Pending" && "border-amber-200 bg-amber-50 text-amber-700"} ${orderData.orderStatus === "Approved" && "border-blue-200 bg-blue-50 text-blue-700"} ${orderData.orderStatus === "Packed" && "border-purple-200 bg-purple-50 text-purple-700"} ${orderData.orderStatus === "Shipped" && "border-indigo-200 bg-indigo-50 text-indigo-700"} ${orderData.orderStatus === "Delivered" && "border-green-200 bg-green-50 text-green-700"} ${orderData.orderStatus === "Rejected" && "border-rose-200 bg-rose-50 text-rose-700"} ${orderData.orderStatus === "Cancelled" && "border-red-200 bg-red-50 text-red-700"} `}>
+          <div className={`flex w-fit items-center gap-2 rounded-full border  px-4 py-2 text-sm font-semibold orderData?.orderStatus === "Pending" && "border-amber-200 bg-amber-50 text-amber-700"} ${orderData.orderStatus === "Pending" && "border-amber-200 bg-amber-50 text-amber-700"} ${orderData.orderStatus === "Confirmed" && "border-blue-200 bg-blue-50 text-blue-700"} ${orderData.orderStatus === "Packed" && "border-purple-200 bg-purple-50 text-purple-700"} ${orderData.orderStatus === "Shipped" && "border-indigo-200 bg-indigo-50 text-indigo-700"} ${orderData.orderStatus === "Delivered" && "border-green-200 bg-green-50 text-green-700"} ${orderData.orderStatus === "Rejected" && "border-rose-200 bg-rose-50 text-rose-700"} ${orderData.orderStatus === "Cancelled" && "border-red-200 bg-red-50 text-red-700"} `}>
 
             <StatusIcon
+
               status={
                 orderData.orderStatus
               }
@@ -398,150 +467,126 @@ const OrderDetailsPage = () => {
         {/* ORDER TIMELINE */}
         {/* -------------------------------------------- */}
 
-        <section className="card-luxury mb-6 p-6 sm:p-8">
+        <section className="card-luxury mb-6 p-5 sm:p-7">
 
-          <h2 className="text-lg font-bold text-foreground">
-            Order Status
-          </h2>
+          <div className="flex items-center justify-between">
 
-          <div className="mt-8">
+            <div>
 
-            <div className="relative">
+              <h2 className="text-lg font-bold text-foreground">
+                Order Progress
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Manage the current order status.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          {/* DESKTOP TIMELINE */}
+
+          <div className="mt-8 hidden md:block">
+
+            <div className="relative flex items-start justify-between">
 
               {/* LINE */}
 
-              <div className="absolute left-[15px] top-3 h-[calc(100%-24px)] w-px bg-primary/20" />
+              <div className="absolute left-0 right-0 top-4 h-0.5 bg-border" />
 
+              <div
+                className="absolute left-0 top-4 h-0.5 bg-primary transition-all duration-500"
+                style={{
+                  width:
+                    currentIndex >= 0
+                      ? `${(currentIndex / (statusSteps.length - 1)) * 100}%`
+                      : "0%",
+                }}
+              />
 
-              {/* CREATED */}
+              {statusSteps.map((step, index) => {
 
-              <div className="relative flex gap-5 pb-8">
+                const Icon = step.icon;
 
-                <div className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+                const completed =
+                  index <= currentIndex;
 
-                  <CheckCircle2 size={17} />
+                return (
+                  <div
+                    key={step.name}
+                    className="relative z-10 flex flex-col items-center"
+                  >
 
-                </div>
+                    <div
+                      className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all ${completed
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-muted-foreground"
+                        }`}
+                    >
+                      <Icon size={17} />
+                    </div>
 
-                <div>
-
-                  <p className="font-semibold text-foreground">
-                    Order Placed
-                  </p>
-
-                  <p className="mt-1 text-sm text-muted-foreground">
-
-                    {new Date(
-                      orderData.createdAt ||
-                      orderData.updatedAt
-                    ).toLocaleDateString(
-                      "en-IN",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric"
-                      }
-                    )}
-
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              {/* PROCESSING */}
-
-              <div className="relative flex gap-5 pb-8">
-
-                <div className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-
-                  <Package size={17} />
-
-                </div>
-
-                <div>
-
-                  <p className="font-semibold text-foreground">
-                    Processing
-                  </p>
-
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Your order has been processed.
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              {/* SHIPPED */}
-
-              <div className="relative flex gap-5 pb-8">
-
-                <div className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-
-                  <Truck size={17} />
-
-                </div>
-
-                <div>
-
-                  <p className="font-semibold text-foreground">
-                    Shipped
-                  </p>
-
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Your package is on its way.
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              {/* DELIVERED */}
-
-              <div className="relative flex gap-5">
-
-                <div className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500 text-white">
-
-                  <CheckCircle2 size={17} />
-
-                </div>
-
-                <div>
-
-                  <p className="font-semibold text-foreground">
-                    Delivered
-                  </p>
-
-                  {orderData.deliveredAt && (
-
-                    <p className="mt-1 text-sm text-muted-foreground">
-
-                      Delivered on{" "}
-
-                      {new Date(
-                        orderData.deliveredAt
-                      ).toLocaleDateString(
-                        "en-IN",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric"
-                        }
-                      )}
-
+                    <p
+                      className={`mt-3 text-xs font-semibold ${completed
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                        }`}
+                    >
+                      {step.name}
                     </p>
 
-                  )}
-
-                </div>
-
-              </div>
+                  </div>
+                );
+              })}
 
             </div>
+
+          </div>
+
+
+          {/* MOBILE STATUS */}
+
+          <div className="mt-6 space-y-3 md:hidden">
+
+            {statusSteps.map((step, index) => {
+
+              const Icon = step.icon;
+
+              const completed =
+                index <= currentIndex;
+
+              return (
+                <div
+                  key={step.name}
+                  className={`flex items-center gap-3 rounded-xl border p-3 ${completed
+                    ? "border-primary/20 bg-primary/5"
+                    : "border-border"
+                    }`}
+                >
+
+                  <div
+                    className={`flex h-9 w-9 items-center justify-center rounded-full ${completed
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                      }`}
+                  >
+                    <Icon size={17} />
+                  </div>
+
+                  <span
+                    className={`text-sm font-semibold ${completed
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                      }`}
+                  >
+                    {step.name}
+                  </span>
+
+                </div>
+              );
+            })}
 
           </div>
 
@@ -1273,8 +1318,8 @@ const OrderDetailsPage = () => {
 
                                   <div
                                     className={`flex h-7 w-7 items-center justify-center rounded-full ${returnItem.returnStatus === "Rejected"
-                                        ? "bg-red-50"
-                                        : "bg-green-50"
+                                      ? "bg-red-50"
+                                      : "bg-green-50"
                                       }`}
                                   >
 
@@ -1533,7 +1578,7 @@ const OrderDetailsPage = () => {
                   <span className="font-semibold text-foreground">
 
                     {orderData?.payment?.paymentMethod?.toUpperCase() ||
-                      "N/A"}
+                      orderData?.paymentMethod || "N/A"}
 
                   </span>
 
