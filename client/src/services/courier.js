@@ -30,7 +30,7 @@ const generateAWB = async ({ orderId, courierId }) => {
         const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/generate-awb`, { courierId }, { withCredentials: true })
 
         // console.log("res", res);
-        return res;
+        return res.data;
 
     } catch (error) {
         // console.log("error", error.response);
@@ -40,10 +40,10 @@ const generateAWB = async ({ orderId, courierId }) => {
 
 const generateLabelAndInvoice = async (orderId) => {
     try {
-        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/label`, { withCredentials: true })
+        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/invoice-label`, { withCredentials: true })
 
         // console.log("res", res);
-        return res;
+        return res?.data;
 
     } catch (error) {
         // console.log("error", error.response);
@@ -55,7 +55,7 @@ const requestPickup = async (orderId) => {
     try {
         const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/pickup`, { withCredentials: true })
 
-        return res;
+        return res.data;
     } catch (error) {
         throw error;
     }
@@ -63,8 +63,9 @@ const requestPickup = async (orderId) => {
 
 const createManifest = async (orderId) => {
     try {
-        await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/manifest`, {withCredentials: true});
+        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/manifest`, {withCredentials: true});
 
+        return res.data;
     } catch (error) {
         throw error;
     }

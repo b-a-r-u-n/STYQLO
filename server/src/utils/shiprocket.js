@@ -29,11 +29,15 @@ const getShiprocketToken = async () => {
 
     } catch (error) {
         console.error("Error while getting Shiprocket token:", error);
+        throw error;
     }
 }
 
 const checkPinCode = async (pincode) => {
     try {
+        let token = null;
+        if (!shiprocketToken)
+            token = await getShiprocketToken();
         const response = await axios.get(`${process.env.SHIPROCKET_BASE_URL}/courier/serviceability/`,
             {
                 params: {
@@ -43,7 +47,7 @@ const checkPinCode = async (pincode) => {
                     cod: 1
                 },
                 headers: {
-                    Authorization: `Bearer ${shiprocketToken}`
+                    Authorization: `Bearer ${shiprocketToken || token}`
                 }
             }
         )
@@ -66,8 +70,10 @@ const checkPinCode = async (pincode) => {
 }
 
 const createShiprocketOrder = async (order) => {
-    // console.log("order", order);
-    // console.log("order.products[0].product", order.products[0].product);
+
+    let token = null;
+    if (!shiprocketToken)
+        token = await getShiprocketToken();
 
     const size = order?.products[0]?.size;
     // console.log(size);
@@ -131,7 +137,7 @@ const createShiprocketOrder = async (order) => {
         data,
         {
             headers: {
-                Authorization: `Bearer ${shiprocketToken}`,
+                Authorization: `Bearer ${shiprocketToken || token}`,
                 "Content-Type": "application/json"
             }
         }
@@ -148,7 +154,9 @@ const createShiprocketOrder = async (order) => {
 }
 
 const checkCourierServiceability = async ({ orderId, pickupPostcode, deliveryPostcode }) => {
-
+    let token = null;
+    if (!shiprocketToken)
+        token = await getShiprocketToken();
     const response = await axios.get(`${process.env.SHIPROCKET_BASE_URL}/courier/serviceability/`,
         {
             params: {
@@ -157,7 +165,7 @@ const checkCourierServiceability = async ({ orderId, pickupPostcode, deliveryPos
                 order_id: orderId
             },
             headers: {
-                Authorization: `Bearer ${shiprocketToken}`,
+                Authorization: `Bearer ${shiprocketToken || token}`,
                 "Content-Type": "application/json"
             }
         }
@@ -167,11 +175,17 @@ const checkCourierServiceability = async ({ orderId, pickupPostcode, deliveryPos
     if (!response)
         throw new apiError(500, "Error while checking courier serviceability");
 
+    // console.log(response);
+
+
     return response.data;
 
 }
 
 const assignCourierAndGenerateAWB = async ({ shipmentId, courierId }) => {
+    let token = null;
+    if (!shiprocketToken)
+        token = await getShiprocketToken();
     const response = await axios.post(`${process.env.SHIPROCKET_BASE_URL}/courier/assign/awb`,
         {
             shipment_id: shipmentId,
@@ -179,7 +193,7 @@ const assignCourierAndGenerateAWB = async ({ shipmentId, courierId }) => {
         },
         {
             headers: {
-                Authorization: `Bearer ${shiprocketToken}`,
+                Authorization: `Bearer ${shiprocketToken || token}`,
                 "Content-Type": "application/json"
             }
         }
@@ -191,25 +205,79 @@ const assignCourierAndGenerateAWB = async ({ shipmentId, courierId }) => {
     return response.data;
 }
 
-const generateLabelAndInvoice = async (shipmentIds) => {
+// const generateLabelAndInvoice = async (shipmentIds) => {
+//     try {
+//         console.log("shipmentIds", shipmentIds);
+//         const response = await axios.post(
+//             `${process.env.SHIPROCKET_BASE_URL}/courier/generate/label-invoice`,
+//             {
+//                 shipment_ids: shipmentIds
+//             },
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${shiprocketToken}`,
+//                     "Content-Type": "application/json"
+//                 }
+//             }
+//         );
+
+//         console.log("label-invoice response", response);
+
+//         return response.data;
+//     } catch (error) {
+//         console.error("error", error);
+//     }
+// }
+
+const generateLabel = async (shipmentId) => {
+    let token = null;
+    if (!shiprocketToken)
+        token = await getShiprocketToken();
     const response = await axios.post(
-        `${process.env.SHIPROCKET_BASE_URL}/courier/generate/label-invoice`,
+        `${process.env.SHIPROCKET_BASE_URL}/courier/generate/label`,
         {
-            shipment_ids: shipmentIds
+            shipment_id: shipmentId
         },
         {
             headers: {
-                Authorization: `Bearer ${shiprocketToken}`,
+                Authorization: `Bearer ${shiprocketToken || token}`,
                 "Content-Type": "application/json"
             }
         }
     );
 
+    console.log("label", response);
+
     return response.data;
 }
 
-const requestShipmentPickup = async (shipmentId) => {
+const generateInvoice = async (orderId) => {
+    let token = null;
+    if (!shiprocketToken)
+        token = await getShiprocketToken();
+    const response = await axios.post(
+        `${process.env.SHIPROCKET_BASE_URL}/orders/print/invoice`,
+        {
+            ids: orderId
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${shiprocketToken || token}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
 
+    console.log("invoice", response);
+
+    return response.data;
+}
+
+
+const requestShipmentPickup = async (shipmentId) => {
+    let token = null;
+    if (!shiprocketToken)
+        token = await getShiprocketToken();
     const response = await axios.post(
         `${process.env.SHIPROCKET_BASE_URL}/courier/generate/pickup`,
         {
@@ -217,7 +285,7 @@ const requestShipmentPickup = async (shipmentId) => {
         },
         {
             headers: {
-                Authorization: `Bearer ${shiprocketToken}`,
+                Authorization: `Bearer ${shiprocketToken || token}`,
                 "Content-Type": "application/json"
             }
         }
@@ -227,14 +295,17 @@ const requestShipmentPickup = async (shipmentId) => {
 };
 
 const generateManifest = async (shipmentId) => {
+    let token = null;
+    if (!shiprocketToken)
+        token = await getShiprocketToken();
     const response = await axios.post(
-        `${SHIPROCKET_BASE_URL}/manifests/generate`,
+        `${process.env.SHIPROCKET_BASE_URL}/manifests/generate`,
         {
             shipment_id: [Number(shipmentId)]
         },
         {
             headers: {
-                Authorization: `Bearer ${shiprocketToken}`,
+                Authorization: `Bearer ${shiprocketToken || token}`,
                 "Content-Type": "application/json"
             }
         }
@@ -243,4 +314,4 @@ const generateManifest = async (shipmentId) => {
     return response.data;
 }
 
-export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignCourierAndGenerateAWB, generateLabelAndInvoice, requestShipmentPickup, generateManifest }
+export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignCourierAndGenerateAWB, requestShipmentPickup, generateManifest, generateLabel, generateInvoice }

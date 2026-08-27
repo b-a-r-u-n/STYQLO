@@ -4,7 +4,7 @@ import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const createCheckout = asyncHandler(async (req, res) => {
-    const { products, shippingAddress, subTotal, tax, shippingCharges, totalAmount, paymentMethod } = req.body;
+    const { products, shippingAddress, subTotal, tax, shippingCharges, totalAmount, paymentMethod } = req.body;    
 
     if (!products || !products.length)
         throw new apiError(400, "Products are required");
@@ -15,7 +15,7 @@ const createCheckout = asyncHandler(async (req, res) => {
     if (!subTotal)
         throw new apiError(400, "Sub total is required");
 
-    if (!tax)
+    if (tax === undefined || tax === null || tax === "")
         throw new apiError(400, "Tax is required");
 
     if (!shippingCharges && shippingCharges !== 0)

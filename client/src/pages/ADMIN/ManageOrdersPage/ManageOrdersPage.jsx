@@ -369,7 +369,7 @@ const ManageOrdersPage = () => {
                         <div>
                           {(
                                 <a
-                                    href={order?.shiprocket?.invoiceAndLabel}
+                                    href={order?.shiprocket?.labelUrl}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 px-4 font-semibold text-foreground transition 
@@ -377,6 +377,21 @@ const ManageOrdersPage = () => {
                                 >
                                     <Download size={18} />
                                     Label
+                                </a>
+                            )}
+                        </div>
+
+                        <div>
+                          {(
+                                <a
+                                    href={order?.shiprocket?.invoiceUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 px-4 font-semibold text-foreground transition 
+                                    cursor-pointer hover:border-primary hover:text-primary"
+                                >
+                                    <Download size={18} />
+                                    invoice
                                 </a>
                             )}
                         </div>

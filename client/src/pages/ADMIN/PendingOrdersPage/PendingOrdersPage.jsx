@@ -39,6 +39,9 @@ const PendingOrdersPage = () => {
   const [selectedCourier, setSelectedCourier] = useState(null);
   const [awbData, setAwbData] = useState(null);
   const [labelData, setLabelData] = useState(null);
+  const [pickupData, setPickupData] = useState(null);
+  const [manifestData, setManifestData] = useState(null);
+  const [packedData, setPackedData] = useState(null);
 
   const handleAcceptAndReject = async (orderId, string, order) => {
     let url = "";
@@ -516,10 +519,6 @@ const PendingOrdersPage = () => {
         couriers={couriers}
         onSelectCourier={async (courier) => {
           try {
-            // setCurrentPageLoading(true);
-            // console.log("Order:", selectedOrderId);
-            // console.log("Selected courier:", courier);
-            // console.log("Selected courier Id:", courier.courier_company_id);
 
             setSelectedCourier(courier);
             setShowCourierModal(false);
@@ -529,6 +528,7 @@ const PendingOrdersPage = () => {
             // setAwbData({courier_name: "Delhivery", awb_code: 123445});
             // setTimeout(() => {
             //   console.log(awbData);
+            //   setLabelData({label: "https://kr-shipmultichannel-mum.s3.ap-south-1.amazonaws.com/4477576/labels/2f763cd0c954ab5b3fd224b075326ed2.pdf", invoice: "https://kr-shipmultichannel-mum.s3.ap-south-1.amazonaws.com/4477576/labels/2f763cd0c954ab5b3fd224b075326ed2.pdf"})
             //   setShipmentStep("awb-generated");
             // }, 10000);
 
@@ -536,7 +536,7 @@ const PendingOrdersPage = () => {
 
             console.log("AWB Response:", response);
 
-            setAwbData(response?.data?.data || response);
+            setAwbData(response?.data || response);
 
             setShipmentStep("awb-generated");
 
@@ -561,6 +561,13 @@ const PendingOrdersPage = () => {
         selectedCourier={selectedCourier}
         awbData={awbData}
         labelData={labelData}
+        selectedOrderId={selectedOrderId}
+        setLabelData={setLabelData}
+        setShipmentStep={setShipmentStep}
+        setAwbData={setAwbData}
+        packedData={packedData}
+        pickupData={pickupData}
+        manifestData={manifestData}
 
         onGenerateLabel={async () => {
           // next Shiprocket API
@@ -572,13 +579,13 @@ const PendingOrdersPage = () => {
 
             console.log("Label Response:", response);
 
-            setLabelData(response?.data?.data || response)
+            setLabelData(response?.data || response)
 
             setShipmentStep("label-generated");
 
           } catch (error) {
             toast.error(error.response?.data?.message || error?.message || "Failed to generate label and invoice");
-            showShipmentModal(false);
+            // setShowShipmentModal(false);
             setShipmentStep("error");
           }
 
@@ -587,12 +594,19 @@ const PendingOrdersPage = () => {
         onMarkPacked={async () => {
           // update order status to 
           try {
-            await dispatch(updateOrder({ orderId, url: "?orderStatus=Packed" })).unwrap();
 
-            setShipmentStep("packed")
+            setShipmentStep("packing");
+
+            const response = await dispatch(updateOrder({ orderId: selectedOrderId, url: "?orderStatus=Packed" })).unwrap();
+
+            // console.log("response", response);           
+            
+            setPackedData(response);
+            
+            setShipmentStep("packed");
           } catch (error) {
             toast.error(error.response?.data?.message || error?.message || "Failed to Update status");
-            showShipmentModal(false);
+            // setShowShipmentModal(false);
             setShipmentStep("error");
           }
         }}
@@ -607,16 +621,33 @@ const PendingOrdersPage = () => {
 
             console.log("Request pickup Response:", response);
 
-            setShipmentStep("pickup-requested");
+            setPickupData(response?.data);
 
-            await createManifest(selectedOrderId);
+            setShipmentStep("pickup-requested");
+          } catch (error) {
+            toast.error(error.response?.data?.message || error?.message || "Failed to request pickup");
+            // setShowShipmentModal(false);
+            setShipmentStep("error");
+          }
+        }}
+
+        onGenerateManifest={async () => {
+          try {
+
+            setShipmentStep("generating-manifest");
+
+            const response = await createManifest(selectedOrderId);
+            console.log("Manifest generate Response:", response);
+
+            setManifestData(response?.data);
+
+            setShipmentStep("manifest-generated");
 
             toast.success(`Order accepted successfully`);
             fetchData();
-
           } catch (error) {
-            toast.error(error.response?.data?.message || error?.message || "Failed to request pickup");
-            showShipmentModal(false);
+            toast.error(error.response?.data?.message || error?.message || "Failed to generate manifest");
+            // setShowShipmentModal(false);
             setShipmentStep("error");
           }
         }}

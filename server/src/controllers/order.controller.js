@@ -222,6 +222,8 @@ const updateOrder = asyncHandler(async (req, res) => {
     if (req.query?.orderStatus)
         filter.orderStatus = req.query?.orderStatus;
 
+    // exit();
+
 
     const order = await Order.findByIdAndUpdate(
         orderId,

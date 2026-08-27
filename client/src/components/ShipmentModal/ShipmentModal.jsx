@@ -1,4 +1,6 @@
-import { Check, Download, ExternalLink, Package, Truck, X, Loader2, } from "lucide-react";
+import { Check, Download, ExternalLink, Package, Truck, X, Loader2, FileBraces, FileCheck, } from "lucide-react";
+import { createManifest, generateLabelAndInvoice, requestPickup } from "../../services/courier";
+import toast from "react-hot-toast";
 
 const ShipmentModal = ({
     isOpen,
@@ -11,6 +13,13 @@ const ShipmentModal = ({
     onGenerateLabel,
     onMarkPacked,
     onRequestPickup,
+    onGenerateManifest,
+    selectedOrderId,
+    setShipmentStep,
+    setAwbData,
+    packedData,
+    pickupData,
+    manifestData
 }) => {
     if (!isOpen) return null;
 
@@ -33,19 +42,77 @@ const ShipmentModal = ({
         );
     };
 
-    const getLabelUrl = () => {
-        return (
-            labelData?.file_url ||
-            labelData?.fileUrl ||
-            labelData?.data?.file_url ||
-            null
-        );
+    const tryagain = async (work) => {
+
+        try {
+            if (work === "awb") {
+                setShipmentStep("generating-awb");
+
+                // setAwbData({courier_name: "Delhivery", awb_code: 123445});
+                // setTimeout(() => {
+                //   console.log(awbData);
+                //   setShipmentStep("awb-generated");
+                // }, 10000);
+
+                const response = await generateAWB({ orderId: selectedOrderId, courierId: courier?.courier_company_id });
+
+                console.log("AWB Response:", response);
+
+                setAwbData(response?.data || response);
+
+                setShipmentStep("awb-generated");
+            }
+            else if (work === "invoice") {
+                onGenerateLabel();
+            }
+            else if (work === "packed") {
+                onMarkPacked();
+            }
+            else if (work === "pickup-date") {
+               onRequestPickup();
+            }
+            else if (work === "manifest") {
+                onGenerateManifest();
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || error?.message || "Failed to update courier.");
+            setShipmentStep("error");
+        }
+    }
+
+    const getNextShipmentStep = () => {
+        // console.log("awbData", awbData);
+
+        if (!awbData?.awbCode) {
+            return "awb";
+        }
+
+        if (!labelData?.invoice || !labelData?.label) {
+            return "invoice";
+        }
+
+        if (!packedData) {
+            console.log(packedData);
+            return "packed"
+        }
+
+        if (!pickupData?.response?.pickup_scheduled_date) {
+            return "pickup-date";
+        }
+
+        if (!manifestData?.manifest_url) {
+            return "manifest";
+        }
+
+        return null;
     };
 
     const isLoading =
         step === "generating-awb" ||
         step === "generating-label" ||
-        step === "requesting-pickup";
+        step === "requesting-pickup" ||
+        step === "packing" ||
+        step === "generating-manifest";
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
@@ -67,7 +134,7 @@ const ShipmentModal = ({
                             </h2>
 
                             <p className="text-xs text-muted-foreground">
-                                Order #{order?._id}
+                                Order #{order?.orderId}
                             </p>
                         </div>
                     </div>
@@ -236,14 +303,14 @@ const ShipmentModal = ({
                                         </span>
                                     </div>
 
-                                    {getLabelUrl() && (
+                                    {(labelData.invoice && labelData.label) && (
                                         <a
-                                            href={getLabelUrl()}
+                                            href={labelData?.label}
                                             target="_blank"
                                             rel="noreferrer"
                                             className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                                         >
-                                            View
+                                            Download
                                             <ExternalLink size={13} />
                                         </a>
                                     )}
@@ -263,14 +330,41 @@ const ShipmentModal = ({
                                         </span>
                                     </div>
 
+                                    {(labelData.invoice && labelData.label) && (
+                                        <a
+                                            href={labelData.invoice}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                                        >
+                                            Download
+                                            <ExternalLink size={13} />
+                                        </a>
+                                    )}
+                                </div>
+
+                                {/* <div className="flex items-center justify-between rounded-xl border border-border p-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100">
+                                            <Check
+                                                size={17}
+                                                className="text-green-600"
+                                            />
+                                        </div>
+
+                                        <span className="text-sm font-medium">
+                                            Invoice
+                                        </span>
+                                    </div>
+
                                     <span className="text-xs font-semibold text-green-600">
                                         Generated
                                     </span>
-                                </div>
+                                </div> */}
                             </div>
 
                             {/* LABEL BUTTON */}
-                            {getLabelUrl() && (
+                            {/* {getLabelUrl() && (
                                 <a
                                     href={getLabelUrl()}
                                     target="_blank"
@@ -280,7 +374,7 @@ const ShipmentModal = ({
                                     <Download size={18} />
                                     View / Download Label
                                 </a>
-                            )}
+                            )} */}
 
                             {/* PACK BUTTON */}
                             <button
@@ -291,6 +385,31 @@ const ShipmentModal = ({
                                 <Package size={18} />
                                 Mark as Packed
                             </button>
+                        </div>
+                    )}
+
+                    {/* ================================= */}
+                    {/* PACKING */}
+                    {/* ================================= */}
+
+                    {step === "packing" && (
+                        <div className="py-10 text-center">
+                            <Loader2
+                                size={42}
+                                className="mx-auto animate-spin text-primary"
+                            />
+
+                            <h3 className="mt-5 text-lg font-bold text-foreground">
+                                Packing Your Order
+                            </h3>
+
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                Your order is being packed and prepared for shipment.
+                            </p>
+
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Please wait...
+                            </p>
                         </div>
                     )}
 
@@ -417,8 +536,81 @@ const ShipmentModal = ({
 
                             <button
                                 type="button"
+                                onClick={onGenerateManifest}
+                                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-hover"
+                            >
+                                <FileBraces size={18} />
+                                Request Manifest
+                            </button>
+                        </div>
+                    )}
+
+                    {/* ================================= */}
+                    {/* GENERATING MANIFEST */}
+                    {/* ================================= */}
+                    {step === "generating-manifest" && (
+                        <div className="py-10 text-center">
+                            <Loader2
+                                size={42}
+                                className="mx-auto animate-spin text-primary"
+                            />
+
+                            <h3 className="mt-5 text-lg font-bold text-foreground">
+                                Generating Manifest
+                            </h3>
+
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                Generating the shipment manifest for this order.
+                            </p>
+
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Please wait...
+                            </p>
+                        </div>
+                    )}
+
+                    {/* ================================= */}
+                    {/* MANIFEST GENERATED */}
+                    {/* ================================= */}
+                    {step === "manifest-generated" && (
+                        <div className="text-center">
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                                <FileCheck
+                                    size={32}
+                                    className="text-green-600"
+                                />
+                            </div>
+
+                            <h3 className="mt-4 text-xl font-bold text-foreground">
+                                Manifest Generated
+                            </h3>
+
+                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                                The shipment manifest has been successfully generated.
+                            </p>
+
+                            <div className="mt-6 rounded-2xl border border-border bg-muted/30 p-4 text-left">
+                                <p className="text-xs text-muted-foreground">
+                                    Courier
+                                </p>
+
+                                <p className="mt-1 font-semibold">
+                                    {getCourierName()}
+                                </p>
+
+                                <p className="mt-4 text-xs text-muted-foreground">
+                                    AWB
+                                </p>
+
+                                <p className="mt-1 font-mono font-semibold">
+                                    {getAWB()}
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
                                 onClick={onClose}
-                                className="mt-5 w-full rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-hover"
+                                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-hover"
                             >
                                 Done
                             </button>
@@ -446,6 +638,25 @@ const ShipmentModal = ({
                                 We couldn't complete this shipment step.
                                 Please try again.
                             </p>
+
+                            <button
+                                className="mt-5 w-full rounded-xl border border-border py-3 font-semibold"
+                                onClick={() => {
+                                    const step = getNextShipmentStep();
+
+                                    if (step) {
+                                        tryagain(step);
+                                    }
+                                }}
+                            >
+                                Generate{" "}
+                                {getNextShipmentStep() === "awb" && "AWB"}
+                                {getNextShipmentStep() === "invoice" && "Invoice"}
+                                {getNextShipmentStep() === "pickup-date" && "Pickup Date"}
+                                {getNextShipmentStep() === "manifest" && "Manifest"}
+                                {getNextShipmentStep() === "packed" && "Status"}
+
+                            </button>
 
                             <button
                                 type="button"

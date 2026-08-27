@@ -49,7 +49,7 @@ const CourierModal = ({
 
         {/* Courier List */}
         <div className="max-h-[60vh] overflow-y-auto p-6">
-          {couriers.length === 0 ? (
+          {couriers?.length === 0 ? (
             <div className="py-12 text-center">
               <Truck
                 size={40}
@@ -66,7 +66,7 @@ const CourierModal = ({
             </div>
           ) : (
             <div className="space-y-3">
-              {couriers.map((courier) => {
+              {couriers?.map((courier) => {
                 const courierId =
                   courier.courier_company_id ||
                   courier.id ||
@@ -85,11 +85,10 @@ const CourierModal = ({
                     key={courierId}
                     type="button"
                     onClick={() => handleSelect(courier)}
-                    className={`w-full rounded-xl border p-4 text-left transition-all ${
-                      isSelected
-                        ? "border-[#C8756A] bg-[#FDF5F3] ring-2 ring-[#C8756A]/20"
-                        : "border-[#EDD5CF] hover:border-[#C8756A] hover:bg-[#FDF5F3]"
-                    }`}
+                    className={`w-full rounded-xl border p-4 text-left transition-all ${isSelected
+                      ? "border-[#C8756A] bg-[#FDF5F3] ring-2 ring-[#C8756A]/20"
+                      : "border-[#EDD5CF] hover:border-[#C8756A] hover:bg-[#FDF5F3]"
+                      }`}
                   >
                     <div className="flex items-center justify-between gap-4">
 
@@ -131,17 +130,31 @@ const CourierModal = ({
                       </div>
 
                       {/* Price */}
-                      <div className="shrink-0 text-right">
-                        <div className="flex items-center justify-end font-bold text-[#2C1810]">
-                          <IndianRupee size={14} />
-                          {courier.freight_charge ??
-                            courier.freight ??
-                            0}
-                        </div>
+                      <div
+                        className="flex gap-4"
+                      >
+                        <div className="shrink-0 text-right">
+                          <div className="flex items-center justify-end font-bold text-[#2C1810]">
+                            <IndianRupee size={14} />
+                            {courier.freight_charge ??
+                              courier.freight ??
+                              0}
+                          </div>
 
-                        <p className="mt-1 text-xs text-[#9B7B75]">
-                          Shipping
-                        </p>
+                          <p className="mt-1 text-xs text-[#9B7B75]">
+                            Shipping
+                          </p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <div className="flex items-center justify-end font-bold text-[#2C1810]">
+                            <IndianRupee size={14} />
+                            {courier.cod_charges ?? 0}
+                          </div>
+
+                          <p className="mt-1 text-xs text-[#9B7B75]">
+                            COD charge
+                          </p>
+                        </div>
                       </div>
                     </div>
 
@@ -158,7 +171,7 @@ const CourierModal = ({
                       )}
 
                       {courier.pickup_availability === "1" ||
-                      courier.pickup_available === true ? (
+                        courier.pickup_available === true ? (
                         <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                           Pickup Available
                         </span>

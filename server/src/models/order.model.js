@@ -149,7 +149,11 @@ const orderSchema = new mongoose.Schema(
                 default: null
             },
 
-            invoiceAndLabel: {
+            invoiceUrl: {
+                type: String,
+                default: null
+            },
+            labelUrl: {
                 type: String,
                 default: null
             },

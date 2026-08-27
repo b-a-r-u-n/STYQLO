@@ -7,7 +7,7 @@ router.route("/check-serviceability").get(checkServiceability);
 router.route("/:orderId/create").post(createShipmentOrder);
 router.route("/:orderId/get-couriers").post(getCourierDetails);
 router.route("/:orderId/generate-awb").post(generateAWB);
-router.route("/:orderId/label").post(generateShipmentLabelAndInvoice);
+router.route("/:orderId/invoice-label").post(generateShipmentLabelAndInvoice);
 router.route("/:orderId/pickup").post(requestPickup);
 router.route("/:orderId/manifest").post(createManifest);
 
