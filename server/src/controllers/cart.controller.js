@@ -146,11 +146,11 @@ const getCart = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
     const cart = await Cart.findOne({ userId });
-    if (!cart)
-        throw new apiError(404, "Cart not found");
+    // if (!cart)
+    //     throw new apiError(404, "Cart not found");
 
     const items = await CartItem.find({
-        cartId: cart._id
+        cartId: cart?._id
     }).populate("productId");
     if (!items)
         throw new apiError(400, "Items not found");
