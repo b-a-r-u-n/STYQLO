@@ -58,15 +58,7 @@ import generateSequenceId from "../utils/generateSequence.js";
 
 const createOrder = asyncHandler(async (req, res) => {
 
-    const {
-        products,
-        shippingAddress,
-        subTotal,
-        tax,
-        shippingCharges,
-        totalAmount,
-        paymentMethod
-    } = req.body;
+    const { products, shippingAddress, subTotal, tax, shippingCharges, totalAmount, paymentMethod } = req.body;
 
     // console.log(paymentMethod); 
     

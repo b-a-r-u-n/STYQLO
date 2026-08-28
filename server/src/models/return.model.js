@@ -53,10 +53,10 @@ const returnSchema = new mongoose.Schema(
             required: true
         },
         tax: {
-            type:Number,
+            type: Number,
         },
         shippingCharges: {
-            type:Number
+            type: Number
         },
         requestedAt: {
             type: Date,
@@ -82,7 +82,48 @@ const returnSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Payment",
             default: null
-        }
+        },
+        returnId: {
+            type: String,
+            unique: true,
+            required: true
+        },
+        returnInvoiceNumber: {
+            type: String,
+            unique: true,
+            require: true
+        },
+        method: {
+            type: String,
+            enum: ["ORIGINAL_PAYMENT", "UPI", "BANK_ACCOUNT"],
+            required: true,
+        },
+
+        upiId: {
+            type: String,
+            trim: true,
+        },
+
+        bankDetails: {
+            accountHolderName: {
+                type: String,
+                trim: true,
+            },
+            accountNumber: {
+                type: String,
+                trim: true,
+            },
+
+            ifscCode: {
+                type: String,
+                trim: true,
+                uppercase: true,
+            },
+        },
+        transactionId: {
+            type: String,
+            trim: true,
+        },
     },
     {
         timestamps: true

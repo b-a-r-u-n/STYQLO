@@ -5,6 +5,7 @@ import apiError from "../utils/apiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
+import generateSequenceId from "../utils/generateSequence.js";
 
 
 // const createReturn = asyncHandler(async (req, res) => {
@@ -122,11 +123,9 @@ import { User } from "../models/user.model.js";
 
 const createReturn = asyncHandler(async (req, res) => {
 
-    const {orderId, products, reason, description, selectedQuantity, refundAmount, tax, shippingCharges } = req.body;
+    const { orderId, products, reason, description, selectedQuantity, refundAmount, tax, shippingCharges, refundMethod, upiId, bankDetails } = req.body;   
 
-    console.log(req.body);
-    
-
+    // console.log(req.body);
 
     if (!orderId)
         throw new apiError(400, "Order id is required");
@@ -155,6 +154,30 @@ const createReturn = asyncHandler(async (req, res) => {
     if (!order)
         throw new apiError(404, "Order not found");
 
+    if (order.paymentMethod === "COD") {
+        if (!refundMethod) {
+            throw new apiError( 400, "Refund method is required for COD orders");
+        }
+
+        if (!["UPI", "BANK_ACCOUNT"].includes(refundMethod)) {
+            throw new apiError( 400, "Invalid refund method" );
+        }
+
+        // UPI
+        if (refundMethod === "UPI") {
+            if (!upiId?.trim()) {
+                throw new apiError( 400, "UPI ID is required" );
+            }
+        }
+
+        // BANK
+        if (refundMethod === "BANK_ACCOUNT") {
+            if ( !bankDetails?.accountHolderName?.trim() || !bankDetails?.accountNumber?.trim() || !bankDetails?.ifscCode?.trim()) {
+                throw new apiError(400, "Complete bank details are required");
+            }
+        }
+    }
+
 
     // Find product in the order
     const orderProduct = order.products.find(
@@ -181,10 +204,7 @@ const createReturn = asyncHandler(async (req, res) => {
 
     // Check quantity
     if (newReturnedQuantity > orderProduct.quantity) {
-        throw new apiError(
-            400,
-            "Please select a valid quantity"
-        );
+        throw new apiError( 400, "Please select a valid quantity");
     }
 
 
@@ -194,6 +214,7 @@ const createReturn = asyncHandler(async (req, res) => {
 
     await order.save();
 
+    const returnId = await generateSequenceId("return", "STYQLO-RETURN-");
 
     // Create return
     const returnData = await Return.create({
@@ -212,7 +233,15 @@ const createReturn = asyncHandler(async (req, res) => {
         refundStatus: "NotStarted",
         refundAmount,
         tax,
-        shippingCharges
+        shippingCharges,
+        returnId,
+        method: order.paymentMethod === "COD" ? refundMethod : "ORIGINAL_PAYMENT",
+        upiId,
+        bankDetails: {
+            accountHolderName: bankDetails?.accountHolderName,
+            accountNumber: bankDetails?.accountNumber,
+            ifscCode: bankDetails?.ifscCode.toUpperCase()
+        }
     });
 
 
@@ -254,7 +283,7 @@ const getAllReturns = asyncHandler(async (req, res) => {
     if (req.query?._id)
         filter._id = req.query?._id;
 
-    
+
 
     const returnData = await Return.find(filter)
         .sort({ updatedAt: -1 })
@@ -262,11 +291,11 @@ const getAllReturns = asyncHandler(async (req, res) => {
         .populate("products.product")
         .populate("order")
 
-        // console.log("returnData", returnData);
-        
+    // console.log("returnData", returnData);
+
 
     if (!returnData)
-        throw new apiError(404, "No return data found"); 
+        throw new apiError(404, "No return data found");
 
     res
         .status(200)
@@ -297,12 +326,12 @@ const getReturnById = asyncHandler(async (req, res) => {
 })
 
 const updateReturn = asyncHandler(async (req, res) => {
-    const {returnId} = req.params;
+    const { returnId } = req.params;
 
     if (!returnId)
         throw new apiError(400, "Return id is required");
     // console.log(returnId);
-    
+
 
     const filter = {};
     console.log("req.query", req.query);
@@ -311,8 +340,8 @@ const updateReturn = asyncHandler(async (req, res) => {
         filter.returnStatus = req?.query?.returnStatus;
     if (req?.query?.approvedAt)
         console.log("Hello");
-        
-        // filter.approvedAt = new Date();
+
+    // filter.approvedAt = new Date();
 
     const returnData = await Return.findByIdAndUpdate(
         returnId,
@@ -328,12 +357,12 @@ const updateReturn = asyncHandler(async (req, res) => {
     if (!returnData)
         throw new apiError(400, "Error while updating return");
 
-    if(returnData.returnStatus === "Approved"){
+    if (returnData.returnStatus === "Approved") {
         returnData.approvedAt = new Date();
         await returnData.save()
     }
-    
-    if(returnData.returnStatus === "Rejected"){
+
+    if (returnData.returnStatus === "Rejected") {
         returnData.rejectedAt = new Date();
         await returnData.save()
     }

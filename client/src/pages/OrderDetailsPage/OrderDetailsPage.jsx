@@ -196,10 +196,8 @@ const formatDateTime = (date) => {
 // GET RETURNABLE QUANTITY
 // --------------------------------------------------
 
-const getReturnableQuantity = (
-  orderData,
-  orderProduct
-) => {
+const getReturnableQuantity = (orderData,
+  orderProduct) => {
   const alreadyReturnedQuantity =
     (orderData?.returns || [])
       .filter(
@@ -910,7 +908,7 @@ const OrderDetailsPage = () => {
                               <p className="mt-1 text-xs text-muted-foreground">
                                 Return ID:{" "}
                                 {
-                                  returnItem._id
+                                  returnItem?.returnId || returnItem._id
                                 }
                               </p>
 

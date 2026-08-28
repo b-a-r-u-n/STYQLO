@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-export const createReturn = createAsyncThunk("createReturn", async ({ orderId, products, reason, description, selectedQuantity, refundAmount, tax, shippingCharges }, { rejectWithValue }) => {
-    try {
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/return/`, { orderId, products, reason, description, selectedQuantity, refundAmount, tax, shippingCharges }, { withCredentials: true })
+export const createReturn = createAsyncThunk("createReturn", async ({ orderId, products, reason, description, selectedQuantity, refundAmount, tax, shippingCharges, refundMethod, upiId, bankDetails }, { rejectWithValue }) => {
+    try {       
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/return/`, { orderId, products, reason, description, selectedQuantity, refundAmount, tax, shippingCharges, refundMethod, upiId, bankDetails }, { withCredentials: true })
 
         return response.data.data;
     } catch (error) {

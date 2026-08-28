@@ -14,6 +14,11 @@ const ReturnModal = ({ opened, onClose, order, fetchData }) => {
     const [reason, setReason] = useState("");
     const [description, setDescription] = useState("");
     const [loading, setLoading] = useState(false);
+    const [refundMethod, setRefundMethod] = useState("");
+    const [upiId, setUpiId] = useState("");
+    const [accountHolderName, setAccountHolderName] = useState("");
+    const [accountNumber, setAccountNumber] = useState("");
+    const [ifscCode, setIfscCode] = useState("");
 
     let selectedQuantity;
 
@@ -161,29 +166,76 @@ const ReturnModal = ({ opened, onClose, order, fetchData }) => {
             return;
         }
 
+        if (order.paymentMethod === "COD") {
+            if (!refundMethod) {
+                toast.error("Please select a refund method.");
+                return;
+            }
+
+            if (refundMethod === "UPI" && !upiId.trim()) {
+                toast.error("Please enter your UPI ID.");
+                return;
+            }
+
+            if (refundMethod === "BANK_ACCOUNT") {
+                if (!accountHolderName.trim() || !accountNumber.trim() || !ifscCode.trim()) {
+                    toast.error("Please enter complete bank details.");
+                    return;
+                }
+            }
+        }
+
         try {
             setLoading(true);
             // console.log("tax", tax);
+            console.log(order);
+            console.log(refundMethod);
+            console.log(upiId);
+            
+            const method = order.paymentMethod === "COD" ? refundMethod : undefined;
+            console.log(method);
+            
 
+            const response = await dispatch(createReturn({
+                orderId: order._id, products: order.products, reason, description, selectedQuantity, refundAmount, tax, shippingCharges,
+                refundMethod: method,
 
-            const response = await dispatch(createReturn({ orderId: order._id, products: order.products, reason, description, selectedQuantity, refundAmount, tax, shippingCharges })).unwrap();
+                upiId:
+                    order.paymentMethod === "COD" &&
+                        refundMethod === "UPI"
+                        ? upiId
+                        : undefined,
+
+                bankDetails:
+                    order.paymentMethod === "COD" &&
+                        refundMethod === "BANK_ACCOUNT"
+                        ? {
+                            accountHolderName,
+                            accountNumber,
+                            ifscCode,
+                        }
+                        : undefined,
+            })).unwrap();
 
             // console.log(response);
 
-            toast.success(
-                "Return request submitted successfully."
-            );
+            toast.success("Return request submitted successfully.");
 
             fetchData();
 
             onClose();
 
         } catch (error) {
-            console.error(error);
+            // console.error(error);
 
             toast.error(error || "Unable to submit return request.");
         } finally {
             setLoading(false);
+            // setUpiId("");
+            // setRefundMethod("");
+            // setAccountHolderName("");
+            // setAccountNumber("");
+            // setIfscCode("");
         }
     };
 
@@ -290,7 +342,7 @@ const ReturnModal = ({ opened, onClose, order, fetchData }) => {
                                 </p>
 
                                 <p className="mt-1 text-sm font-semibold text-[#2C1810]">
-                                    #{order._id}
+                                    #{order?.orderId || order?._id}
                                 </p>
 
                             </div>
@@ -658,6 +710,106 @@ const ReturnModal = ({ opened, onClose, order, fetchData }) => {
                             </p>
 
                         </div>
+
+                        {/* ==================================================
+                PAYMENT RECEIVE DETAILS
+            ================================================== */}
+
+                        {order.paymentMethod === "COD" && (
+                            <div className="mt-5 rounded-2xl border border-[#E8D4D0] bg-[#FBF8F5] p-4">
+                                <h3 className="text-sm font-semibold text-[#2C1810]">
+                                    Refund Details
+                                </h3>
+
+                                <p className="mt-1 text-xs text-[#8A6B65]">
+                                    Since this order was placed using Cash on Delivery,
+                                    please provide where you want to receive your refund.
+                                </p>
+
+                                <div className="mt-4">
+                                    <label className="mb-2 block text-sm font-medium text-[#2C1810]">
+                                        Refund method
+                                    </label>
+
+                                    <select
+                                        value={refundMethod}
+                                        onChange={(e) => setRefundMethod(e.target.value)}
+                                        className="w-full rounded-xl border border-[#E8D4D0] bg-white px-4 py-3 text-sm"
+                                    >
+                                        <option value="">Select refund method</option>
+                                        <option value="UPI">UPI</option>
+                                        <option value="BANK_ACCOUNT">Bank Account</option>
+                                    </select>
+                                </div>
+
+                                {refundMethod === "UPI" && (
+                                    <div className="mt-4">
+                                        <label className="mb-2 block text-sm font-medium text-[#2C1810]">
+                                            UPI ID
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value={upiId}
+                                            onChange={(e) => setUpiId(e.target.value)}
+                                            placeholder="example@upi"
+                                            className="w-full rounded-xl border border-[#E8D4D0] bg-white px-4 py-3 text-sm outline-none"
+                                        />
+                                    </div>
+                                )}
+
+                                {refundMethod === "BANK_ACCOUNT" && (
+                                    <div className="mt-4 space-y-3">
+                                        <div>
+                                            <label className="mb-2 block text-sm font-medium text-[#2C1810]">
+                                                Account holder name
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={accountHolderName}
+                                                onChange={(e) =>
+                                                    setAccountHolderName(e.target.value)
+                                                }
+                                                className="w-full rounded-xl border border-[#E8D4D0] bg-white px-4 py-3 text-sm"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="mb-2 block text-sm font-medium text-[#2C1810]">
+                                                Account number
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                value={accountNumber}
+                                                onChange={(e) =>
+                                                    setAccountNumber(e.target.value.replace(/\D/g, ""))
+                                                }
+                                                className="w-full rounded-xl border border-[#E8D4D0] bg-white px-4 py-3 text-sm"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="mb-2 block text-sm font-medium text-[#2C1810]">
+                                                IFSC code
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                value={ifscCode}
+                                                onChange={(e) =>
+                                                    setIfscCode(e.target.value.toUpperCase())
+                                                }
+                                                placeholder="SBIN0001234"
+                                                className="w-full rounded-xl border border-[#E8D4D0] bg-white px-4 py-3 text-sm uppercase"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
 
                         {/* ==================================================
