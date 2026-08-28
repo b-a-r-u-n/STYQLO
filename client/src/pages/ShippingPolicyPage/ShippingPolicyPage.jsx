@@ -1,386 +1,575 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Truck,MapPin,Clock3,PackageCheck,Search,AlertCircle,ArrowRight } from "lucide-react";
+import { Truck, MapPin, Clock, Package, ShieldCheck, AlertCircle, CreditCard, Phone, Mail } from "lucide-react";
+
+const sections = [
+  {
+    number: "01",
+    title: "Shipping Availability",
+    icon: MapPin,
+    content: (
+      <>
+        <p>
+          STYQLO currently provides delivery <strong>across India</strong>,
+          subject to courier service availability and PIN-code serviceability.
+        </p>
+
+        <p>
+          We ship to locations that are serviceable by our courier partners.
+        </p>
+
+        <p>
+          Delivery availability may vary for certain remote or
+          difficult-to-reach locations. If a PIN code is not serviceable, we
+          may not be able to process delivery to that location.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "02",
+    title: "Shipping Charges",
+    icon: CreditCard,
+    content: (
+      <>
+        <div className="rounded-2xl bg-primary-lighter p-5">
+          <p className="font-semibold text-foreground">
+            Free shipping is available on all STYQLO orders.
+          </p>
+        </div>
+
+        <p className="mt-5">
+          Any applicable charges, including any charges related to specific
+          payment or delivery options, will be displayed to you before you
+          complete your order.
+        </p>
+
+        <p>
+          There are currently no additional shipping charges based solely on
+          the customer's delivery location.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "03",
+    title: "Order Processing",
+    icon: Clock,
+    content: (
+      <>
+        <p>
+          Orders are generally processed and prepared for dispatch within{" "}
+          <strong>1–2 business days</strong> after the order is successfully
+          placed and payment is confirmed, where applicable.
+        </p>
+
+        <p>
+          Orders are processed <strong>Monday through Saturday</strong>.
+        </p>
+
+        <p>
+          Orders placed on Sundays or public holidays may be processed on the
+          next available business day.
+        </p>
+
+        <p>Processing times may occasionally be longer during:</p>
+
+        <ul>
+          <li>Sales and promotional periods.</li>
+          <li>High-demand periods.</li>
+          <li>Festivals and holidays.</li>
+          <li>Unexpected operational circumstances.</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    number: "04",
+    title: "Delivery Time",
+    icon: Truck,
+    content: (
+      <>
+        <p>
+          Once your order has been dispatched, the estimated delivery time is
+          generally:
+        </p>
+
+        <div className="my-5 rounded-2xl bg-luxury-warm p-6 text-center">
+          <p className="text-sm font-medium uppercase tracking-wider text-foreground/70">
+            Estimated Delivery
+          </p>
+          <p className="mt-2 text-2xl font-bold text-foreground">
+            3–7 business days
+          </p>
+          <p className="mt-1 text-sm text-foreground/70">after dispatch</p>
+        </div>
+
+        <p>Delivery time may vary depending on:</p>
+
+        <ul>
+          <li>Delivery location.</li>
+          <li>PIN-code serviceability.</li>
+          <li>Courier operations.</li>
+          <li>Weather conditions.</li>
+          <li>Festivals and public holidays.</li>
+          <li>Natural disasters.</li>
+          <li>Transportation disruptions.</li>
+          <li>Remote or difficult-to-reach locations.</li>
+          <li>Other circumstances beyond STYQLO's reasonable control.</li>
+        </ul>
+
+        <p>
+          The delivery timeline is an estimate and is not a guaranteed
+          delivery date.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "05",
+    title: "Shipping Partners",
+    icon: Package,
+    content: (
+      <>
+        <p>
+          STYQLO uses <strong>Shiprocket</strong> to manage shipping and
+          courier services.
+        </p>
+
+        <p>
+          Your order may be assigned to an appropriate courier partner based
+          on factors such as:
+        </p>
+
+        <ul>
+          <li>Delivery location.</li>
+          <li>Courier availability.</li>
+          <li>Serviceability.</li>
+          <li>Estimated delivery time.</li>
+          <li>Operational conditions.</li>
+        </ul>
+
+        <p>
+          The courier partner handling your shipment may therefore vary from
+          one order to another.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "06",
+    title: "Order Tracking",
+    icon: Package,
+    content: (
+      <>
+        <p>
+          Once your order has been dispatched, tracking information will be
+          made available.
+        </p>
+
+        <p>Tracking details may be sent through:</p>
+
+        <ul>
+          <li>Email</li>
+          <li>SMS</li>
+          <li>WhatsApp</li>
+        </ul>
+
+        <p>
+          You may use the tracking information provided to check the progress
+          of your shipment.
+        </p>
+
+        <p>
+          If the tracking information does not update for an unusually long
+          period, please contact STYQLO customer support.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "07",
+    title: "Delivery Attempts",
+    icon: Truck,
+    content: (
+      <>
+        <p>
+          Delivery attempts are handled by the courier partner assigned to
+          your shipment.
+        </p>
+
+        <p>
+          The number of delivery attempts may vary depending on the courier
+          partner and delivery location.
+        </p>
+
+        <p>
+          If delivery cannot be completed after the courier partner's
+          attempts, the parcel may eventually be <strong>returned to STYQLO</strong>.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "08",
+    title: "Incorrect or Incomplete Address",
+    icon: MapPin,
+    content: (
+      <>
+        <p>
+          Please carefully check your delivery address, PIN code, phone
+          number, and other details before placing your order.
+        </p>
+
+        <p>
+          Once an order has been dispatched, we may not be able to modify the
+          delivery address.
+        </p>
+
+        <p>
+          If a parcel is returned to STYQLO because of:
+        </p>
+
+        <ul>
+          <li>Incorrect address.</li>
+          <li>Incomplete address.</li>
+          <li>Incorrect PIN code.</li>
+          <li>Incorrect contact details.</li>
+          <li>Customer unavailability.</li>
+          <li>Repeated unsuccessful delivery attempts.</li>
+        </ul>
+
+        <p>
+          STYQLO will contact the customer where appropriate and determine the
+          available resolution on a <strong>case-by-case basis</strong>.
+        </p>
+
+        <p>
+          Additional shipping charges may apply if a new shipment needs to be
+          arranged.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "09",
+    title: "Failed Delivery & Returned Parcels",
+    icon: Package,
+    content: (
+      <>
+        <p>
+          If a courier partner is unable to deliver your order and the parcel
+          is returned to STYQLO, we will review the situation and contact you
+          where appropriate.
+        </p>
+
+        <p>Depending on the circumstances, STYQLO may offer:</p>
+
+        <ul>
+          <li>Re-shipment.</li>
+          <li>Refund.</li>
+          <li>Another appropriate resolution.</li>
+        </ul>
+
+        <p>
+          Any re-shipping charges, where applicable, will be communicated to
+          the customer before the new shipment is arranged.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "10",
+    title: "Damaged or Tampered Packages",
+    icon: ShieldCheck,
+    content: (
+      <>
+        <p>
+          If your package appears to be <strong>damaged, opened, or
+            tampered with</strong> at the time of delivery:
+        </p>
+
+        <ul>
+          <li>
+            Where possible, refuse the delivery and contact STYQLO.
+          </li>
+          <li>
+            If you accept the package, take clear photographs/videos of the
+            package and its contents.
+          </li>
+          <li>
+            Contact STYQLO as soon as possible and preferably within{" "}
+            <strong>2 days of delivery</strong>.
+          </li>
+        </ul>
+
+        <p>
+          For damaged or incorrect products, additional photographs or an
+          unboxing video may be required to help us verify the issue.
+        </p>
+
+        <p>
+          Please do not discard the packaging until the issue has been
+          resolved.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "11",
+    title: "Missing Products",
+    icon: AlertCircle,
+    content: (
+      <>
+        <p>
+          If your order contains multiple products and one or more products
+          are missing from the delivered package, please contact STYQLO{" "}
+          <strong>within 2 days of delivery</strong>.
+        </p>
+
+        <p>Please provide:</p>
+
+        <ul>
+          <li>Your order number.</li>
+          <li>Details of the missing product.</li>
+          <li>Photographs of the received package and products.</li>
+          <li>Unboxing video, where available/required.</li>
+        </ul>
+
+        <p>
+          We will review the issue and provide an appropriate resolution.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "12",
+    title: "Delayed Deliveries",
+    icon: Clock,
+    content: (
+      <>
+        <p>
+          Although we aim to deliver orders within the estimated timeframe,
+          occasional delays can occur due to circumstances outside our
+          control.
+        </p>
+
+        <p>These may include:</p>
+
+        <ul>
+          <li>Severe weather.</li>
+          <li>Natural disasters.</li>
+          <li>Public holidays.</li>
+          <li>Festivals.</li>
+          <li>Transportation disruptions.</li>
+          <li>Courier operational issues.</li>
+          <li>High shipment volumes.</li>
+          <li>Remote-area delivery challenges.</li>
+        </ul>
+
+        <p>
+          If your shipment appears to be significantly delayed, please
+          contact us so that we can check the shipment status with the courier
+          partner.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "13",
+    title: "Delivery to Remote Locations",
+    icon: MapPin,
+    content: (
+      <>
+        <p>
+          Some remote, rural, or difficult-to-reach locations may have longer
+          delivery times or limited courier serviceability.
+        </p>
+
+        <p>
+          If your PIN code is not serviceable through our available courier
+          partners, we may contact you regarding the available options.
+        </p>
+      </>
+    ),
+  },
+  {
+    number: "14",
+    title: "Cash on Delivery",
+    icon: CreditCard,
+    content: (
+      <>
+        <p>
+          Cash on Delivery (COD) is available for eligible orders and
+          serviceable delivery locations.
+        </p>
+
+        <p>COD availability may depend on:</p>
+
+        <ul>
+          <li>Delivery PIN code.</li>
+          <li>Courier serviceability.</li>
+          <li>Order eligibility.</li>
+          <li>Operational conditions.</li>
+        </ul>
+
+        <div className="mt-5 rounded-2xl bg-primary-lighter p-5">
+          <p className="font-semibold">
+            STYQLO does not charge any additional fee for Cash on Delivery.
+          </p>
+        </div>
+
+        <p className="mt-5">
+          If COD is unavailable for your delivery location, you can choose
+          one of the available online payment methods at checkout.
+        </p>
+      </>
+    ),
+  },
+];
 
 const ShippingPolicyPage = () => {
   return (
-    <main className="bg-background text-foreground overflow-hidden">
-      {/* ================= HERO ================= */}
-      <section className="relative bg-luxury py-24 lg:py-32">
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
+    <main className="min-h-screen bg-background">
+      {/* Hero */}
+      <section className="bg-luxury px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-5xl text-center">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-card">
+            <Truck className="text-primary" size={28} />
+          </div>
 
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-secondary/10 blur-3xl" />
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+            STYQLO Shipping
+          </p>
 
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <span className="text-sm font-bold tracking-[0.2em] text-primary uppercase">
-              STYQLO DELIVERY
-            </span>
+          <h1 className="text-4xl font-bold sm:text-5xl">
+            Shipping Policy
+          </h1>
 
-            <h1 className="mt-5 text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight">
-              Shipping
-              <br />
-              <span className="text-gradient">Policy.</span>
-            </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+            Simple, transparent shipping information for your STYQLO orders
+            across India.
+          </p>
 
-            <p className="mt-7 max-w-2xl text-lg lg:text-xl text-muted-foreground leading-relaxed">
-              Everything you need to know about how we process, ship, and
-              deliver your STYQLO orders.
-            </p>
+          <p className="mt-6 text-sm text-muted-foreground">
+            Last Updated: August 28, 2026
+          </p>
+        </div>
+      </section>
 
-            <p className="mt-5 text-sm text-muted-foreground">
-              Last updated: August 2026
-            </p>
+      {/* Quick information */}
+      <section className="relative z-10 -mt-8 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-3">
+          <div className="card-luxury p-6 text-center">
+            <Truck className="mx-auto mb-3 text-primary" size={25} />
+            <p className="text-sm text-muted-foreground">Delivery</p>
+            <p className="mt-1 font-semibold">Across India</p>
+          </div>
+
+          <div className="card-luxury p-6 text-center">
+            <Clock className="mx-auto mb-3 text-primary" size={25} />
+            <p className="text-sm text-muted-foreground">After Dispatch</p>
+            <p className="mt-1 font-semibold">3–7 Business Days</p>
+          </div>
+
+          <div className="card-luxury p-6 text-center">
+            <Package className="mx-auto mb-3 text-primary" size={25} />
+            <p className="text-sm text-muted-foreground">Shipping Charge</p>
+            <p className="mt-1 font-semibold">Free</p>
           </div>
         </div>
       </section>
 
-      {/* ================= QUICK INFO ================= */}
-      <section className="py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="card-luxury p-6">
-              <div className="w-11 h-11 rounded-xl bg-primary-lighter flex items-center justify-center">
-                <MapPin size={20} className="text-primary" />
-              </div>
+      {/* Policy content */}
+      <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="mx-auto max-w-4xl">
+          <div className="space-y-6">
+            {sections.map((section) => {
+              const Icon = section.icon;
 
-              <h3 className="mt-5 text-lg font-semibold">
-                Delivery Area
-              </h3>
+              return (
+                <article
+                  key={section.number}
+                  className="card-luxury overflow-hidden"
+                >
+                  <div className="flex items-center gap-4 border-b border-border bg-primary-lighter px-5 py-5 sm:px-7">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white shadow-card">
+                      <Icon size={20} className="text-primary" />
+                    </div>
 
-              <p className="mt-2 text-sm text-muted-foreground leading-6">
-                Delivery across serviceable locations in India.
-              </p>
-            </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold tracking-widest text-primary">
+                        {section.number}
+                      </span>
 
-            <div className="card-luxury p-6">
-              <div className="w-11 h-11 rounded-xl bg-primary-lighter flex items-center justify-center">
-                <Clock3 size={20} className="text-primary" />
-              </div>
+                      <h2 className="text-xl font-semibold sm:text-2xl">
+                        {section.title}
+                      </h2>
+                    </div>
+                  </div>
 
-              <h3 className="mt-5 text-lg font-semibold">
-                Processing
-              </h3>
-
-              <p className="mt-2 text-sm text-muted-foreground leading-6">
-                Orders are processed after successful confirmation.
-              </p>
-            </div>
-
-            <div className="card-luxury p-6">
-              <div className="w-11 h-11 rounded-xl bg-primary-lighter flex items-center justify-center">
-                <Truck size={20} className="text-primary" />
-              </div>
-
-              <h3 className="mt-5 text-lg font-semibold">
-                Shipping
-              </h3>
-
-              <p className="mt-2 text-sm text-muted-foreground leading-6">
-                Orders are shipped through our available courier partners.
-              </p>
-            </div>
-
-            <div className="card-luxury p-6">
-              <div className="w-11 h-11 rounded-xl bg-primary-lighter flex items-center justify-center">
-                <PackageCheck size={20} className="text-primary" />
-              </div>
-
-              <h3 className="mt-5 text-lg font-semibold">
-                Tracking
-              </h3>
-
-              <p className="mt-2 text-sm text-muted-foreground leading-6">
-                Track your shipment once tracking information is available.
-              </p>
-            </div>
+                  <div className="px-5 py-6 text-sm leading-7 text-muted-foreground sm:px-7 sm:py-8">
+                    {section.content}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ================= POLICY CONTENT ================= */}
-      <section className="pb-24 lg:pb-32">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 space-y-5">
-          {/* 01 */}
-          <PolicySection
-            number="01"
-            title="Where We Deliver"
-            icon={MapPin}
-          >
-            <p>
-              STYQLO currently delivers to serviceable locations within India.
-              Delivery availability depends on the PIN code entered during
-              checkout and courier serviceability.
-            </p>
+      {/* Contact */}
+      <section className="px-4 pb-16 sm:px-6 lg:px-8 lg:pb-24">
+        <div className="mx-auto max-w-4xl rounded-[24px] bg-luxury-hero px-6 py-12 text-center shadow-luxury sm:px-10">
+          <h2 className="text-3xl font-semibold text-white">
+            Questions About Your Shipment?
+          </h2>
 
-            <p>
-              Some remote or restricted locations may have limited delivery
-              availability.
-            </p>
-          </PolicySection>
+          <p className="mx-auto mt-4 max-w-xl leading-7 text-white/70">
+            We're happy to help with your order, delivery, tracking, or
+            shipping-related questions.
+          </p>
 
-          {/* 02 */}
-          <PolicySection
-            number="02"
-            title="Order Processing"
-            icon={Clock3}
-          >
-            <p>
-              Orders are processed after successful order confirmation and
-              payment verification, where applicable.
-            </p>
-
-            <p>
-              Processing time may vary depending on product availability,
-              order volume, verification requirements, or other operational
-              factors.
-            </p>
-
-            <p>
-              Orders placed on weekends or public holidays may be processed on
-              the next working day.
-            </p>
-          </PolicySection>
-
-          {/* 03 */}
-          <PolicySection
-            number="03"
-            title="Estimated Delivery Time"
-            icon={Truck}
-          >
-            <p>
-              Delivery time depends on your delivery location, courier
-              availability, and other logistical factors.
-            </p>
-
-            <div className="mt-5 rounded-2xl bg-primary-lighter/50 border border-border p-5">
-              <div className="flex gap-3">
-                <AlertCircle
-                  size={19}
-                  className="text-primary shrink-0 mt-0.5"
-                />
-
-                <p className="text-sm text-muted-foreground leading-6">
-                  The delivery estimate shown during checkout or provided with
-                  your order is an estimate and not a guaranteed delivery
-                  date.
-                </p>
-              </div>
-            </div>
-          </PolicySection>
-
-          {/* 04 */}
-          <PolicySection
-            number="04"
-            title="Shipping Charges"
-            icon={PackageCheck}
-          >
-            <p>
-              Shipping charges, if applicable, will be displayed during the
-              checkout process before you complete your order.
-            </p>
-
-            <p>
-              Shipping charges may vary depending on factors such as delivery
-              location, order value, package weight, and available shipping
-              service.
-            </p>
-          </PolicySection>
-
-          {/* 05 */}
-          <PolicySection
-            number="05"
-            title="Shipment Tracking"
-            icon={Search}
-          >
-            <p>
-              Once your order has been shipped, tracking information will be
-              made available when provided by the courier partner.
-            </p>
-
-            <p>
-              You can use the tracking information provided in your order
-              details to follow the shipment status.
-            </p>
-
-            <Link
-              to="/orders"
-              className="inline-flex items-center gap-2 mt-5 font-semibold text-primary hover:underline"
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a
+              href="https://wa.me/918047895089"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground transition-luxury hover:shadow-hover"
             >
-              Track Your Order
-              <ArrowRight size={17} />
-            </Link>
-          </PolicySection>
+              <Phone size={18} />
+              +91 8047895089
+            </a>
 
-          {/* 06 */}
-          <PolicySection
-            number="06"
-            title="Delivery Delays"
-            icon={AlertCircle}
-          >
-            <p>
-              While we work with our courier partners to deliver orders on
-              time, delays can sometimes occur due to circumstances outside
-              our control.
-            </p>
+            <a
+              href="mailto:mahanandakart@gmail.com"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition-luxury hover:bg-white/10"
+            >
+              <Mail size={18} />
+              Email Us
+            </a>
+          </div>
 
-            <p>Possible reasons include:</p>
-
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Severe weather conditions</li>
-              <li>Courier operational issues</li>
-              <li>Public holidays</li>
-              <li>High order volumes</li>
-              <li>Incorrect or incomplete address information</li>
-              <li>Remote or difficult-to-service locations</li>
-              <li>Unexpected logistical circumstances</li>
-            </ul>
-          </PolicySection>
-
-          {/* 07 */}
-          <PolicySection
-            number="07"
-            title="Incorrect Delivery Information"
-            icon={MapPin}
-          >
-            <p>
-              Please carefully check your shipping address, PIN code, phone
-              number, and other delivery information before placing your order.
-            </p>
-
-            <p>
-              STYQLO may not be responsible for delivery issues caused by
-              incorrect or incomplete information provided by the customer.
-            </p>
-          </PolicySection>
-
-          {/* 08 */}
-          <PolicySection
-            number="08"
-            title="Cash on Delivery"
-            icon={PackageCheck}
-          >
-            <p>
-              Cash on Delivery (COD) may be available for eligible locations
-              and orders.
-            </p>
-
-            <p>
-              COD availability is determined during checkout based on the
-              delivery PIN code, order value, courier serviceability, and other
-              applicable conditions.
-            </p>
-
-            <p>
-              If COD is available, the applicable amount will be payable to the
-              delivery partner at the time of delivery.
-            </p>
-          </PolicySection>
-
-          {/* 09 */}
-          <PolicySection
-            number="09"
-            title="Damaged Package"
-            icon={AlertCircle}
-          >
-            <p>
-              If your package appears seriously damaged, tampered with, or
-              opened when delivered, please contact STYQLO support as soon as
-              possible.
-            </p>
-
-            <p>
-              We may request photographs, videos, order details, or other
-              information to investigate the issue.
-            </p>
-          </PolicySection>
-
-          {/* 10 */}
-          <PolicySection
-            number="10"
-            title="Undelivered or Returned Shipments"
-            icon={Truck}
-          >
-            <p>
-              If a shipment cannot be delivered because of an incorrect
-              address, repeated failed delivery attempts, refusal to accept
-              the package, or other reasons attributable to the customer, the
-              shipment may be returned to STYQLO.
-            </p>
-
-            <p>
-              Any further action, including re-shipping or refund eligibility,
-              will be handled according to the applicable order and return
-              policies.
-            </p>
-          </PolicySection>
+          <div className="mt-8 space-y-1 text-sm text-white/60">
+            <p>Monday – Saturday: 10:00 AM – 10:00 PM</p>
+            <p>Sunday & Public Holidays: Limited support may be available.</p>
+            <p>Response time: 1–2 business days</p>
+          </div>
         </div>
       </section>
 
-      {/* ================= CONTACT CTA ================= */}
-      <section className="px-6 lg:px-8 pb-20">
-        <div className="max-w-7xl mx-auto rounded-[2rem] bg-luxury-warm overflow-hidden">
-          <div className="px-8 py-16 lg:px-20 lg:py-20 text-center">
-            <div className="w-14 h-14 mx-auto rounded-full bg-white/50 flex items-center justify-center">
-              <Truck size={24} />
-            </div>
+      {/* Footer identity */}
+      <section className="border-t border-border px-4 py-10 text-center sm:px-6 lg:px-8">
+        <p className="font-semibold text-foreground">STYQLO</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Good Quality. Less Price. More Style.
+        </p>
 
-            <h2 className="mt-6 text-4xl lg:text-5xl font-bold">
-              Need help with your delivery?
-            </h2>
-
-            <p className="mt-5 max-w-xl mx-auto text-foreground/70">
-              Our support team is here to help you with shipping and delivery
-              questions.
-            </p>
-
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-3 mt-8 px-8 py-4 rounded-full bg-foreground text-white font-semibold transition-luxury hover:-translate-y-0.5 hover:shadow-luxury"
-            >
-              Contact Us
-              <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Operated by Mahananda Kart · Rourkela, Odisha, India
+        </p>
       </section>
     </main>
   );
-};
-
-/* ================= POLICY SECTION ================= */
-
-const PolicySection = ({
-  number,
-  title,
-  icon: Icon,
-  children,
-}) => {
-  return (
-    <article className="card-luxury p-7 lg:p-9">
-      <div className="flex gap-5">
-        <div className="w-11 h-11 shrink-0 rounded-xl bg-primary-lighter flex items-center justify-center">
-          <Icon size={20} className="text-primary" />
-        </div>
-
-        <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold tracking-wider text-primary">
-              {number}
-            </span>
-
-            <h2 className="text-xl lg:text-2xl font-semibold">
-              {title}
-            </h2>
-          </div>
-
-          <div className="mt-5 space-y-4 text-muted-foreground leading-7">
-            {children}
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-};
+}
 
 export default ShippingPolicyPage;
