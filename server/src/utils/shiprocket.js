@@ -99,17 +99,6 @@ const createShiprocketOrder = async (order) => {
         billing_email: order.user.email,
         billing_phone: order.shippingAddress.phoneNumber,
         shipping_is_billing: true,
-        // order_items: [
-        //     {
-        //         "name": "Kunai",
-        //         "sku": "chakra123",
-        //         "units": 10,
-        //         "selling_price": 900,
-        //         "discount": "",
-        //         "tax": "",
-        //         "hsn": 441122
-        //     }
-        // ],
         order_items: order.products.map(item => {
             const gstInclusivePrice =
                 item.price + (item.price * item.product.tax);
@@ -314,4 +303,114 @@ const generateManifest = async (shipmentId) => {
     return response.data;
 }
 
-export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignCourierAndGenerateAWB, requestShipmentPickup, generateManifest, generateLabel, generateInvoice }
+//      RETURN
+
+const createShiprocketReturnOrder = async (returns) => {
+
+    let token = null;
+    if (!shiprocketToken)
+        token = await getShiprocketToken();
+    // console.log("returns.products.product", returns.products.product);
+
+    const size = returns?.products?.size;
+
+    const sizeData = returns?.products?.product?.sizes?.filter((item) => item.size === size)
+    // console.log(sizeData);
+
+    const data = {
+        order_id: returns?.returnId,
+        order_date: new Date(returns?.updatedAt)
+            .toISOString()
+            .split("T")[0],
+
+        invoice_number: returns?.returnInvoiceNumber,
+
+        pickup_customer_name: returns?.order?.shippingAddress?.fullName,
+        pickup_last_name: "",
+        pickup_address: returns?.order?.shippingAddress?.streetAddress,
+        pickup_address_2: "",
+        pickup_city: returns?.order?.shippingAddress?.city,
+        pickup_state: returns?.order?.shippingAddress?.state,
+        pickup_country: "India",
+        pickup_pincode: Number(returns?.order?.shippingAddress?.pinCode),
+        pickup_email: returns?.user?.email,
+        pickup_phone: returns?.order?.shippingAddress?.phoneNumber,
+
+        // shipping_location: "Primary",
+
+        shipping_customer_name: process.env.SHIPROCKET_RETURN_NAME,
+        shipping_last_name: "",
+        shipping_address: process.env.SHIPROCKET_RETURN_ADDRESS,
+
+        shipping_address_2: process.env.SHIPROCKET_RETURN_ADDRESS_2 || "",
+
+        shipping_city: process.env.SHIPROCKET_RETURN_CITY,
+
+        shipping_state: process.env.SHIPROCKET_RETURN_STATE,
+
+        shipping_country: process.env.SHIPROCKET_RETURN_COUNTRY || "India",
+
+        shipping_pincode: Number(process.env.SHIPROCKET_RETURN_PINCODE),
+        shipping_email: process.env.SHIPROCKET_RETURN_EMAIL,
+        shipping_phone: process.env.SHIPROCKET_RETURN_PHONE,
+
+        order_items: [
+            {
+                name: returns?.products?.product?.name,
+                sku: sizeData[0]?.sku,
+                units: returns?.products?.quantity,
+                selling_price: Number(returns?.products?.price + (returns?.products?.price * returns?.products?.product.tax)),
+                return_reason: returns?.reason || returns?.description
+            }
+        ],
+
+        payment_method: returns?.order.paymentMethod === "COD" ? "COD" : "Prepaid",
+        sub_total: returns?.refundAmount,
+        length: returns?.products?.product?.length,
+        breadth: returns?.products?.product?.breadth,
+        height: returns?.products?.product?.height,
+        weight: returns?.products?.product?.weight
+    }
+
+    // console.log(data);
+
+    const response = await axios.post(
+        `${process.env.SHIPROCKET_BASE_URL}/orders/create/return`,
+        data,
+        {
+            headers: {
+                Authorization: `Bearer ${shiprocketToken || token}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+
+    if (!response)
+        throw new apiError(500, "Error while creating return Shiprocket order");
+
+    return response?.data;
+};
+
+const generateReturnAWB = async ({courierId, shipmentId}) => {
+    let token = null;
+    if (!shiprocketToken)
+        token = await getShiprocketToken();
+
+    const response = await axios.post(`${process.env.SHIPROCKET_BASE_URL}/courier/assign/awb`, 
+        {
+            shipment_id: shipmentId,
+            courier_id: courierId,
+            is_return: 1
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${shiprocketToken || token}`,
+                "Content-Type": "application/json"
+            }
+        }
+    )
+
+    return response.data;
+}
+
+export { getShiprocketToken, checkPinCode, createShiprocketOrder, checkCourierServiceability, assignCourierAndGenerateAWB, requestShipmentPickup, generateManifest, generateLabel, generateInvoice, createShiprocketReturnOrder, generateReturnAWB }

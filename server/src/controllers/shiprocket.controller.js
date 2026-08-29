@@ -1,8 +1,9 @@
 import { Order } from "../models/order.model.js";
+import { Return } from "../models/return.model.js";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import { assignCourierAndGenerateAWB, checkCourierServiceability, checkPinCode, createShiprocketOrder, generateInvoice, generateLabel, generateManifest, getShiprocketToken, requestShipmentPickup } from "../utils/shiprocket.js";
+import { assignCourierAndGenerateAWB, checkCourierServiceability, checkPinCode, createShiprocketOrder, createShiprocketReturnOrder, generateInvoice, generateLabel, generateManifest, generateReturnAWB, getShiprocketToken, requestShipmentPickup } from "../utils/shiprocket.js";
 
 const parseShiprocketDate = (value) => {
 
@@ -103,7 +104,7 @@ const createShipmentOrder = asyncHandler(async (req, res) => {
         success: true,
         message: "Shiprocket shipment created successfully",
         data: {
-            orderId: order._id,
+            orderId: order.orderId,
             shiprocketOrderId:
                 shiprocketResponse.order_id,
             shipmentId:
@@ -120,7 +121,6 @@ const checkServiceability = asyncHandler(async (req, res) => {
     const pincode = req.query.pincode;
 
     await getShiprocketToken();
-
 
     const checkedPinCode = await checkPinCode(pincode);
 
@@ -403,6 +403,202 @@ const createManifest = asyncHandler(async (req, res) => {
 
 })
 
+//           RETURN
+
+const createReturnShipment = asyncHandler(async (req, res) => {
+    const { returnId } = req.params;
+
+    await getShiprocketToken();
+
+    const returns = await Return.findById(returnId)
+        .populate("products.product", "-_id -description -originalPrice -discountPrice -stock -images -star -createdAt -updatedAt -__v")
+        .populate("user", "email -_id")
+        .populate("order", "paymentMethod shippingAddress -_id")
+        .select("-createdAt -__v -method -refundPayment -refundedAt -receivedAt -rejectedAt -requestedAt -approvedAt -refundStatus -returnStatus -products.returnedQuantity")
+
+
+    if (!returns) {
+        return res.status(404).json({
+            success: false,
+            message: "Return not found"
+        });
+    }
+
+
+    if (returns?.shiprocket?.shipmentId) {
+        return res.status(400).json({
+            success: false,
+            message: "Shipment already created"
+        });
+    }
+
+    const shiprocketResponse = await createShiprocketReturnOrder(returns);
+
+    if (!shiprocketResponse)
+        throw new apiResponse(500, "Error while creating Shiprocket return shipment");
+
+    // console.log(shiprocketResponse);
+
+    returns.shiprocket.orderId = shiprocketResponse.order_id;
+    returns.shiprocket.shipmentId = shiprocketResponse.shipment_id;
+    returns.shiprocket.status = shiprocketResponse.status;
+
+    await returns.save();
+
+    // console.log(returns);
+
+    res.status(200).json({
+        success: true,
+        message: "Shiprocket shipment created successfully",
+        data: {
+            orderId: returns.returnId,
+            shiprocketOrderId: shiprocketResponse.order_id,
+            shipmentId: shiprocketResponse.shipment_id,
+            status: shiprocketResponse.status
+        }
+    });
+
+})
+
+const getReturnCourierOptions = asyncHandler(async (req, res) => {
+
+    const { returnId } = req.params;
+
+    if (!returnId)
+        throw new apiError(400, "Return ID is required");
+
+    const returns = await Return.findById(returnId)
+        .populate("order", "paymentMethod shippingAddress -_id")
+
+    if (!returns)
+        throw new apiError(404, "Return not found");
+
+    if (!returns?.shiprocket?.orderId)
+        throw new apiError(400, "Shiprocket return order has not been created");
+
+    const serviceability = await checkCourierServiceability({
+        orderId: returns?.shiprocket?.orderId,
+        pickupPostcode: returns?.order?.shippingAddress?.pinCode,
+        deliveryPostcode: process.env.SHIPROCKET_PICKUP_PINCODE
+    })
+
+    if (!serviceability)
+        throw new apiError(500, "Error while checking return courier serviceability");
+
+    res
+        .status(200)
+        .json(
+            new apiResponse(200, "Courier details fetched successfully", serviceability?.data?.available_courier_companies)
+        )
+})
+
+const assignReturnAWB = asyncHandler(async (req, res) => {
+    // console.log(req.body);
+
+    const { courierId } = req.body;
+
+    if (!courierId)
+        throw new apiError(400, "Courier ID is required");
+
+    const { returnId } = req.params;
+    // console.log(returnId);
+
+    const returns = await Return.findById(returnId);
+
+    if (!returns)
+        throw new apiError(404, "Return not found");
+
+    if (!returns?.shiprocket?.orderId)
+        throw new apiError(400, "Shiprocket return order has not been created");
+
+    // Generate AWB
+    const awbResponse = await generateReturnAWB({
+        shipmentId: returns?.shiprocket?.shipmentId,
+        courierId
+    })
+
+    console.log("awbResponse", awbResponse);
+
+    if (awbResponse?.awb_assign_status !== 1)
+        throw new apiError(500, awbResponse?.response?.data?.awb_assign_error || "Error while assigning recommended courier");
+
+    const awb = awbResponse?.response?.data;
+
+    returns.shiprocket = {
+        ...returns.shiprocket,
+        awbCode: awb?.awb_code || null,
+        courierCompanyId: awb?.courier_company_id ? String(awb.courier_company_id) : null,
+
+        courierName: awb?.courier_name || null,
+        status: "AWB Generated"
+    };
+
+    await returns.save();
+
+    const data = {
+        courierName: awb?.courier_name,
+        courierCompanyId: awb?.courier_company_id,
+        awbCode: awb?.awb_code,
+        shipmentId: returns.shiprocket.shipmentId
+    }
+
+    res
+        .status(200)
+        .json(
+            new apiResponse(200, "Return AWB generated successfully", data)
+        )
+})
+
+const requestReturnPickup = asyncHandler(async (req, res) => {
+    const { returnId } = req.params;
+
+    const returns = await Return.findById(returnId);
+
+    if (!returns)
+        throw new apiError(404, "Return not found");
+
+    const shipmentId = returns?.shiprocket?.shipmentId;
+
+    if (!shipmentId)
+        throw new apiError(400, "Shiprocket return shipment not found");
+
+    if (!returns?.shiprocket?.awbCode)
+        throw new apiError(400, "Return AWB must be generated before requesting pickup.");
+
+    if (returns?.shiprocket?.pickupStatus === "REQUESTED")
+        throw new apiError(400, "Return pickup has already been requested.");
+
+    returns.shiprocket.pickupStatus = "REQUESTED";
+
+    const result = await requestShipmentPickup(shipmentId);
+
+    // console.log("Shiprocket Pickup Response:", result);
+
+    if (!result || result?.pickup_status !== 1) {
+        returns.shiprocket.pickupStatus = "FAILED";
+        await returns.save();
+        throw new apiError(400, "Failed to request return pickup.");
+    }
+
+    returns.shiprocket.pickupStatus = "SCHEDULED";
+
+    if (result?.response?.pickup_scheduled_date && result?.response?.pickup_token_number) {
+        returns.shiprocket.pickupScheduledDate = result?.response?.pickup_scheduled_date;
+        returns.shiprocket.pickupTokenNumber = result?.response?.pickup_token_number;
+    }
+
+    await returns.save();
+
+    res
+        .status(200)
+        .json(
+            new apiResponse(200, "Pickup requested successfully", result)
+        )
+})
+
+
+//     WEBHOOK
+
 const shiprocketWebhook = asyncHandler(async (req, res) => {
     try {
 
@@ -438,6 +634,120 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
             });
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        |   RETURN
+        |--------------------------------------------------------------------------
+        */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check if AWB belongs to a Return
+        |--------------------------------------------------------------------------
+        */
+
+        const returns = await Return.findOne({
+            "shiprocket.awbCode": String(data.awb)
+        });
+
+        if (returns) {
+
+            const currentStatus = (data.current_status || "").toUpperCase();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Update Shiprocket return status
+            |--------------------------------------------------------------------------
+            */
+
+            returns.shiprocket.status = data.current_status || null;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Update courier
+            |--------------------------------------------------------------------------
+            */
+
+            if (data.courier_name) {
+                returns.shiprocket.courierName = data.courier_name;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Pickup status
+            |--------------------------------------------------------------------------
+            */
+
+            if (currentStatus === "PICKED UP") {
+                returns.shiprocket.pickupStatus = "PICKED_UP";
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Pickup failed
+            |--------------------------------------------------------------------------
+            */
+
+            else if (
+                currentStatus.includes("PICKUP") &&
+                (
+                    currentStatus.includes("FAILED") ||
+                    currentStatus.includes("CANCELLED") ||
+                    currentStatus.includes("CANCELED")
+                )
+            ) {
+
+                returns.shiprocket.pickupStatus = "FAILED";
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Return delivered
+            |--------------------------------------------------------------------------
+            |
+            | Customer's returned package has reached STYQLO.
+            |
+            */
+
+            if (currentStatus === "DELIVERED") {
+                returns.returnStatus = "Received";
+                returns.receivedAt = new Date();
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Save Return
+            |--------------------------------------------------------------------------
+            */
+
+            await returns.save();
+
+
+            console.log(
+                `Shiprocket return tracking updated | ` +
+                `Return: ${returns.returnId} | ` +
+                `AWB: ${data.awb} | ` +
+                `Status: ${currentStatus}`
+            );
+
+            return res.status(200).json({
+                success: true
+            });
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        |   ORDER
+        |--------------------------------------------------------------------------
+        */
 
         /*
         |--------------------------------------------------------------------------
@@ -667,7 +977,7 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
 
     }
 
-    catch (error) {       
+    catch (error) {
         console.error("Shiprocket webhook error:", error);
 
 
@@ -685,4 +995,4 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
     }
 })
 
-export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB, generateShipmentLabelAndInvoice, requestPickup, createManifest, shiprocketWebhook }
+export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB, generateShipmentLabelAndInvoice, requestPickup, createManifest, shiprocketWebhook, createReturnShipment, getReturnCourierOptions, assignReturnAWB, requestReturnPickup }

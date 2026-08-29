@@ -91,7 +91,7 @@ const returnSchema = new mongoose.Schema(
         returnInvoiceNumber: {
             type: String,
             unique: true,
-            require: true
+            required: true
         },
         method: {
             type: String,
@@ -124,6 +124,58 @@ const returnSchema = new mongoose.Schema(
             type: String,
             trim: true,
         },
+        shiprocket: {
+
+            orderId: {
+                type: String,
+                default: null
+            },
+
+            shipmentId: {
+                type: String,
+                default: null
+            },
+
+            awbCode: {
+                type: String,
+                default: null
+            },
+
+            courierCompanyId: {
+                type: String,
+                default: null
+            },
+
+            courierName: {
+                type: String,
+                default: null
+            },
+
+            status: {
+                type: String,
+                default: null
+            },
+
+            pickupStatus: {
+                type: String,
+                enum: [
+                    "NOT_REQUESTED",
+                    "REQUESTED",
+                    "PICKED_UP",
+                    "FAILED"
+                ],
+                default: "NOT_REQUESTED"
+            },
+
+            pickupScheduledDate: {
+                type: Date,
+                default: null
+            },
+            pickupTokenNumber: {
+                type: String,
+                default: null
+            },
+        }
     },
     {
         timestamps: true

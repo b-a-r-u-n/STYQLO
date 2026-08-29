@@ -1,5 +1,5 @@
 import { Check, Download, ExternalLink, Package, Truck, X, Loader2, FileBraces, FileCheck, } from "lucide-react";
-import { createManifest, generateLabelAndInvoice, requestPickup } from "../../services/courier";
+import { createManifest, generateAWB, generateLabelAndInvoice, requestPickup } from "../../services/courier";
 import toast from "react-hot-toast";
 
 const ShipmentModal = ({
@@ -54,7 +54,7 @@ const ShipmentModal = ({
                 //   setShipmentStep("awb-generated");
                 // }, 10000);
 
-                const response = await generateAWB({ orderId: selectedOrderId, courierId: courier?.courier_company_id });
+                const response = await generateAWB({ orderId: selectedOrderId, courierId: selectedCourier?.courier_company_id });
 
                 console.log("AWB Response:", response);
 

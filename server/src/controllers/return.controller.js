@@ -197,9 +197,7 @@ const createReturn = asyncHandler(async (req, res) => {
 
 
     // Calculate new returned quantity
-    const newReturnedQuantity =
-        orderProduct.returnedQuantity +
-        selectedQuantity;
+    const newReturnedQuantity = orderProduct.returnedQuantity + selectedQuantity;
 
 
     // Check quantity
@@ -209,12 +207,12 @@ const createReturn = asyncHandler(async (req, res) => {
 
 
     // Update returned quantity in order
-    orderProduct.returnedQuantity =
-        newReturnedQuantity;
+    orderProduct.returnedQuantity = newReturnedQuantity;
 
     await order.save();
 
     const returnId = await generateSequenceId("return", "STYQLO-RETURN-");
+    const returnInvoiceNumber = await generateSequenceId("return-invoice", "RETURN-INV-");
 
     // Create return
     const returnData = await Return.create({
@@ -235,6 +233,7 @@ const createReturn = asyncHandler(async (req, res) => {
         tax,
         shippingCharges,
         returnId,
+        returnInvoiceNumber,
         method: order.paymentMethod === "COD" ? refundMethod : "ORIGINAL_PAYMENT",
         upiId,
         bankDetails: {

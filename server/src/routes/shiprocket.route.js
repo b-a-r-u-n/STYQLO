@@ -1,5 +1,5 @@
 import express from "express";
-import { checkServiceability, createManifest, createShipmentOrder, generateAWB, generateShipmentLabelAndInvoice, getCourierDetails, requestPickup } from "../controllers/shiprocket.controller.js";
+import { assignReturnAWB, checkServiceability, createManifest, createReturnShipment, createShipmentOrder, generateAWB, generateShipmentLabelAndInvoice, getCourierDetails, getReturnCourierOptions, requestPickup, requestReturnPickup } from "../controllers/shiprocket.controller.js";
 
 const router = express.Router();
 
@@ -10,5 +10,12 @@ router.route("/:orderId/generate-awb").post(generateAWB);
 router.route("/:orderId/invoice-label").post(generateShipmentLabelAndInvoice);
 router.route("/:orderId/pickup").post(requestPickup);
 router.route("/:orderId/manifest").post(createManifest);
+
+
+// RETURN
+router.route("/return/:returnId/create").post(createReturnShipment);
+router.route("/return/:returnId/get-couriers").get(getReturnCourierOptions);
+router.route("/return/:returnId/generate-awb").post(assignReturnAWB);
+router.route("/return/:returnId/pickup").post(requestReturnPickup);
 
 export default router;

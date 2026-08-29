@@ -58,7 +58,8 @@ const PendingOrdersPage = () => {
 
       if (string === "accepted") {
 
-        await createShiprocketOrder(orderId);
+        if(!order?.shiprocket?.shipmentId)
+          await createShiprocketOrder(orderId);
 
         const response = await getCourierDetails(orderId);
 
@@ -543,8 +544,8 @@ const PendingOrdersPage = () => {
           } catch (error) {
             // console.error(error);
             toast.error(error.response?.data?.message || error?.message || "Failed to generate AWB");
-            // setCurrentPageLoading(false);
-            setShowShipmentModal(false);
+            // setShowShipmentModal(false);
+            setShipmentStep("error");
           }
 
           // Call your Shiprocket assign/generate AWB API here

@@ -188,12 +188,12 @@ const ReturnModal = ({ opened, onClose, order, fetchData }) => {
         try {
             setLoading(true);
             // console.log("tax", tax);
-            console.log(order);
-            console.log(refundMethod);
-            console.log(upiId);
+            // console.log(order);
+            // console.log(refundMethod);
+            // console.log(upiId);
             
             const method = order.paymentMethod === "COD" ? refundMethod : undefined;
-            console.log(method);
+            // console.log(method);
             
 
             const response = await dispatch(createReturn({
@@ -223,14 +223,13 @@ const ReturnModal = ({ opened, onClose, order, fetchData }) => {
 
             fetchData();
 
-            onClose();
-
         } catch (error) {
             // console.error(error);
 
             toast.error(error || "Unable to submit return request.");
         } finally {
             setLoading(false);
+            onClose();
             // setUpiId("");
             // setRefundMethod("");
             // setAccountHolderName("");

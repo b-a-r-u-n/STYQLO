@@ -25,6 +25,7 @@ const getCourierDetails = async (orderId) => {
         throw error;
     }
 }
+
 const generateAWB = async ({ orderId, courierId }) => {
     try {
         const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/${orderId}/generate-awb`, { courierId }, { withCredentials: true })
@@ -71,4 +72,55 @@ const createManifest = async (orderId) => {
     }
 }
 
-export { createShiprocketOrder, getCourierDetails, generateAWB, generateLabelAndInvoice, requestPickup, createManifest }
+
+//     RETURN
+
+const createReturnShipment = async (returnId) => {
+    try {
+        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/return/${returnId}/create`, { withCredentials: true })
+
+        // console.log("res", res);
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+const getReturnCourierOptions = async (returnId) => {
+    try {
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/shiprocket/return/${returnId}/get-couriers`, { withCredentials: true })
+        // console.log(res);
+        
+        return res.data;
+    } catch (error) {
+        throw error
+    }
+}
+
+const assignReturnAWB = async ({returnId, courierId}) => {
+    try {
+        
+        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/return/${returnId}/generate-awb`, {courierId}, {withCredentials: true})
+        console.log(res);
+        
+        return res.data;
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+const requestReturnPickup = async (returnId) => {
+    try {
+        
+        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/return/${returnId}/pickup`, {withCredentials: true})
+        // console.log(res);
+        
+        return res.data;
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+export { createShiprocketOrder, getCourierDetails, generateAWB, generateLabelAndInvoice, requestPickup, createManifest, createReturnShipment, getReturnCourierOptions, assignReturnAWB, requestReturnPickup }

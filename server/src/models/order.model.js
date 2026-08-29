@@ -116,7 +116,7 @@ const orderSchema = new mongoose.Schema(
         invoiceNumber: {
             type: String,
             unique: true,
-            require: true
+            required: true
         },
         shiprocket: {
             orderId: {

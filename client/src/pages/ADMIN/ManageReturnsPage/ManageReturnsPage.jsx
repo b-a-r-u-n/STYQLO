@@ -403,11 +403,10 @@ const ManageReturnsPage = () => {
                       ),
                     0
                   );
-
-
                 return (
 
                   <article
+                    
                     key={
                       returnItem._id
                     }
@@ -432,7 +431,7 @@ const ManageReturnsPage = () => {
 
                               Return #
                               {
-                                returnItem._id
+                                returnItem?.returnId || returnItem?._id
                               }
 
                             </h2>
@@ -551,13 +550,12 @@ const ManageReturnsPage = () => {
                                 ) => {
 
                                   const product = returnProduct?.product;
-
+                                  // console.log(returnProduct?.product?._id);
+                                  
                                   return (
 
                                     <div
-                                      key={
-                                        returnProduct?.product?._id
-                                      }
+                                      key={ returnProduct?.product?._id }
                                       className="flex gap-3 rounded-xl bg-primary/5 p-3"
                                     >
 

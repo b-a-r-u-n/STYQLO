@@ -1,18 +1,4 @@
-import {
-  ArrowLeft,
-  Check,
-  CheckCircle2,
-  Clock3,
-  CreditCard,
-  MapPin,
-  Package,
-  Phone,
-  RefreshCcw,
-  RotateCcw,
-  User,
-  X,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, Check, CheckCircle2, Clock3, CreditCard, MapPin, Package, Phone, RefreshCcw, RotateCcw, User, X, XCircle, } from "lucide-react";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
@@ -1653,7 +1639,7 @@ const AdminReturnDetailsPage = () => {
                     Payment Status
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold text-foreground">
+                  <p className={`mt-1 text-sm font-semibold text-foreground ${returnData?.order?.paymentStatus === "Paid" ? "text-green-500" : "text-rose-400"}`}>
 
                     {
                       returnData?.order
@@ -1668,14 +1654,18 @@ const AdminReturnDetailsPage = () => {
                 <div>
 
                   <p className="text-xs text-muted-foreground">
-                    Razorpay Order ID
+                    {
+                      returnData?.order
+                        ?.razorpayOrderId ? "Razorpay Order ID" : "Payment Method"
+                    }
                   </p>
 
                   <p className="mt-1 break-all text-xs font-medium text-foreground">
 
                     {
                       returnData?.order
-                        ?.razorpayOrderId
+                        ?.razorpayOrderId ? returnData?.order
+                        ?.razorpayOrderId : "COD"
                     }
 
                   </p>

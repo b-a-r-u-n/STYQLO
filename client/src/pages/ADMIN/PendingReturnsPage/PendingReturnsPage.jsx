@@ -6,17 +6,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { getAllReturns, updateReturn, } from "../../../features/returnSlice";
+import { assignReturnAWB, createReturnShipment, getReturnCourierOptions, requestReturnPickup } from "../../../services/courier";
+import { CourierModal, ShipmentReturnModal } from "../../../components";
+import { useState } from "react";
 
 
 const PendingReturnsPage = () => {
 
-  const {loading,returnDatas} = useSelector((state) => state.return);
+  const { loading, returnDatas } = useSelector((state) => state.return);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // console.log(returnDatas);
-  
 
 
   // ==================================================
@@ -51,56 +53,66 @@ const PendingReturnsPage = () => {
     fetchData();
   }, []);
 
+  const [currentPageLoading, setCurrentPageLoading] = useState(false);
+  const [showCourierModal, setShowCourierModal] = useState(false);
+  const [couriers, setCouriers] = useState([]);
+  const [selectedReturnId, setSelectedReturnId] = useState(null);
+  const [selectedCourier, setSelectedCourier] = useState(null);
+  const [showShipmentReturnModal, setShowShipmentReturnModal] = useState(false);
+  const [shipmentStep, setShipmentStep] = useState(null);
+  const [awbData, setAwbData] = useState(null);
+  const [pickupData, setPickupData] = useState(null);
+
 
   // ==================================================
   // APPROVE / REJECT RETURN
   // ==================================================
 
-  const handleAcceptAndReject = async (
-    returnId,
-    action
-  ) => {
+  const handleAcceptAndReject = async (returnId, returnData, action) => {
 
     let url = "";
 
     if (action === "approved") {
 
-      url =
-        "?returnStatus=Approved";
+      url = "?returnStatus=Approved";
 
     } else if (action === "rejected") {
 
-      url =
-        "?returnStatus=Rejected";
+      url = "?returnStatus=Rejected";
 
     }
 
+    setCurrentPageLoading(true);
 
     try {
 
-      await dispatch(
-        updateReturn({
-          returnId,
-          url
-        })
-      ).unwrap();
+      // await dispatch(updateReturn({ returnId, url })).unwrap();
 
+      if (action === "approved") {
 
-      await fetchData();
+        if (!returnData?.shiprocket?.shipmentId)
+          await createReturnShipment(returnId);
 
+        const response = await getReturnCourierOptions(returnId);
+        // console.log(response);
 
-      toast.success(
-        `Return ${action} successfully`
-      );
+        setCouriers(response?.data || response || []);
+        setSelectedReturnId(returnId);
+        setShowCourierModal(true);
+
+      } else if (action === "rejected") {
+
+        await fetchData();
+        toast.success(`Return ${action} successfully`);
+
+      }
 
     } catch (error) {
 
-      toast.error(
-        error?.message ||
-        error?.data?.message ||
-        "Failed to update return"
-      );
-
+      toast.error(error.response?.data?.message || error?.message || "Failed to update return");
+      setCurrentPageLoading(false);
+    } finally {
+      setCurrentPageLoading(false);
     }
 
   };
@@ -110,7 +122,7 @@ const PendingReturnsPage = () => {
   // LOADING
   // ==================================================
 
-  if (loading) {
+  if (loading || currentPageLoading) {
 
     return (
 
@@ -272,7 +284,7 @@ const PendingReturnsPage = () => {
 
                             #
                             {
-                              returnData._id
+                              returnData.returnId || returnData._id
                             }
 
                           </h2>
@@ -705,6 +717,7 @@ const PendingReturnsPage = () => {
                               onClick={() =>
                                 handleAcceptAndReject(
                                   returnData?._id,
+                                  returnData,
                                   "approved"
                                 )
                               }
@@ -810,6 +823,79 @@ const PendingReturnsPage = () => {
         )}
 
       </div>
+
+      <CourierModal
+        isOpen={showCourierModal}
+        onClose={() => setShowCourierModal(false)}
+        couriers={couriers}
+        onSelectCourier={async (courier) => {
+          try {
+
+            setSelectedCourier(courier);
+            setShowCourierModal(false);
+            setShowShipmentReturnModal(true);
+            setShipmentStep("generating-awb");
+
+            // setTimeout(() => {
+            //   setAwbData({courier_name: "Delhivery", awb_code: 123445});
+            //   console.log(awbData);
+            //   setShipmentStep("awb-generated");
+            // }, 10000);
+
+            const response = await assignReturnAWB({ returnId: selectedReturnId, courierId: courier?.courier_company_id });
+
+            console.log("AWB Response:", response);
+
+            setAwbData(response?.data || response);
+
+            setShipmentStep("awb-generated");
+
+          } catch (error) {
+            console.error(error);
+            toast.error(error.response?.data?.message || error?.message || "Failed to generate AWB");
+            setShipmentStep("error");
+          }
+        }}
+      />
+
+
+      <ShipmentReturnModal
+        isOpen={showShipmentReturnModal}
+        onClose={() => setShowShipmentReturnModal(false)}
+        step={shipmentStep}
+        returns={returnDatas.find(
+          (returns) => returns._id === selectedReturnId
+        )}
+        selectedCourier={selectedCourier}
+        awbData={awbData}
+        selectedReturnId={selectedReturnId}
+        setShipmentStep={setShipmentStep}
+        setAwbData={setAwbData}
+        pickupData={pickupData}
+
+        onRequestPickup={async () => {
+          // Shiprocket pickup 
+          try {
+
+            setShipmentStep("requesting-pickup");
+
+            const response = await requestReturnPickup(selectedReturnId);
+
+            // console.log("Request pickup Response:", response);
+
+            setPickupData(response?.data);
+
+            setShipmentStep("pickup-requested");
+
+            toast.success(`Return accepted successfully`);
+            fetchData();
+          } catch (error) {
+            toast.error(error.response?.data?.message || error?.message || "Failed to request pickup");
+            // setShowShipmentReturnModal(false);
+            setShipmentStep("error");
+          }
+        }}
+      />
 
     </main>
 
