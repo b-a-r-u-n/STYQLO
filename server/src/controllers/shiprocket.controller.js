@@ -408,7 +408,6 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
 
         const data = req.body;
         // console.log(data);
-
         /*
         |--------------------------------------------------------------------------
         | Basic validation
@@ -626,6 +625,8 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
 
         else if (currentStatus === "DELIVERED") {
             order.orderStatus = "Delivered";
+            order.paymentStatus = "Paid";
+            order.deliveredAt = new Date();
         }
 
 
@@ -666,8 +667,7 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
 
     }
 
-    catch (error) {
-
+    catch (error) {       
         console.error("Shiprocket webhook error:", error);
 
 

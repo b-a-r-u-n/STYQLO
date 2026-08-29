@@ -338,10 +338,10 @@ const updateReturn = asyncHandler(async (req, res) => {
 
     if (req?.query?.returnStatus)
         filter.returnStatus = req?.query?.returnStatus;
-    if (req?.query?.approvedAt)
-        console.log("Hello");
-
-    // filter.approvedAt = new Date();
+    if (req?.query?.approvedAt){
+        // console.log("Hello");
+        filter.approvedAt = new Date();
+    }
 
     const returnData = await Return.findByIdAndUpdate(
         returnId,
