@@ -59,7 +59,7 @@ const addProduct = asyncHandler(async (req, res) => {
     //         { "sizes.sku": sku.trim() }
     //     ]
     // });
-    
+
     const existingSkuProduct = await Product.findOne({ "sizes.sku": sku.trim() });
 
     if (existingSkuProduct) {
@@ -314,53 +314,46 @@ const updateProduct = asyncHandler(async (req, res) => {
             )
     }
 
+
     if (size) {
         const product = await Product.findById(productId);
-        const isSizeExist = product.sizes.find((s) => s.size === size)
-        if (isSizeExist) {
-            await Product.findOneAndUpdate(
-                { _id: productId, "sizes.size": size },
-                {
-                    $set: {
-                        "sizes.$.stock": stock,
-                        "sizes.$.sku": sku,
-                        "sizes.$.isOutOfStock": isOutOfStock
-                    }
-                }
-            )
-            product.stock =
-                product.sizes.reduce(
-                    (total, item) => total + Number(item.stock),
-                    0
-                );
 
+        if (!product) {
+            throw new apiError(404, "Product not found");
+        }
 
-            await product.save();
+        const existingSize = product.sizes.find(
+            (s) => s.size === size
+        );
+
+        if (existingSize) {
+            existingSize.stock = stock;
+            existingSize.sku = sku;
+            existingSize.isOutOfStock = isOutOfStock;
         } else {
-
-            const existingSkuProduct = await Product.findOne({ "sizes.sku": sku.trim() });
+            const existingSkuProduct = await Product.findOne({
+                "sizes.sku": sku.trim()
+            });
 
             if (existingSkuProduct) {
                 throw new apiError(409, `SKU ${sku} already exists`);
             }
 
-            await Product.findByIdAndUpdate(
-                productId,
-                {
-                    $push: {
-                        sizes: { size, stock, sku, isOutOfStock }
-                    }
-                }
-            )
-            product.stock =
-                product.sizes.reduce(
-                    (total, item) => total + Number(item.stock),
-                    0
-                );
-
-
-            await product.save();
+            product.sizes.push({
+                size,
+                stock,
+                sku,
+                isOutOfStock
+            });
         }
+
+        // Calculate total stock using the UPDATED sizes
+        product.stock = product.sizes.reduce(
+            (total, item) => total + Number(item.stock || 0),
+            0
+        );
+
+        await product.save();
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -380,7 +373,7 @@ const updateProduct = asyncHandler(async (req, res) => {
             }
         },
         {
-            new: true
+            returnDocument: "after"
         }
     ).select("-createdAt -updatedAt")
 

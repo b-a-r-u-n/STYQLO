@@ -60,10 +60,6 @@ const ProductCard = ({ product }) => {
     //   navigate("/login", { state: { from: location.pathname } });
     //   return;
     // }
-    if (product.sizes.length > 0 && !selectedSize) {
-      toast.error("Please select a size before bargaining");
-      return;
-    }
     setModalOpen(true);
   };
 
@@ -103,7 +99,7 @@ const ProductCard = ({ product }) => {
         </Link>
 
         {/* Rating */}
-        <div className="flex flex-col mid:flex-row lg:flex-row mid:items-center lg:items-center gap-2 mb-3">
+        <div className="flex flex-col mid:flex-row lg:flex-row gap-2 mb-3">
           <div className="flex items-center gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => {
               const rating = product?.star || 0;

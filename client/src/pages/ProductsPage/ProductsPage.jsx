@@ -40,7 +40,7 @@ const ProductsPage = () => {
       {products.length > 0 ? (
         <>
           {/* Hero Carousel */}
-          <div className="bg-[#2C1810] pt-4 pb-8">
+          <div className="bg-[#FBF8F5] pt-4 pb-8">
             <div className="max-w-7xl mx-auto px-4">
               <Swiper
                 modules={[Autoplay]}
@@ -52,7 +52,7 @@ const ProductsPage = () => {
               >
                 {products.slice(-5).reverse().map((product) => (
                   <SwiperSlide key={product._id}>
-                    <div className="relative w-full h-[240px] md:h-[400px] lg:h-[460px] bg-gradient-to-r from-[#2C1810] via-[#3D2418] to-[#5C322A] overflow-hidden">
+                    <div className="relative w-full h-[240px] md:h-[400px] lg:h-[460px] bg-gradient-to-r bg-white  overflow-hidden">
                       {/* Background image */}
                       <img
                         src={product?.images?.[0]?.url}
@@ -60,7 +60,7 @@ const ProductsPage = () => {
                       />
 
                       {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#2C1810] via-[#2C1810]/85 to-transparent" />
+                      {/* <div className="absolute inset-0 bg-gradient-to-r from-[#2C1810] via-[#2C1810]/85 to-transparent" /> */}
 
                       {/* Decorative glow */}
                       <div className="absolute right-1/3 top-1/2 -translate-y-1/2 w-64 h-64 bg-[#E7A9A2]/15 rounded-full blur-3xl" />
@@ -72,13 +72,13 @@ const ProductsPage = () => {
                           <span className="bg-[#E7A9A2] text-[#2C1810] text-[10px] md:text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm tracking-wider">
                             <Sparkles size={11} /> NEW ARRIVAL
                           </span>
-                          <span className="bg-white/10 backdrop-blur-sm text-white text-[10px] md:text-xs font-semibold px-3 py-1 rounded-full border border-white/10 tracking-wide">
+                          <span className="bg-[#E7A9A2] backdrop-blur-sm text-black text-[10px] md:text-xs font-semibold px-3 py-1 rounded-full border border-white/10 tracking-wide">
                             {Math.round(((product.originalPrice - product.discountPrice) / product.originalPrice) * 100)}% OFF
                           </span>
                         </div>
 
                         {/* Title */}
-                        <h2 className="text-xl md:text-3xl lg:text-4xl font-semibold text-white tracking-wide leading-tight mb-2 md:mb-3 line-clamp-2 font-['Outfit']">
+                        <h2 className="text-lg md:text-3xl lg:text-4xl font-semibold text-black tracking-wide leading-tight mb-2 md:mb-3 line-clamp-2 font-['Outfit']">
                           {product.name}
                         </h2>
 
@@ -87,7 +87,7 @@ const ProductsPage = () => {
                           <span className="text-lg md:text-2xl font-bold text-[#E7A9A2] font-['Outfit']">
                             ₹{product.discountPrice}
                           </span>
-                          <span className="text-xs md:text-base text-white/40 line-through font-light">
+                          <span className="text-xs md:text-base text-black/40 line-through font-light">
                             ₹{product.originalPrice}
                           </span>
                         </div>
@@ -114,8 +114,8 @@ const ProductsPage = () => {
             {/* Section Header */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-[#E7A9A2] mb-1">Our Collection</p>
-                <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-[#2C1810] font-['Outfit']">All Products</h2>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#E7A9A2] mb-1">Our Collections</p>
+                <h2 className="text-lg md:text-3xl font-bold tracking-wide text-[#2C1810] font-['Outfit']">All Products</h2>
               </div>
               <div className="flex items-center gap-2 text-xs font-semibold text-[#8A6B65] uppercase tracking-wider">
                 <Package size={14} />

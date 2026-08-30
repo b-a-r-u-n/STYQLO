@@ -87,7 +87,7 @@ const UpdateProductPage = () => {
     if (!inputData.description.trim()) { toast.error("Description is required"); return; }
     if (!inputData.discountPrice || inputData.discountPrice <= 0) { toast.error("Discount price must be greater than zero"); return; }
     if (!inputData.originalPrice || inputData.originalPrice <= 0) { toast.error("Original price must be greater than zero"); return; }
-    if (!inputData.stock || inputData.stock <= 0) { toast.error("Stock must be greater than zero"); return; }
+    if (!inputData.stock) { toast.error("Stock must be greater than zero"); return; }
 
     const formData = new FormData();
     formData.append("inputData", JSON.stringify(inputData));

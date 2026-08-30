@@ -214,7 +214,7 @@ const ProductDetailsPage = () => {
                     .sort((a, b) => sizeOrder.indexOf((a.size || a).toUpperCase()) - sizeOrder.indexOf((b.size || b).toUpperCase()))
                     .map((sizeObj, index) => {
                       const size = sizeObj.size || sizeObj;
-                      const isOutOfStock = sizeObj.stock === 0;
+                      const isOutOfStock = sizeObj.isOutOfStock || sizeObj.stock === 0;
                       return (
                         <button
                           key={index}
@@ -248,8 +248,9 @@ const ProductDetailsPage = () => {
             <div className="flex items-center gap-3">
               <div className="flex items-center bg-white border-2 border-[#E8D4D0]/80 rounded-full overflow-hidden">
                 <button
-                  className="px-4 py-3 hover:bg-[#F1DBD5]/50 text-[#2C1810] transition-colors cursor-pointer"
+                  className={`px-4 py-3 ${product?.stock > 0 && "hover:bg-[#F1DBD5]/50"} text-[#2C1810] transition-colors cursor-pointer disabled:cursor-not-allowed`}
                   onClick={() => handleQuantity(-1)}
+                  disabled={product?.stock === 0 && true}
                 >
                   <Minus size={16} />
                 </button>
@@ -257,21 +258,41 @@ const ProductDetailsPage = () => {
                   {quantity}
                 </span>
                 <button
-                  className="px-4 py-3 hover:bg-[#F1DBD5]/50 text-[#2C1810] transition-colors cursor-pointer"
+                  className={`px-4 py-3 ${product?.stock > 0 && "hover:bg-[#F1DBD5]/50"} text-[#2C1810] transition-colors cursor-pointer disabled:cursor-not-allowed`}
                   onClick={() => handleQuantity(1)}
+                  disabled={product?.stock === 0 && true}
                 >
                   <Plus size={16} />
                 </button>
               </div>
-              <Button variant="primary" className="flex-1 justify-center py-3.5" onClick={handleAdd}>
-                <ShoppingCart size={18} />
-                Add to Cart
+              <Button
+                variant="primary"
+                className="flex-1 justify-center py-3.5 disabled:cursor-not-allowed"
+                onClick={handleAdd}
+                disabled={product?.stock === 0 && true}
+              >
+                {product?.stock === 0 ?
+                  "Out of stock" :
+                  (
+                    <>
+                      <ShoppingCart size={18} />
+                      "Add to Cart"
+                    </>
+                  )
+                }
+
               </Button>
             </div>
 
             {/* Buy Now */}
-            <Button variant="secondary" className="w-full justify-center py-3.5" size="lg" onClick={handleBuyNow}>
-              Buy Now — ₹{product?.discountPrice * quantity}
+            <Button
+              variant="secondary"
+              className="w-full justify-center py-3.5 disabled:cursor-not-allowed"
+              size="lg"
+              onClick={handleBuyNow}
+              disabled={product?.stock === 0 && true}
+            >
+              {product?.stock === 0 ? "Out of stock" : `Buy Now — ₹${product?.discountPrice * quantity}`}
             </Button>
 
             {/* Bargain */}
