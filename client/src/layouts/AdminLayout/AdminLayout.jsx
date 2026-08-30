@@ -1,6 +1,6 @@
 import React from 'react';
 import { AdminSidebar, Navbar } from '../../components';
-import { Outlet } from 'react-router-dom';
+import { Outlet, ScrollRestoration } from 'react-router-dom';
 
 const AdminLayout = () => {
   return (
@@ -12,6 +12,7 @@ const AdminLayout = () => {
           <Outlet />
         </main>
       </div>
+      <ScrollRestoration />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, ScrollRestoration } from 'react-router-dom';
 import { AdminRedirect, Footer, Navbar } from '../../components';
 import { useSelector } from 'react-redux';
 import { Sparkles } from 'lucide-react';
@@ -30,6 +30,7 @@ const PublicLayout = () => {
         <Outlet />
       </main>
       <Footer />
+      <ScrollRestoration />
     </div>
   );
 };
