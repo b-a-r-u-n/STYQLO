@@ -145,9 +145,7 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="border-t border-white/10 mt-12 pt-8 flex flex-col items-center justify-between gap-4">
           <p className="text-sm text-[#9B7B75] flex items-center gap-1.5">
-            &copy; {new Date().getFullYear()} STYQLO. Made with{' '}
-            <Heart size={12} className="text-[#C8756A] fill-[#C8756A]" />
-            {' '}in India
+            &copy; {new Date().getFullYear()} STYQLO. (Mahananda Kart)
           </p>
           <div className="flex gap-6">
             {[{text: "Privacy Policy", to: "privacy-policy"}, {text: "Terms of Service", to: "terms"}].map((item) => (

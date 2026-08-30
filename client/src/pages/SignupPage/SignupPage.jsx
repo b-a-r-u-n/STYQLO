@@ -87,11 +87,11 @@ const SignupPage = () => {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-lg">
               <Sparkles size={20} className="text-[#2C1810]" />
             </div>
-            <span className="text-2xl font-bold tracking-wider text-[#2C1810] font-['Outfit']">Local<span className="text-[#E7A9A2]">Kart</span></span>
+            <span className="text-2xl font-bold tracking-wider text-[#E7A9A2] font-['Outfit']">STYQLO</span>
           </div>
 
           <div className="mb-8">
-            <h1 className="text-3xl font-medium tracking-wide text-[#2C1810] mb-2 font-['Outfit']">Create Account</h1>
+            <h1 className="text-3xl font-medium tracking-wide text-[#2C1810] mb-2 font-['Outfit']">Create an Account</h1>
             <p className="text-[#8A6B65]">Join thousands of happy shoppers today.</p>
           </div>
 
@@ -142,9 +142,9 @@ const SignupPage = () => {
                 />
                 <span className="text-sm text-[#8A6B65] leading-relaxed">
                   I agree to the{' '}
-                  <a href="#" className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold">Terms of Service</a>
+                  <Link to="/terms" className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold">Terms of Service</Link>
                   {' '}and{' '}
-                  <a href="#" className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold">Privacy Policy</a>
+                  <Link to="/privacy-policy" className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold">Privacy Policy</Link>
                 </span>
               </label>
 

@@ -59,8 +59,8 @@ const LoginPage = () => {
           <div className="mt-10 grid grid-cols-2 gap-4 text-left">
             {[
               { emoji: "✨", title: "Premium Quality", desc: "Curated products" },
-              { emoji: "🚚", title: "Fast Delivery", desc: "Free above ₹500" },
-              { emoji: "🔒", title: "Secure Orders", desc: "Via WhatsApp" },
+              { emoji: "🚚", title: "Fast Delivery", desc: "Free Delivery" },
+              { emoji: "🔒", title: "Secure Orders", desc: "Via Razorpay" },
               { emoji: "💬", title: "Bargain Deals", desc: "Negotiate prices" },
             ].map(({ emoji, title, desc }) => (
               <div key={title} className="bg-white/5 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
@@ -74,14 +74,14 @@ const LoginPage = () => {
       </div>
 
       {/* Right: Form */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 py-6 md:py-12">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2.5 mb-8 justify-center">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-lg">
               <Sparkles size={20} className="text-[#2C1810]" />
             </div>
-            <span className="text-2xl font-bold tracking-wider text-[#2C1810] font-['Outfit']">Local<span className="text-[#E7A9A2]">Kart</span></span>
+            <span className="text-2xl font-bold tracking-wider text-[#E7A9A2] font-['Outfit']">STYQLO</span>
           </div>
 
           <div className="mb-8">
