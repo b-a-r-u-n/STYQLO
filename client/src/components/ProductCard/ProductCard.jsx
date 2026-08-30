@@ -75,11 +75,11 @@ const ProductCard = ({ product }) => {
     >
       {/* Image Container */}
       <Link to={`/product/${product._id}`} className="block relative overflow-hidden bg-[#FBF8F5] border-b border-[#E8D4D0]/30">
-        <div className="relative h-44 sm:h-52 md:h-60">
+        <div className="relative h-56 md:h-60 lg:h-64">
           <img
             src={product.images[0].url}
             alt={product.name}
-            className="w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-105 p-4"
+            className="w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           />
         </div>
@@ -97,7 +97,7 @@ const ProductCard = ({ product }) => {
       {/* Content */}
       <div className="p-4">
         <Link to={`/product/${product._id}`}>
-          <h3 className="text-xs sm:text-sm font-medium text-[#2C1810] line-clamp-2 leading-snug mb-2 hover:text-[#E7A9A2] transition-colors duration-250 font-['Outfit']">
+          <h3 className="text-xs sm:text-md font-medium text-[#2C1810] line-clamp-2 leading-snug mb-2 hover:text-[#E7A9A2] transition-colors duration-250 font-['Outfit']">
             {product.name}
           </h3>
         </Link>
@@ -148,7 +148,7 @@ const ProductCard = ({ product }) => {
         </div>
 
         {/* Sizes */}
-        {product.sizes.length > 0 && (
+        {/* {product.sizes.length > 0 && (
           <div className="flex gap-1.5 mb-3 flex-wrap">
             {[...product.sizes]
               .sort((a, b) => {
@@ -176,7 +176,7 @@ const ProductCard = ({ product }) => {
                 );
               })}
           </div>
-        )}
+        )} */}
 
         {/* Price */}
         <div className="flex items-baseline gap-2 mb-4">
@@ -188,7 +188,7 @@ const ProductCard = ({ product }) => {
 
         {/* Actions */}
         <div className="space-y-2">
-          <Button
+          {/* <Button
             variant="primary"
             size="sm"
             className="w-full text-xs font-semibold py-2"
@@ -196,7 +196,7 @@ const ProductCard = ({ product }) => {
           >
             <ShoppingCart size={13} />
             Add to Cart
-          </Button>
+          </Button> */}
 
           <button
             onClick={handleBargaining}
