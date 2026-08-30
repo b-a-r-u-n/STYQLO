@@ -103,7 +103,7 @@ const ProductCard = ({ product }) => {
         </Link>
 
         {/* Rating */}
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex flex-col mid:flex-row lg:flex-row mid:items-center lg:items-center gap-2 mb-3">
           <div className="flex items-center gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => {
               const rating = product?.star || 0;
@@ -138,13 +138,17 @@ const ProductCard = ({ product }) => {
             })}
           </div>
 
-          <span className="text-sm font-semibold text-[#2C1810]">
-            {product?.star || 0}
-          </span>
+          <div
+            className='flex gap-2'
+          >
+            <span className="text-sm font-semibold text-[#2C1810]">
+              {product?.star || 0}
+            </span>
 
-          <span className="text-sm text-[#8A6B65]">
-            (verified)
-          </span>
+            <span className="text-sm text-[#8A6B65]">
+              (verified)
+            </span>
+          </div>
         </div>
 
         {/* Sizes */}
