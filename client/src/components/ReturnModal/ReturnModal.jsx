@@ -632,28 +632,48 @@ const ReturnModal = ({ opened, onClose, order, fetchData }) => {
                                     Select a reason
                                 </option>
 
-                                <option value="Size doesn't fit">
-                                    Size doesn't fit
+                                <option value="Item is damaged">
+                                    Item is damaged
                                 </option>
 
-                                <option value="Product is damaged">
-                                    Product is damaged
+                                <option value="Received wrong item">
+                                    Received wrong item
                                 </option>
 
-                                <option value="Wrong product received">
-                                    Wrong product received
+                                <option value="Parcel damaged on arrival">
+                                    Parcel damaged on arrival
                                 </option>
 
-                                <option value="Product quality is not satisfactory">
-                                    Product quality is not satisfactory
+                                <option value="Quality not as expected">
+                                    Quality not as expected
+                                </option>
+
+                                <option value="Missing Item or accessories">
+                                    Missing Item or accessories
+                                </option>
+
+                                <option value="Performance not adequate">
+                                    Performance not adequate
+                                </option>
+
+                                <option value="Size not as expected">
+                                    Size not as expected
+                                </option>
+
+                                <option value="Does not fit">
+                                    Does not fit
+                                </option>
+
+                                <option value="Not as described">
+                                    Not as described
+                                </option>
+
+                                <option value="Arrived too late">
+                                    Arrived too late
                                 </option>
 
                                 <option value="Changed my mind">
                                     Changed my mind
-                                </option>
-
-                                <option value="other">
-                                    Other
                                 </option>
 
                             </select>

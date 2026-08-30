@@ -511,16 +511,24 @@ const assignReturnAWB = asyncHandler(async (req, res) => {
     if (!returns?.shiprocket?.orderId)
         throw new apiError(400, "Shiprocket return order has not been created");
 
+    returns.shiprocket.pickupStatus = "REQUESTED";
+
     // Generate AWB
     const awbResponse = await generateReturnAWB({
         shipmentId: returns?.shiprocket?.shipmentId,
         courierId
     })
 
-    console.log("awbResponse", awbResponse);
+    // console.log("awbResponse", awbResponse);
 
-    if (awbResponse?.awb_assign_status !== 1)
+    if (awbResponse?.awb_assign_status !== 1){
+
+        returns.shiprocket.pickupStatus = "FAILED";
+
+        await returns.save();
+
         throw new apiError(500, awbResponse?.response?.data?.awb_assign_error || "Error while assigning recommended courier");
+    }
 
     const awb = awbResponse?.response?.data;
 
@@ -530,7 +538,9 @@ const assignReturnAWB = asyncHandler(async (req, res) => {
         courierCompanyId: awb?.courier_company_id ? String(awb.courier_company_id) : null,
 
         courierName: awb?.courier_name || null,
-        status: "AWB Generated"
+        status: "AWB Generated",
+        pickupStatus: "SCHEDULED",
+        pickupScheduledDate: awb?.pickup_scheduled_date
     };
 
     await returns.save();
@@ -549,53 +559,6 @@ const assignReturnAWB = asyncHandler(async (req, res) => {
         )
 })
 
-const requestReturnPickup = asyncHandler(async (req, res) => {
-    const { returnId } = req.params;
-
-    const returns = await Return.findById(returnId);
-
-    if (!returns)
-        throw new apiError(404, "Return not found");
-
-    const shipmentId = returns?.shiprocket?.shipmentId;
-
-    if (!shipmentId)
-        throw new apiError(400, "Shiprocket return shipment not found");
-
-    if (!returns?.shiprocket?.awbCode)
-        throw new apiError(400, "Return AWB must be generated before requesting pickup.");
-
-    if (returns?.shiprocket?.pickupStatus === "REQUESTED")
-        throw new apiError(400, "Return pickup has already been requested.");
-
-    returns.shiprocket.pickupStatus = "REQUESTED";
-
-    const result = await requestShipmentPickup(shipmentId);
-
-    // console.log("Shiprocket Pickup Response:", result);
-
-    if (!result || result?.pickup_status !== 1) {
-        returns.shiprocket.pickupStatus = "FAILED";
-        await returns.save();
-        throw new apiError(400, "Failed to request return pickup.");
-    }
-
-    returns.shiprocket.pickupStatus = "SCHEDULED";
-
-    if (result?.response?.pickup_scheduled_date && result?.response?.pickup_token_number) {
-        returns.shiprocket.pickupScheduledDate = result?.response?.pickup_scheduled_date;
-        returns.shiprocket.pickupTokenNumber = result?.response?.pickup_token_number;
-    }
-
-    await returns.save();
-
-    res
-        .status(200)
-        .json(
-            new apiResponse(200, "Pickup requested successfully", result)
-        )
-})
-
 
 //     WEBHOOK
 
@@ -603,7 +566,7 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
     try {
 
         const data = req.body;
-        // console.log(data);
+        console.log("Webhook data", data);
         /*
         |--------------------------------------------------------------------------
         | Basic validation
@@ -995,4 +958,4 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
     }
 })
 
-export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB, generateShipmentLabelAndInvoice, requestPickup, createManifest, shiprocketWebhook, createReturnShipment, getReturnCourierOptions, assignReturnAWB, requestReturnPickup }
+export { createShipmentOrder, checkServiceability, getCourierDetails, generateAWB, generateShipmentLabelAndInvoice, requestPickup, createManifest, shiprocketWebhook, createReturnShipment, getReturnCourierOptions, assignReturnAWB }

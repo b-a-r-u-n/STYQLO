@@ -101,19 +101,6 @@ const assignReturnAWB = async ({returnId, courierId}) => {
     try {
         
         const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/return/${returnId}/generate-awb`, {courierId}, {withCredentials: true})
-        console.log(res);
-        
-        return res.data;
-
-    } catch (error) {
-        throw error;
-    }
-}
-
-const requestReturnPickup = async (returnId) => {
-    try {
-        
-        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/shiprocket/return/${returnId}/pickup`, {withCredentials: true})
         // console.log(res);
         
         return res.data;
@@ -123,4 +110,5 @@ const requestReturnPickup = async (returnId) => {
     }
 }
 
-export { createShiprocketOrder, getCourierDetails, generateAWB, generateLabelAndInvoice, requestPickup, createManifest, createReturnShipment, getReturnCourierOptions, assignReturnAWB, requestReturnPickup }
+
+export { createShiprocketOrder, getCourierDetails, generateAWB, generateLabelAndInvoice, requestPickup, createManifest, createReturnShipment, getReturnCourierOptions, assignReturnAWB }

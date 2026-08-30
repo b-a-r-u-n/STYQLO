@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { getAllReturns, updateReturn, } from "../../../features/returnSlice";
-import { assignReturnAWB, createReturnShipment, getReturnCourierOptions, requestReturnPickup } from "../../../services/courier";
+import { assignReturnAWB, createReturnShipment, getReturnCourierOptions } from "../../../services/courier";
 import { CourierModal, ShipmentReturnModal } from "../../../components";
 import { useState } from "react";
 
@@ -86,7 +86,7 @@ const PendingReturnsPage = () => {
 
     try {
 
-      // await dispatch(updateReturn({ returnId, url })).unwrap();
+      await dispatch(updateReturn({ returnId, url })).unwrap();
 
       if (action === "approved") {
 
@@ -844,7 +844,7 @@ const PendingReturnsPage = () => {
 
             const response = await assignReturnAWB({ returnId: selectedReturnId, courierId: courier?.courier_company_id });
 
-            console.log("AWB Response:", response);
+            // console.log("AWB Response:", response);
 
             setAwbData(response?.data || response);
 
@@ -872,29 +872,6 @@ const PendingReturnsPage = () => {
         setShipmentStep={setShipmentStep}
         setAwbData={setAwbData}
         pickupData={pickupData}
-
-        onRequestPickup={async () => {
-          // Shiprocket pickup 
-          try {
-
-            setShipmentStep("requesting-pickup");
-
-            const response = await requestReturnPickup(selectedReturnId);
-
-            // console.log("Request pickup Response:", response);
-
-            setPickupData(response?.data);
-
-            setShipmentStep("pickup-requested");
-
-            toast.success(`Return accepted successfully`);
-            fetchData();
-          } catch (error) {
-            toast.error(error.response?.data?.message || error?.message || "Failed to request pickup");
-            // setShowShipmentReturnModal(false);
-            setShipmentStep("error");
-          }
-        }}
       />
 
     </main>

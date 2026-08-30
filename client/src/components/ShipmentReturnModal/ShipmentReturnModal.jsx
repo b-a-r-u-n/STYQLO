@@ -9,7 +9,6 @@ const ShipmentReturnModal = ({
     returns,
     selectedCourier,
     awbData,
-    onRequestPickup,
     selectedReturnId,
     setShipmentStep,
     setAwbData,
@@ -42,12 +41,6 @@ const ShipmentReturnModal = ({
             if (work === "awb") {
                 setShipmentStep("generating-awb");
 
-                // setAwbData({courier_name: "Delhivery", awb_code: 123445});
-                // setTimeout(() => {
-                //   console.log(awbData);
-                //   setShipmentStep("awb-generated");
-                // }, 10000);
-
                 const response = await assignReturnAWB({ returnId: selectedReturnId, courierId: selectedCourier?.courier_company_id });
 
                 // console.log("AWB Response:", response);
@@ -55,9 +48,6 @@ const ShipmentReturnModal = ({
                 setAwbData(response?.data || response);
 
                 setShipmentStep("awb-generated");
-            }
-            else if (work === "pickup-date") {
-                onRequestPickup();
             }
         } catch (error) {
             toast.error(error.response?.data?.message || error?.message || "Failed to update courier.");
@@ -170,7 +160,7 @@ const ShipmentReturnModal = ({
                                 </h3>
 
                                 <p className="mt-1 text-sm text-muted-foreground">
-                                    Shipment is ready for the next step.
+                                    Shipment is ready for the pickup
                                 </p>
                             </div>
 
@@ -195,82 +185,6 @@ const ShipmentReturnModal = ({
                                         {getAWB()}
                                     </span>
                                 </div>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={onRequestPickup}
-                                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-hover"
-                            >
-                                <Package size={18} />
-                                Schedule Pickup Date
-                            </button>
-                        </div>
-                    )}
-
-                    {/* ================================= */}
-                    {/* REQUESTING PICKUP */}
-                    {/* ================================= */}
-
-                    {step === "requesting-pickup" && (
-                        <div className="py-10 text-center">
-                            <Loader2
-                                size={42}
-                                className="mx-auto animate-spin text-primary"
-                            />
-
-                            <h3 className="mt-5 text-lg font-bold text-foreground">
-                                Requesting Pickup
-                            </h3>
-
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                Sending pickup request to the courier.
-                            </p>
-
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                Please wait...
-                            </p>
-                        </div>
-                    )}
-
-                    {/* ================================= */}
-                    {/* PICKUP REQUESTED */}
-                    {/* ================================= */}
-
-                    {step === "pickup-requested" && (
-                        <div className="text-center">
-                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                                <Truck
-                                    size={32}
-                                    className="text-green-600"
-                                />
-                            </div>
-
-                            <h3 className="mt-4 text-xl font-bold text-foreground">
-                                Pickup Requested
-                            </h3>
-
-                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                The courier pickup request has been successfully
-                                created.
-                            </p>
-
-                            <div className="mt-6 rounded-2xl border border-border bg-muted/30 p-4 text-left">
-                                <p className="text-xs text-muted-foreground">
-                                    Courier
-                                </p>
-
-                                <p className="mt-1 font-semibold">
-                                    {getCourierName()}
-                                </p>
-
-                                <p className="mt-4 text-xs text-muted-foreground">
-                                    AWB
-                                </p>
-
-                                <p className="mt-1 font-mono font-semibold">
-                                    {getAWB()}
-                                </p>
                             </div>
 
                             <button

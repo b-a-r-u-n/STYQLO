@@ -360,9 +360,10 @@ const createShiprocketReturnOrder = async (returns) => {
                 sku: sizeData[0]?.sku,
                 units: returns?.products?.quantity,
                 selling_price: Number(returns?.products?.price + (returns?.products?.price * returns?.products?.product.tax)),
-                return_reason: returns?.reason || returns?.description
             }
         ],
+        return_reason: returns?.reason || returns?.description,
+        // return_reason: "Received wrong item",
 
         payment_method: returns?.order.paymentMethod === "COD" ? "COD" : "Prepaid",
         sub_total: returns?.refundAmount,
@@ -372,7 +373,6 @@ const createShiprocketReturnOrder = async (returns) => {
         weight: returns?.products?.product?.weight
     }
 
-    // console.log(data);
 
     const response = await axios.post(
         `${process.env.SHIPROCKET_BASE_URL}/orders/create/return`,
@@ -384,6 +384,9 @@ const createShiprocketReturnOrder = async (returns) => {
             }
         }
     );
+
+    console.log(data);
+    
 
     if (!response)
         throw new apiError(500, "Error while creating return Shiprocket order");
