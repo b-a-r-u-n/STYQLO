@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, MessageCircle } from 'lucide-react';
+import { ShoppingCart, MessageCircle, Star } from 'lucide-react';
 import { Button } from '../Button/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { addToCart } from '../../features/cartSlice';
 import BargainModal from '../BargainModal/BargainModal';
 
-const ProductCard = ({ product }) => {  
+const ProductCard = ({ product }) => {
   const { isLoggedIn } = useSelector(state => state.auth);
   const { loading } = useSelector(state => state.cart);
 
@@ -48,18 +48,18 @@ const ProductCard = ({ product }) => {
       toast.success(result.message || "Added to cart");
     } catch (error) {
       console.log(error);
-      
+
       toast.error(error?.message || "Failed to add to cart");
     }
   };
 
   const handleBargaining = (e) => {
     e.preventDefault();
-    if (!isLoggedIn) {
-      toast.error("Please sign in to bargain");
-      navigate("/login", { state: { from: location.pathname } });
-      return;
-    }
+    // if (!isLoggedIn) {
+    //   toast.error("Please sign in to bargain");
+    //   navigate("/login", { state: { from: location.pathname } });
+    //   return;
+    // }
     if (product.sizes.length > 0 && !selectedSize) {
       toast.error("Please select a size before bargaining");
       return;
@@ -88,7 +88,7 @@ const ProductCard = ({ product }) => {
         {discountPercent > 0 && (
           <div className="absolute top-3 left-3">
             <span className="bg-[#E7A9A2] text-[#2C1810] text-[10px] font-bold px-3 py-1 rounded-full shadow-sm tracking-wider">
-              -{discountPercent}%
+              {discountPercent}% OFF
             </span>
           </div>
         )}
@@ -101,6 +101,51 @@ const ProductCard = ({ product }) => {
             {product.name}
           </h3>
         </Link>
+
+        {/* Rating */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-0.5">
+            {Array.from({ length: 5 }).map((_, i) => {
+              const rating = product?.star || 0;
+
+              const isFull = i < Math.floor(rating);
+              const isHalf = i === Math.floor(rating) && rating % 1 !== 0;
+
+              return (
+                <div key={i} className="relative">
+                  <Star
+                    size={16}
+                    className="text-[#E8D4D0]"
+                  />
+
+                  {isFull && (
+                    <Star
+                      size={16}
+                      className="absolute inset-0 text-amber-400 fill-amber-400"
+                    />
+                  )}
+
+                  {isHalf && (
+                    <div className="absolute inset-0 overflow-hidden w-1/2">
+                      <Star
+                        size={16}
+                        className="text-amber-400 fill-amber-400"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <span className="text-sm font-semibold text-[#2C1810]">
+            {product?.star || 0}
+          </span>
+
+          <span className="text-sm text-[#8A6B65]">
+            (verified)
+          </span>
+        </div>
 
         {/* Sizes */}
         {product.sizes.length > 0 && (
@@ -119,7 +164,7 @@ const ProductCard = ({ product }) => {
                     key={index}
                     disabled={isOutOfStock}
                     onClick={(e) => { e.preventDefault(); setSelectedSize(size); }}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all duration-200 cursor-pointer
+                    className={`px-3 py-1 rounded text-[10px] font-bold border transition-all duration-200 cursor-pointer
                       ${selectedSize === size
                         ? "bg-[#2C1810] text-white border-[#2C1810]"
                         : "bg-white text-[#2C1810] border-[#E8D4D0] hover:border-[#E7A9A2] hover:text-[#E7A9A2]"

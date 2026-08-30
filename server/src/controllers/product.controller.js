@@ -368,7 +368,12 @@ const updateProduct = asyncHandler(async (req, res) => {
                 description,
                 originalPrice,
                 discountPrice,
-                stock
+                tax,
+                star,
+                length,
+                breadth,
+                height,
+                weight
             }
         },
         {
