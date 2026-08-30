@@ -39,6 +39,10 @@ const productSchema = new mongoose.Schema(
                     trim: true,
                     uppercase: true,
                 },
+                isOutOfStock: {
+                    type: Boolean,
+                    // default: false
+                }
             }
         ],
         images: [

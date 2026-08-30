@@ -219,7 +219,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 
     const removedImages = JSON.parse(req.body.removedImages || "[]");
 
-    const { name, description, originalPrice, discountPrice, stock, size, sku, hsn, tax, star, length, breadth, height, weight } = parsedInputData;
+    const { name, description, originalPrice, discountPrice, stock, size, sku, hsn, tax, star, length, breadth, height, weight, isOutOfStock } = parsedInputData;
     // console.log(parsedInputData);
 
     // console.log("removedImages", removedImages);
@@ -228,6 +228,8 @@ const updateProduct = asyncHandler(async (req, res) => {
         throw new apiError(400, "Name is required");
     if (!description || !description.trim())
         throw new apiError(400, "Description is required");
+    if (isOutOfStock === undefined || isOutOfStock === null)
+        throw new apiError(400, "Select out of stock (Yes / No)");
     if (originalPrice === undefined)
         throw new apiError(400, "Original price is required");
     if (discountPrice === undefined)
@@ -321,7 +323,8 @@ const updateProduct = asyncHandler(async (req, res) => {
                 {
                     $set: {
                         "sizes.$.stock": stock,
-                        "sizes.$.sku": sku
+                        "sizes.$.sku": sku,
+                        "sizes.$.isOutOfStock": isOutOfStock
                     }
                 }
             )
@@ -345,7 +348,7 @@ const updateProduct = asyncHandler(async (req, res) => {
                 productId,
                 {
                     $push: {
-                        sizes: { size, stock, sku }
+                        sizes: { size, stock, sku, isOutOfStock }
                     }
                 }
             )

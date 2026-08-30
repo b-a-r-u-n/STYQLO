@@ -16,7 +16,7 @@ const UpdateProductPage = () => {
 
   const [inputData, setInputData] = useState({
     name: "", description: "", discountPrice: "", originalPrice: "", stock: "", size: "",
-    sku: "", hsn: "", tax: "", star: "", length: "", breadth: "", height: "", weight: ""
+    sku: "", hsn: "", tax: "", star: "", length: "", breadth: "", height: "", weight: "", isOutOfStock: false
   });
   const [images, setImages] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
@@ -38,7 +38,7 @@ const UpdateProductPage = () => {
 
   useEffect(() => {
     if (product) {
-      const currentData = product.sizes.filter((item) => item?.size === selectedSize )          
+      const currentData = product.sizes.filter((item) => item?.size === selectedSize)
 
       setInputData({
         name: product?.name || "",
@@ -54,7 +54,8 @@ const UpdateProductPage = () => {
         length: product?.length || "",
         breadth: product?.breadth || "",
         height: product?.height || "",
-        weight: product?.weight || ""
+        weight: product?.weight || "",
+        isOutOfStock: currentData[0]?.isOutOfStock ?? false
       });
       setPreviewImages(product?.images?.map((img) => ({ type: "old", url: img.url, publicId: img.publicId })));
     }
@@ -80,6 +81,7 @@ const UpdateProductPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (previewImages.length === 0 && images.length === 0) { toast.error("At least one image is required"); return; }
     if (!inputData.name.trim()) { toast.error("Product name is required"); return; }
     if (!inputData.description.trim()) { toast.error("Description is required"); return; }
@@ -93,7 +95,7 @@ const UpdateProductPage = () => {
     formData.append("removedImages", JSON.stringify(removedImages));
 
     // console.log(inputData);
-    
+
     setIsLoading(true);
     try {
       const result = await dispatch(updateProduct({ formData, productId: id })).unwrap();
@@ -105,7 +107,7 @@ const UpdateProductPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };  
+  };
 
   if (loading && !product) {
     return (
@@ -182,12 +184,12 @@ const UpdateProductPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <Input label="Stock Quantity" type="number" name="stock" placeholder="0" required value={inputData.stock} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
               <Input label="Size" type="text" name="size" placeholder="e.g. XL" required value={inputData.size} onChange={handleInputChange} disabled={inputData.size ? true : false} className='disabled:cursor-not-allowed' />
-              
+
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Input label="SKU" type="text" name="sku" placeholder="e.g. STYQLO-TSHIRT-001" required value={inputData.sku} 
-              onChange={handleInputChange} disabled={loading || inputData.size && inputData.sku ? true : false} className='disabled:cursor-not-allowed' />
+              <Input label="SKU" type="text" name="sku" placeholder="e.g. STYQLO-TSHIRT-001" required value={inputData.sku}
+                onChange={handleInputChange} disabled={loading || inputData.size && inputData.sku ? true : false} className='disabled:cursor-not-allowed' />
               <Input label="HSN" type="number" name="hsn" placeholder="e.g. 6109" step="1" value={inputData.hsn} onChange={handleInputChange} disabled={inputData.size ? true : false} className='disabled:cursor-not-allowed' />
             </div>
 
@@ -207,6 +209,20 @@ const UpdateProductPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <Input label="Height (cm)" type="number" name="height" placeholder="e.g. 15" step="0.1" required value={inputData.height} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
               <Input label="Weight (kg)" type="number" name="weight" placeholder="e.g. 0.5" step="0.1" value={inputData.weight} onChange={handleInputChange} disabled={loading} className='disabled:cursor-not-allowed' />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-[#2C1810] mb-2">Out of stock</label>
+              <select
+                name="isOutOfStock"
+                className="w-full px-4 py-3 bg-[#FDF5F3] border border-[#EDD5CF] rounded-xl text-[#2C1810] focus:outline-none focus:ring-2 focus:ring-[#C8756A]/30 focus:border-[#C8756A] transition-all disabled:cursor-not-allowed"
+                value={inputData.isOutOfStock}
+                onChange={handleInputChange}
+                disabled={loading}
+              >
+                <option value={true}>Yes</option>
+                <option value={false}>No</option>
+              </select>
             </div>
 
             <div>
