@@ -16,7 +16,7 @@ const uploadOnCloudinary = async (fileLocalPaths) => {
 
         for(const fileLocalPath of fileLocalPaths){
             const result = await cloudinary.uploader.upload(fileLocalPath,{
-                folder: "localkart",
+                folder: "styqlo",
                 resource_type: 'auto',
                 quality: "auto:low",  // Automatically reduces quality to a low level
                 format: "webp",       // Converts the image to WebP for better compression
