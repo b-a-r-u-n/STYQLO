@@ -428,6 +428,24 @@ const sections = [
 ];
 
 const ShippingPolicyPage = () => {
+
+  const handleCall = () => {
+    const phoneNumber = import.meta.env.VITE_NUMBER;
+
+    window.location.href = `tel:${phoneNumber}`;
+  };
+
+  const handleMail = () => {
+    const subject = encodeURIComponent("Hello STYQLO Team");
+    const body = encodeURIComponent(
+      "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+    );
+
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${import.meta.env.VITE_EMAIL}&su=${subject}&body=${body}`;
+
+    window.open(url, "_blank");
+  };
+
   return (
     <main className="min-h-screen bg-background">
       {/* Hero */}
@@ -530,27 +548,25 @@ const ShippingPolicyPage = () => {
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a
-              href="https://wa.me/918047895089"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleCall}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground transition-luxury hover:shadow-hover"
             >
               <Phone size={18} />
-              +91 8047895089
-            </a>
+              Call us
+            </button>
 
-            <a
-              href="mailto:mahanandakart@gmail.com"
+            <button
+              onClick={handleMail}
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition-luxury hover:bg-white/10"
             >
               <Mail size={18} />
               Email Us
-            </a>
+            </button>
           </div>
 
           <div className="mt-8 space-y-1 text-sm text-white/60">
-            <p>Monday – Saturday: 10:00 AM – 10:00 PM</p>
+            <p>Monday – Sunday: 10:00 AM – 10:00 PM</p>
             <p>Sunday & Public Holidays: Limited support may be available.</p>
             <p>Response time: 1–2 business days</p>
           </div>

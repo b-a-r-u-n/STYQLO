@@ -589,11 +589,10 @@ const faqs = [
 function FAQItem({ faq, isOpen, onToggle }) {
   return (
     <div
-      className={`overflow-hidden rounded-2xl border bg-card transition-all duration-300 ${
-        isOpen
+      className={`overflow-hidden rounded-2xl border bg-card transition-all duration-300 ${isOpen
           ? "border-primary/40 shadow-soft"
           : "border-border shadow-card hover:border-primary/30"
-      }`}
+        }`}
     >
       <button
         type="button"
@@ -606,18 +605,16 @@ function FAQItem({ faq, isOpen, onToggle }) {
         </span>
 
         <span
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-lighter text-lg text-rose-dark transition-transform duration-300 ${
-            isOpen ? "rotate-45" : ""
-          }`}
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-lighter text-lg text-rose-dark transition-transform duration-300 ${isOpen ? "rotate-45" : ""
+            }`}
         >
           +
         </span>
       </button>
 
       <div
-        className={`grid transition-all duration-300 ${
-          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        }`}
+        className={`grid transition-all duration-300 ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
       >
         <div className="overflow-hidden">
           <div className="border-t border-border px-5 pb-6 pt-5 text-sm leading-7 text-muted-foreground sm:px-7">
@@ -691,6 +688,26 @@ const FAQPage = () => {
   const handleCategoryChange = (category) => {
     setActiveCategory(category);
     setOpenIndex(null);
+  };
+
+  const handleNumber = () => {
+    const message = encodeURIComponent(
+      "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+    );
+
+    const url = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_NUMBER}&text=${message}`;
+    window.open(url, "_blank");
+  }
+
+  const handleMail = () => {
+    const subject = encodeURIComponent("Hello STYQLO Team");
+    const body = encodeURIComponent(
+      "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+    );
+
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${import.meta.env.VITE_EMAIL}&su=${subject}&body=${body}`;
+
+    window.open(url, "_blank");
   };
 
   return (
@@ -767,11 +784,10 @@ const FAQPage = () => {
                   key={category}
                   type="button"
                   onClick={() => handleCategoryChange(category)}
-                  className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold transition-all ${
-                    active
+                  className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold transition-all ${active
                       ? "bg-foreground text-white shadow-card"
                       : "border border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {category !== "All" && (
                     <CategoryIcon category={category} />
@@ -940,26 +956,24 @@ const FAQPage = () => {
             </p>
 
             <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <a
-                href="https://wa.me/918047895089"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={handleNumber}
                 className="rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-1 hover:shadow-luxury"
               >
                 Chat on WhatsApp
-              </a>
+              </button>
 
-              <a
-                href="mailto:mahanandakart@gmail.com"
+              <button
+                onClick={handleMail}
                 className="rounded-full border border-white/15 bg-white/10 px-7 py-3.5 text-sm font-semibold text-white transition-all hover:bg-white/15"
               >
                 Email Us
-              </a>
+              </button>
             </div>
 
             <div className="mt-8 space-y-1 text-sm text-white/60">
-              <p>+91 8047895089</p>
-              <p>mahanandakart@gmail.com</p>
+              <p>+{import.meta.env.VITE_NUMBER}</p>
+              <p>{import.meta.env.VITE_EMAIL}</p>
               <p>Monday – Saturday · 10:00 AM – 10:00 PM</p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { Mail, MapPin, Phone, Sparkles, Heart } from 'lucide-react';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -18,8 +18,8 @@ const Footer = () => {
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#C8756A] to-[#D4A398] flex items-center justify-center shadow-lg flex-shrink-0">
                 <Sparkles size={18} className="text-white" />
               </div>
-              <span className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                Local<span className="text-[#D4A398]">Kart</span>
+              <span className="text-xl text-[#D4A398] font-bold tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                STYQLO
               </span>
             </div>
             <p className="text-[#C4A09A] text-sm leading-relaxed mb-5">
@@ -61,12 +61,12 @@ const Footer = () => {
                 { to: "/about", label: "About Us" },
               ].map(({ to, label }) => (
                 <li key={to}>
-                  <Link
+                  <NavLink
                     to={to}
-                    className="text-[#C4A09A] hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block"
+                    className={({isActive}) => `${isActive ? "text-white" : "text-[#C4A09A]"} hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block`}
                   >
                     {label}
-                  </Link>
+                  </NavLink>
                 </li>
               ))}
             </ul>
@@ -84,12 +84,12 @@ const Footer = () => {
                 { to: "/faq", label: "FAQ" },
               ].map(({ to, label }) => (
                 <li key={to}>
-                  <Link
+                  <NavLink
                     to={to}
-                    className="text-[#C4A09A] hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block"
+                    className={({isActive}) => `${isActive ? "text-white" : "text-[#C4A09A]"} hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block`}
                   >
                     {label}
-                  </Link>
+                  </NavLink>
                 </li>
               ))}
             </ul>
@@ -109,12 +109,12 @@ const Footer = () => {
                 {to: "/disclaimer", label: "Disclaimer"}
               ].map(({ to, label }) => (
                 <li key={to}>
-                  <Link
+                  <NavLink
                     to={to}
-                    className="text-[#C4A09A] hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block"
+                    className={({isActive}) => `${isActive ? "text-white" : "text-[#C4A09A]"} hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block`}
                   >
                     {label}
-                  </Link>
+                  </NavLink>
                 </li>
               ))}
             </ul>
@@ -128,15 +128,15 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-sm text-[#C4A09A]">
                 <MapPin size={15} className="mt-0.5 flex-shrink-0 text-[#D4A398]" />
-                <span>New Delhi, India</span>
+                <span>{`${import.meta.env.VITE_ADDRESS_MARKET}, ${import.meta.env.VITE_ADDRESS_CITY}, Odisha, India`}</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-[#C4A09A]">
                 <Phone size={15} className="flex-shrink-0 text-[#D4A398]" />
-                <span>+91 1234567890</span>
+                <span>+{import.meta.env.VITE_NUMBER}</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-[#C4A09A]">
                 <Mail size={15} className="flex-shrink-0 text-[#D4A398]" />
-                <span>support@STYQLO.com</span>
+                <span>{import.meta.env.VITE_EMAIL}</span>
               </li>
             </ul>
           </div>

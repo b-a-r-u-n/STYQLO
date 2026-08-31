@@ -1,6 +1,26 @@
 import React from 'react'
 import { Link } from "react-router-dom";
 
+const handleNumber = () => {
+  const message = encodeURIComponent(
+    "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+  );
+
+  const url = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_NUMBER}&text=${message}`;
+  window.open(url, "_blank");
+}
+
+const handleMail = () => {
+  const subject = encodeURIComponent("Hello STYQLO Team");
+  const body = encodeURIComponent(
+    "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+  );
+
+  const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${import.meta.env.VITE_EMAIL}&su=${subject}&body=${body}`;
+
+  window.open(url, "_blank");
+};
+
 const sections = [
   {
     id: "return-window",
@@ -577,12 +597,12 @@ const sections = [
             <div>
               <p className="text-xs text-muted-foreground">Email</p>
 
-              <a
-                href="mailto:mahanandakart@gmail.com"
+              <button
+                onClick={handleMail}
                 className="font-medium text-rose-dark transition-colors hover:text-primary"
               >
-                mahanandakart@gmail.com
-              </a>
+                {import.meta.env.VITE_EMAIL}
+              </button>
             </div>
 
             <div>
@@ -590,12 +610,12 @@ const sections = [
                 Phone / WhatsApp
               </p>
 
-              <a
-                href="tel:+918047895089"
+              <button
+                onClick={handleNumber}
                 className="font-medium text-rose-dark transition-colors hover:text-primary"
               >
-                +91 8047895089
-              </a>
+                +{import.meta.env.VITE_NUMBER}
+              </button>
             </div>
           </div>
 
@@ -614,6 +634,7 @@ const sections = [
 ];
 
 const ReturnPolicyPage = () => {
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Hero */}

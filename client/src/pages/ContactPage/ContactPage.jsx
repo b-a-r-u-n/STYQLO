@@ -16,9 +16,38 @@ const helpTopics = [
 
 
 const ContactPage = () => {
-  const whatsappMessage = encodeURIComponent(
-    "Hello STYQLO, I need help with my order."
-  );
+
+  const handleCall = () => {
+    const phoneNumber = import.meta.env.VITE_NUMBER;
+
+    window.location.href = `tel:${phoneNumber}`;
+  };
+
+  const handleMap = () => {
+    const url = import.meta.env.VITE_MAP
+    window.open(url, "_blank");
+  }
+
+  const handleNumber = () => {
+
+    const message = encodeURIComponent(
+      "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+    );
+
+    const url = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_NUMBER}&text=${message}`;
+    window.open(url, "_blank");
+  }
+
+  const handleMail = () => {
+    const subject = encodeURIComponent("Hello STYQLO Team");
+    const body = encodeURIComponent(
+      "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+    );
+
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${import.meta.env.VITE_EMAIL}&su=${subject}&body=${body}`;
+
+    window.open(url, "_blank");
+  };
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -55,9 +84,9 @@ const ContactPage = () => {
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Phone */}
-          <a
-            href="tel:+918047895089"
-            className="card-luxury group p-7 sm:p-8"
+          <button
+            onClick={handleNumber}
+            className="card-luxury group p-7 sm:p-8 flex flex-col items-start"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-lighter text-xl text-rose-dark transition-transform duration-300 group-hover:scale-105">
               ☎
@@ -72,14 +101,14 @@ const ContactPage = () => {
             </h2>
 
             <p className="mt-3 text-base text-muted-foreground">
-              +91 8047895089
+              +{import.meta.env.VITE_NUMBER}
             </p>
-          </a>
+          </button>
 
           {/* Email */}
-          <a
-            href="mailto:mahanandakart@gmail.com"
-            className="card-luxury group p-7 sm:p-8"
+          <button
+            onClick={handleMail}
+            className="card-luxury group p-7 sm:p-8 flex flex-col items-start"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-lighter text-xl text-rose-dark transition-transform duration-300 group-hover:scale-105">
               @
@@ -94,9 +123,9 @@ const ContactPage = () => {
             </h2>
 
             <p className="mt-3 break-all text-base text-muted-foreground">
-              mahanandakart@gmail.com
+              {import.meta.env.VITE_EMAIL}
             </p>
-          </a>
+          </button>
 
           {/* Support Hours */}
           <div className="card-luxury p-7 sm:p-8">
@@ -109,7 +138,7 @@ const ContactPage = () => {
             </p>
 
             <h2 className="mt-3 text-2xl font-semibold">
-              Monday – Saturday
+              Monday – Sunday
             </h2>
 
             <p className="mt-3 text-base text-muted-foreground">
@@ -154,18 +183,16 @@ const ContactPage = () => {
               </p>
 
               <p className="mt-4 text-sm font-semibold text-foreground">
-                WhatsApp: +91 8047895089
+                WhatsApp: +{import.meta.env.VITE_NUMBER}
               </p>
             </div>
 
-            <a
-              href={`https://wa.me/918047895089?text=${whatsappMessage}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleNumber}
               className="inline-flex shrink-0 items-center justify-center rounded-full bg-foreground px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-luxury"
             >
               Chat with STYQLO →
-            </a>
+            </button>
           </div>
         </div>
       </section>
@@ -221,7 +248,7 @@ const ContactPage = () => {
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1fr] lg:gap-20">
             <div>
-              <p className="mb-5 text-sm font-bold uppercase tracking-[0.2em] text-primary-light">
+              <p className="mb-5 text-sm text-white font-bold uppercase tracking-[0.2em] text-primary-light">
                 Get In Touch
               </p>
 
@@ -242,14 +269,14 @@ const ContactPage = () => {
                   <span className="font-semibold text-white">
                     Email
                   </span>
-                  <p className="mt-1">mahanandakart@gmail.com</p>
+                  <p className="mt-1">{import.meta.env.VITE_EMAIL}</p>
                 </div>
 
                 <div>
                   <span className="font-semibold text-white">
                     Phone / WhatsApp
                   </span>
-                  <p className="mt-1">+91 8047895089</p>
+                  <p className="mt-1">+{import.meta.env.VITE_NUMBER}</p>
                 </div>
               </div>
             </div>
@@ -317,21 +344,19 @@ const ContactPage = () => {
               </div>
 
               <div className="mt-9 flex flex-wrap gap-3">
-                <a
-                  href="mailto:mahanandakart@gmail.com"
+                <button
+                  onClick={handleMail}
                   className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5"
                 >
                   Email Us
-                </a>
+                </button>
 
-                <a
-                  href={`https://wa.me/918047895089?text=${whatsappMessage}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={handleNumber}
                   className="rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-white/15"
                 >
                   WhatsApp
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -358,19 +383,17 @@ const ContactPage = () => {
             </h2>
 
             <div className="mt-6 space-y-1 text-sm leading-7 text-muted-foreground">
-              <p>Rourkela, Sector 14</p>
-              <p>PIN: 109085</p>
+              <p>{import.meta.env.VITE_ADDRESS_CITY}, {import.meta.env.VITE_ADDRESS_MARKET}</p>
+              <p>PIN: {import.meta.env.VITE_ADDRESS_PIN}</p>
               <p>Odisha, India</p>
             </div>
 
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=STYQLO+Mahananda+Kart+Rourkela+Sector+14+Odisha"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleMap}
               className="mt-8 inline-flex rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-luxury"
             >
               Google Maps →
-            </a>
+            </button>
           </div>
 
           {/* Map Placeholder */}
@@ -382,21 +405,19 @@ const ContactPage = () => {
                 </div>
 
                 <p className="mt-5 text-lg font-semibold">
-                  Rourkela, Odisha
+                  {import.meta.env.VITE_ADDRESS_CITY}, Odisha
                 </p>
 
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Sector 14
+                  {import.meta.env.VITE_ADDRESS_MARKET}
                 </p>
 
-                <a
-                  href="https://www.google.com/maps/search/?api=1&query=STYQLO+Mahananda+Kart+Rourkela+Sector+14+Odisha"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={handleMap}
                   className="mt-5 inline-block text-sm font-semibold text-rose-dark hover:underline"
                 >
                   Open in Google Maps →
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -426,19 +447,19 @@ const ContactPage = () => {
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <a
-              href="tel:+918047895089"
+            <button
+              onClick={handleCall}
               className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold transition-all hover:border-primary hover:bg-primary-lighter"
             >
               Call Us
-            </a>
+            </button>
 
-            <a
-              href="mailto:mahanandakart@gmail.com"
+            <button
+              onClick={handleMail}
               className="rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-luxury"
             >
               Email Us
-            </a>
+            </button>
           </div>
         </div>
       </section>
@@ -474,12 +495,12 @@ const ContactPage = () => {
                 Phone / WhatsApp
               </p>
 
-              <a
-                href="tel:+918047895089"
+              <button
+                onClick={handleCall}
                 className="mt-2 block font-semibold hover:text-primary"
               >
-                +91 8047895089
-              </a>
+                +{import.meta.env.VITE_NUMBER}
+              </button>
             </div>
 
             <div>
@@ -487,12 +508,12 @@ const ContactPage = () => {
                 Email
               </p>
 
-              <a
-                href="mailto:mahanandakart@gmail.com"
+              <button
+                onClick={handleMail}
                 className="mt-2 block break-all font-semibold hover:text-primary"
               >
-                mahanandakart@gmail.com
-              </a>
+                {import.meta.env.VITE_EMAIL}
+              </button>
             </div>
           </div>
         </div>

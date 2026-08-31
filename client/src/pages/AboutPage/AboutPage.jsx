@@ -32,6 +32,28 @@ const products = [
 ];
 
 const AboutPage = () => {
+
+  const handleNumber = () => {
+
+    const message = encodeURIComponent(
+      "Hello STYQLO Team! 👋 I’m interested in your collection and would like to know more about your products, sizes, and availability."
+    );
+
+    const url = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_NUMBER}&text=${message}`;
+    window.open(url, "_blank");
+  }
+
+  const handleMail = () => {
+    const subject = encodeURIComponent("Hello STYQLO Team");
+    const body = encodeURIComponent(
+      "Hello STYQLO Team,\n\nI would like to know more about your products.\n\nThank you."
+    );
+
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${import.meta.env.VITE_EMAIL}&su=${subject}&body=${body}`;
+
+    window.open(url, "_blank");
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* =========================================================
@@ -506,19 +528,19 @@ const AboutPage = () => {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <a
-                href="tel:+918047895089"
+              <button
+                onClick={handleNumber}
                 className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-muted-foreground transition-all hover:border-primary hover:bg-primary-lighter hover:text-foreground"
               >
-                +91 8047895089
-              </a>
+                +{import.meta.env.VITE_NUMBER}
+              </button>
 
-              <a
-                href="mailto:mahanandakart@gmail.com"
+              <button
+                onClick={handleMail}
                 className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-muted-foreground transition-all hover:border-primary hover:bg-primary-lighter hover:text-foreground"
               >
                 Email Us
-              </a>
+              </button>
             </div>
           </div>
         </div>

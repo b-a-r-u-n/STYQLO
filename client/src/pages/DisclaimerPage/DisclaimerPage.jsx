@@ -1,6 +1,17 @@
 import React from 'react'
 import { Link } from "react-router-dom";
 
+const handleMail = () => {
+    const subject = encodeURIComponent("Hello STYQLO Team");
+    const body = encodeURIComponent(
+        "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+    );
+
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${import.meta.env.VITE_EMAIL}&su=${subject}&body=${body}`;
+
+    window.open(url, "_blank");
+};
+
 const sections = [
     {
         id: "website-disclaimer",
@@ -329,12 +340,12 @@ const sections = [
                         Mahananda Kart
                     </p>
 
-                    <a
-                        href="mailto:mahanandakart@gmail.com"
+                    <button
+                        onClick={handleMail}
                         className="mt-2 inline-block text-muted-foreground transition-colors hover:text-primary"
                     >
-                        mahanandakart@gmail.com
-                    </a>
+                        {import.meta.env.VITE_EMAIL}
+                    </button>
                 </div>
             </>
         ),

@@ -115,6 +115,7 @@ const trackPantMeasurementInfo = [
 ];
 
 function TShirtTable() {
+
   return (
     <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-card shadow-card">
       <div className="overflow-x-auto">
@@ -151,8 +152,8 @@ function TShirtTable() {
                 <tr
                   key={size}
                   className={`transition-colors hover:bg-primary-lighter/40 ${index !== tshirtSizes.length - 1
-                      ? "border-b border-border"
-                      : ""
+                    ? "border-b border-border"
+                    : ""
                     }`}
                 >
                   <td className="px-6 py-5 font-semibold">
@@ -221,8 +222,8 @@ function TrackPantTable() {
                 <tr
                   key={size}
                   className={`transition-colors hover:bg-primary-lighter/40 ${index !== trackPantSizes.length - 1
-                      ? "border-b border-border"
-                      : ""
+                    ? "border-b border-border"
+                    : ""
                     }`}
                 >
                   <td className="px-6 py-5 font-semibold">
@@ -284,6 +285,27 @@ function MeasurementCards({ items }) {
 }
 
 const SizeGuidePage = () => {
+
+  const handleNumber = () => {
+    const message = encodeURIComponent(
+      "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+    );
+
+    const url = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_NUMBER}&text=${message}`;
+    window.open(url, "_blank");
+  }
+
+  const handleMail = () => {
+    const subject = encodeURIComponent("Hello STYQLO Team");
+    const body = encodeURIComponent(
+      "Hello STYQLO Team! 👋\n\nI’d like to get in touch regarding your products/services. Could you please assist me?\n\nThank you!"
+    );
+
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${import.meta.env.VITE_EMAIL}&su=${subject}&body=${body}`;
+
+    window.open(url, "_blank");
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* =========================================================
@@ -598,30 +620,28 @@ const SizeGuidePage = () => {
               </p>
 
               <p className="mt-4 text-sm text-white/70">
-                Phone / WhatsApp: +91 8047895089
+                Phone / WhatsApp: +{import.meta.env.VITE_NUMBER}
               </p>
 
               <p className="mt-1 text-sm text-white/70">
-                Email: mahanandakart@gmail.com
+                Email: {import.meta.env.VITE_EMAIL}
               </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <a
-                href="https://wa.me/918047895089"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={handleNumber}
                 className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-1 hover:shadow-luxury"
               >
                 WhatsApp
-              </a>
+              </button>
 
-              <a
-                href="mailto:mahanandakart@gmail.com"
+              <button
+                onClick={handleMail}
                 className="rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-white/15"
               >
                 Email Us
-              </a>
+              </button>
             </div>
           </div>
         </div>
