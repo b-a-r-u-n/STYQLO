@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart, MessageCircle, Star } from 'lucide-react';
 import { Button } from '../Button/Button';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,13 +13,13 @@ const ProductCard = ({ product }) => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const [selectedSize, setSelectedSize] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const sizeOrder = ["S", "M", "L", "XL", "XXL"];
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -32,34 +32,8 @@ const ProductCard = ({ product }) => {
     ((product.originalPrice - product.discountPrice) / product.originalPrice) * 100
   );
 
-  const handleAddToCart = async (e) => {
-    e.preventDefault();
-    if (!isLoggedIn) {
-      toast.error("Please sign in to add items to cart");
-      navigate("/login", { state: { from: location.pathname } });
-      return;
-    }
-    if (product?.sizes?.length > 0 && !selectedSize) {
-      toast.error("Please select a size");
-      return;
-    }
-    try {
-      const result = await dispatch(addToCart({ productId: product._id, size: selectedSize })).unwrap();
-      toast.success(result.message || "Added to cart");
-    } catch (error) {
-      console.log(error);
-
-      toast.error(error?.message || "Failed to add to cart");
-    }
-  };
-
   const handleBargaining = (e) => {
     e.preventDefault();
-    // if (!isLoggedIn) {
-    //   toast.error("Please sign in to bargain");
-    //   navigate("/login", { state: { from: location.pathname } });
-    //   return;
-    // }
     setModalOpen(true);
   };
 
@@ -70,7 +44,7 @@ const ProductCard = ({ product }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container */}
-      <Link to={`/product/${product._id}`} className="block relative overflow-hidden bg-[#FBF8F5] border-b border-[#E8D4D0]/30">
+      <Link to={`/product/${product.slug}`} className="block relative overflow-hidden bg-[#FBF8F5] border-b border-[#E8D4D0]/30">
         <div className="relative h-56 md:h-60 lg:h-64">
           <img
             src={product.images[0].url}
@@ -92,7 +66,7 @@ const ProductCard = ({ product }) => {
 
       {/* Content */}
       <div className="p-4">
-        <Link to={`/product/${product._id}`}>
+        <Link to={`/product/${product.slug}`}>
           <h3 className="text-xs sm:text-md font-medium text-[#2C1810] line-clamp-2 leading-snug mb-2 hover:text-[#E7A9A2] transition-colors duration-250 font-['Outfit']">
             {product.name}
           </h3>
@@ -147,37 +121,6 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
 
-        {/* Sizes */}
-        {/* {product.sizes.length > 0 && (
-          <div className="flex gap-1.5 mb-3 flex-wrap">
-            {[...product.sizes]
-              .sort((a, b) => {
-                const sA = (a.size || a).toUpperCase();
-                const sB = (b.size || b).toUpperCase();
-                return sizeOrder.indexOf(sA) - sizeOrder.indexOf(sB);
-              })
-              .map((sizeObj, index) => {
-                const size = sizeObj.size || sizeObj;
-                const isOutOfStock = sizeObj.stock === 0;
-                return (
-                  <button
-                    key={index}
-                    disabled={isOutOfStock}
-                    onClick={(e) => { e.preventDefault(); setSelectedSize(size); }}
-                    className={`px-3 py-1 rounded text-[10px] font-bold border transition-all duration-200 cursor-pointer
-                      ${selectedSize === size
-                        ? "bg-[#2C1810] text-white border-[#2C1810]"
-                        : "bg-white text-[#2C1810] border-[#E8D4D0] hover:border-[#E7A9A2] hover:text-[#E7A9A2]"
-                      }
-                      ${isOutOfStock ? "opacity-35 cursor-not-allowed line-through" : ""}`}
-                  >
-                    {size}
-                  </button>
-                );
-              })}
-          </div>
-        )} */}
-
         {/* Price */}
         <div className="flex items-baseline gap-2 mb-4">
           <span className="text-base font-bold text-[#2C1810] font-['Outfit']">₹{product.discountPrice}</span>
@@ -188,16 +131,6 @@ const ProductCard = ({ product }) => {
 
         {/* Actions */}
         <div className="space-y-2">
-          {/* <Button
-            variant="primary"
-            size="sm"
-            className="w-full text-xs font-semibold py-2"
-            onClick={handleAddToCart}
-          >
-            <ShoppingCart size={13} />
-            Add to Cart
-          </Button> */}
-
           <button
             onClick={handleBargaining}
             className="w-full flex items-center justify-center gap-1.5 bg-[#F1DBD5]/40 hover:bg-[#F1DBD5]/80 text-[#2C1810] text-xs font-bold py-2 rounded-full border border-[#E8D4D0] hover:border-[#E7A9A2] transition-all duration-250 cursor-pointer"

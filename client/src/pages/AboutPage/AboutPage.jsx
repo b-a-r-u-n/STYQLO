@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from "react-router-dom";
+import {SEO} from "../../components"
 
 const values = [
   {
@@ -55,6 +56,12 @@ const AboutPage = () => {
   };
 
   return (
+    <>
+      <SEO
+            title="About STYQLO | Affordable Fashion & Modern Style"
+            description="Learn about STYQLO, a modern clothing brand from Rourkela, Odisha focused on quality, affordability, and stylish everyday fashion."
+            canonical="/about"
+        />
     <main className="min-h-screen bg-background text-foreground">
       {/* =========================================================
           HERO
@@ -556,6 +563,7 @@ const AboutPage = () => {
         </Link>
       </div>
     </main>
+    </>
   );
 }
 

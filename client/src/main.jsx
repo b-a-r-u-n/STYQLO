@@ -1,12 +1,8 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider
-} from 'react-router-dom'
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom'
+import { HelmetProvider } from "react-helmet-async";
 import { Provider, useDispatch, useSelector } from 'react-redux'
 import store from './app/store.js'
 import { MantineProvider } from '@mantine/core'
@@ -170,6 +166,7 @@ const AppWrapper = () => {
 }
 
 createRoot(document.getElementById('root')).render(
+  <HelmetProvider>
   <Provider store={store}>
     <MantineProvider>
       <Toaster
@@ -200,4 +197,5 @@ createRoot(document.getElementById('root')).render(
       <AppWrapper />
     </MantineProvider>
   </Provider>
+  </HelmetProvider>
 )

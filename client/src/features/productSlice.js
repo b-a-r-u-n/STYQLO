@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const addProduct = createAsyncThunk("addProduct", async (formData, { rejectWithValue }) => {
-    try {
+    try {        
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/product/add-product`, formData, { withCredentials: true });
 
         return response.data;

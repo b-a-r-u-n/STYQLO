@@ -1,0 +1,16 @@
+{
+  "name": "STYQLO",
+  "short_name": "STYQLO",
+  "description": "Premium fashion and local shopping from STYQLO.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF8F5",
+  "theme_color": "#C8756A",
+  "icons": [
+    {
+      "src": "/styqlo.png",
+      "sizes": "1254x1254",
+      "type": "image/png"
+    }
+  ]
+}

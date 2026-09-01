@@ -3,6 +3,8 @@ import apiError from "../utils/apiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/uploadOnCloudinary.js";
 import apiResponse from "../utils/apiResponse.js";
+import createUniqueSlug from "../utils/createSlug.js";
+import mongoose from "mongoose"; 
 
 
 const addProduct = asyncHandler(async (req, res) => {
@@ -100,7 +102,7 @@ const addProduct = asyncHandler(async (req, res) => {
                 size,
                 stock: Number(stock),
                 sku
-            });
+            }); 
 
 
             // Recalculate total stock
@@ -139,11 +141,14 @@ const addProduct = asyncHandler(async (req, res) => {
         );
     }
 
+    const slug = await createUniqueSlug(name);
+
     let product;
 
     if (size) {
         product = await Product.create({
             name,
+            slug,
             description,
             originalPrice: Number(originalPrice),
             discountPrice: Number(discountPrice),
@@ -162,6 +167,7 @@ const addProduct = asyncHandler(async (req, res) => {
     else {
         product = await Product.create({
             name,
+            slug,
             description,
             originalPrice: Number(originalPrice),
             discountPrice: Number(discountPrice),
@@ -407,7 +413,13 @@ const getSingleProduct = asyncHandler(async (req, res) => {
     if (!productId)
         throw new apiError(400, "Product id not found");
 
-    const product = await Product.findById(productId);
+    let product;
+
+    if (mongoose.Types.ObjectId.isValid(productId)) {
+        product = await Product.findById(productId);
+    } else {
+        product = await Product.findOne({ slug: productId });
+    }
 
     if (!product)
         throw new apiError(400, "Product not found");
