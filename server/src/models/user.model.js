@@ -18,12 +18,12 @@ const userSchema = new mongoose.Schema(
         password: {
             type: String,
             required: true,
-            minlength: 6
+            minlength: 6,
+            select: false
         },
         phoneNumber: {
             type: Number,
-            default: null,
-            maxlength: 10
+            default: null
         },
         address: [
         {
@@ -54,14 +54,14 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre("save", async function(next){
     if(!this.isModified("password"))
-        return;
+        return next();
     
     this.password = await bcrypt.hash(this.password, 10);
-    return;
+    return next();
 })
 
 userSchema.methods.isPasswordCorrect = async function(password){
-    return bcrypt.compareSync(password, this.password);
+    return await bcrypt.compare(password, this.password);
 }
 
 userSchema.methods.generateAccessToken = function(){

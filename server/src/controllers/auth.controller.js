@@ -40,6 +40,7 @@ const generateAccessRefreshTokens = async (userId) => {
         return {accessToken, refreshToken}
     } catch (error) {
         console.log("🔴 Generate Token Error:",error);
+        throw error;
     }
 }
 
@@ -86,7 +87,7 @@ const loginUser = asyncHandler(async (req, res) => {
     if(!password || !password.trim())
         throw new apiError(400, "Password is required");
 
-    const user = await User.findOne({email});
+    const user = await User.findOne({email}).select("+password");;
     if(!user)
         throw new apiError(400, "Email does not exist");
 

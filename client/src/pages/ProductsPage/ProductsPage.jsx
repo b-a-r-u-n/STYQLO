@@ -55,7 +55,7 @@ const ProductsPage = () => {
       <SEO
         title={pageTitle}
         description={pageDescription}
-        canonical="/products"
+        canonical={canonical}
       />
       <div className="min-h-screen bg-[#FBF8F5]">
         {products.length > 0 ? (

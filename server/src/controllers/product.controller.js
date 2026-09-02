@@ -397,7 +397,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 const getAllProducts = asyncHandler(async (req, res) => {
     const products = await Product.find();
 
-    if (!products)
+    if (!products.length === 0)
         throw new apiError(404, "No products found");
 
     res

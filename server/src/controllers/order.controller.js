@@ -8,54 +8,6 @@ import asyncHandler from "../utils/asyncHandler.js";
 import generateSequenceId from "../utils/generateSequence.js";
 
 
-// const createOrder = asyncHandler(async (req, res) => {
-
-//     const { products, shippingAddress, subTotal, tax, shippingCharges, totalAmount } = req.body;
-
-//     // console.log(req.body);
-
-//     if (!products || !products.length)
-//         throw new apiError(400, "Products are required");
-
-//     if (!shippingAddress)
-//         throw new apiError(400, "Shipping address is required");
-
-//     if (!subTotal)
-//         throw new apiError(400, "Sub total is required");
-
-//     if (!tax)
-//         throw new apiError(400, "Tax is required");
-
-//     if (!shippingCharges && shippingCharges !== 0)
-//         throw new apiError(400, "Shipping charges are required");
-
-//     if (!totalAmount)
-//         throw new apiError(400, "Total amount is required");
-
-//     const order = await Order.create({
-//         user: req.user._id,
-//         products,
-//         shippingAddress,
-//         subTotal,
-//         tax,
-//         shippingCharges,
-//         totalAmount,
-//         orderStatus: "Pending",
-//         paymentStatus: "Pending"
-//     })
-
-//     if (!order)
-//         throw new apiError(500, "Order creation failed");
-
-//     const createdOrder = await Order.findById(order._id).select("-user -products -shippingAddress -subTotal -tax -shippingCharges -totalAmount -orderStatus -paymentStatus -createdAt -updatedAt -razorpayOrderId")
-
-//     res
-//         .status(200)
-//         .json(
-//             new apiResponse(200, "Order created successfully", createdOrder)
-//         )
-// })
-
 const createOrder = asyncHandler(async (req, res) => {
 
     const { products, shippingAddress, subTotal, tax, shippingCharges, totalAmount, paymentMethod } = req.body;
@@ -248,7 +200,7 @@ const getUserOrders = asyncHandler(async (req, res) => {
         .select("-payment -razorpayOrderId -createdAt")
         .populate("products.product")
 
-    if (!orders)
+    if (orders.length === 0)
         throw new apiError(404, "No orders found for this user");
 
 

@@ -22,7 +22,9 @@ const verifyJWT = async (req, _, next) => {
         req.user = user;
         next();
     } catch (error) {
-        throw new apiError(401, error.message || "Unauthorized Access");
+        // throw new apiError(401, error.message || "Unauthorized Access");
+        next ( new apiError(401, error.message || "Unauthorized Access"));
+
     }
 }
 
