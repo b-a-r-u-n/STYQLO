@@ -101,7 +101,7 @@ const ContactPage = () => {
             </h2>
 
             <p className="mt-3 text-base text-muted-foreground">
-              +{import.meta.env.VITE_NUMBER}
+              +91{import.meta.env.VITE_NUMBER}
             </p>
           </button>
 
@@ -183,7 +183,7 @@ const ContactPage = () => {
               </p>
 
               <p className="mt-4 text-sm font-semibold text-foreground">
-                WhatsApp: +{import.meta.env.VITE_NUMBER}
+                WhatsApp: +91{import.meta.env.VITE_NUMBER}
               </p>
             </div>
 
@@ -276,7 +276,7 @@ const ContactPage = () => {
                   <span className="font-semibold text-white">
                     Phone / WhatsApp
                   </span>
-                  <p className="mt-1">+{import.meta.env.VITE_NUMBER}</p>
+                  <p className="mt-1">+91{import.meta.env.VITE_NUMBER}</p>
                 </div>
               </div>
             </div>
@@ -499,7 +499,7 @@ const ContactPage = () => {
                 onClick={handleCall}
                 className="mt-2 block font-semibold hover:text-primary"
               >
-                +{import.meta.env.VITE_NUMBER}
+                +91{import.meta.env.VITE_NUMBER}
               </button>
             </div>
 

@@ -614,7 +614,7 @@ const sections = [
                 onClick={handleNumber}
                 className="font-medium text-rose-dark transition-colors hover:text-primary"
               >
-                +{import.meta.env.VITE_NUMBER}
+                +91{import.meta.env.VITE_NUMBER}
               </button>
             </div>
           </div>

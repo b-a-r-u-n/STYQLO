@@ -972,7 +972,7 @@ const FAQPage = () => {
             </div>
 
             <div className="mt-8 space-y-1 text-sm text-white/60">
-              <p>+{import.meta.env.VITE_NUMBER}</p>
+              <p>+91{import.meta.env.VITE_NUMBER}</p>
               <p>{import.meta.env.VITE_EMAIL}</p>
               <p>Monday – Saturday · 10:00 AM – 10:00 PM</p>
             </div>

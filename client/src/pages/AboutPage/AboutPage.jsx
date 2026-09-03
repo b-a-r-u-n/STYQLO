@@ -418,6 +418,9 @@ const AboutPage = () => {
               <p className="mt-3 text-lg font-semibold text-foreground">
                 Barun Kumar Mahakud
               </p>
+              <p className="mt-3 text-sm font-semibold">
+                barunkumarmahakud40@gmail.com
+              </p>
             </div>
           </div>
         </div>
@@ -539,7 +542,7 @@ const AboutPage = () => {
                 onClick={handleNumber}
                 className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-muted-foreground transition-all hover:border-primary hover:bg-primary-lighter hover:text-foreground"
               >
-                +{import.meta.env.VITE_NUMBER}
+                +91{import.meta.env.VITE_NUMBER}
               </button>
 
               <button
