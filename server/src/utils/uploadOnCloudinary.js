@@ -1,51 +1,56 @@
-import {v2 as cloudinary} from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-    api_key: process.env.CLOUDINARY_API_KEY, 
-    api_secret: process.env.CLOUDINARY_API_SECRET
-})
-
-console.log("cloudinary config", process.env.CLOUDINARY_CLOUD_NAME, process.env.CLOUDINARY_API_KEY, process.env.CLOUDINARY_API_SECRET);
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const uploadOnCloudinary = async (fileLocalPaths) => {
-    try {
-        if(!fileLocalPaths || fileLocalPaths.length === 0)
-            return [];
+  try {
+    if (!fileLocalPaths || fileLocalPaths.length === 0) return [];
 
-        const filesUrl = [];
+    const filesUrl = [];
 
-        for(const fileLocalPath of fileLocalPaths){
-            const result = await cloudinary.uploader.upload(fileLocalPath,{
-                folder: "styqlo",
-                resource_type: 'auto',
-                quality: "auto:low",  // Automatically reduces quality to a low level
-                format: "webp",       // Converts the image to WebP for better compression
-                transformation: [
-                    { fetch_format: "auto", quality: "auto:low" }  // Ensures better optimization
-                ]
-            })
+    for (const fileLocalPath of fileLocalPaths) {
+      const result = await cloudinary.uploader.upload(fileLocalPath, {
+        folder: "styqlo",
+        resource_type: "auto",
+        quality: "auto:low", // Automatically reduces quality to a low level
+        format: "webp", // Converts the image to WebP for better compression
+        transformation: [
+          { fetch_format: "auto", quality: "auto:low" }, // Ensures better optimization
+        ],
+      });
 
-            // return result.secure_url;
-            filesUrl.push({
-                url: result.secure_url,
-                publicId: result.public_id
-            });
+      // return result.secure_url;
+      filesUrl.push({
+        url: result.secure_url,
+        publicId: result.public_id,
+      });
 
-            await fs.unlink(fileLocalPath); // Delete the local file after uploading
-            // console.log(result);
-            
-        }
+    //    fs.unlinkSync(fileLocalPath); // Delete the local file after uploading
 
-        return filesUrl;
-        
-    } catch (error) {
-        console.error("Error uploading to Cloudinary:", error);
-        fs.unlinkSync(fileLocalPaths); // Ensure local file is deleted even if upload fails
-        return [];
+      if (fs.existsSync(fileLocalPath)) {
+        fs.unlinkSync(fileLocalPath); // Delete the local file after uploading
+      }
+
+      // console.log(result);
     }
-}
+
+    return filesUrl;
+  } catch (error) {
+    console.error("Error uploading to Cloudinary:", error);
+    // fs.unlinkSync(fileLocalPaths); // Ensure local file is deleted even if upload fails
+    for (const fileLocalPath of fileLocalPaths) {
+      if (fs.existsSync(fileLocalPath)) {
+        fs.unlinkSync(fileLocalPath);
+      }
+    }
+    return [];
+  }
+};
 
 // const deleteFromCloudinary = async (url) => {
 //     try {
@@ -63,24 +68,19 @@ const uploadOnCloudinary = async (fileLocalPaths) => {
 // }
 
 const deleteFromCloudinary = async (imagesData) => {
-    try {
-        if(!imagesData || imagesData.length === 0)
-            throw new apiError(400, 'No file found');
+  try {
+    if (!imagesData || imagesData.length === 0)
+      throw new apiError(400, "No file found");
 
-        for(const id of imagesData){
-            const res = await cloudinary.uploader.destroy(`${id}`);
-            // console.log("res", res);
-            
-        }
-        return;
-
-    } catch (error) {
-        console.error(error);
-        return null;
+    for (const id of imagesData) {
+      const res = await cloudinary.uploader.destroy(`${id}`);
+      // console.log("res", res);
     }
-}
+    return;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
 
-export {
-    uploadOnCloudinary,
-    deleteFromCloudinary
-}
+export { uploadOnCloudinary, deleteFromCloudinary };
