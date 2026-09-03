@@ -388,12 +388,12 @@ const ContactPage = () => {
               <p>Odisha, India</p>
             </div>
 
-            <button
+            {/* <button
               onClick={handleMap}
               className="mt-8 inline-flex rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-luxury"
             >
               Google Maps →
-            </button>
+            </button> */}
           </div>
 
           {/* Map Placeholder */}
@@ -412,12 +412,12 @@ const ContactPage = () => {
                   {import.meta.env.VITE_ADDRESS_MARKET}
                 </p>
 
-                <button
+                {/* <button
                   onClick={handleMap}
                   className="mt-5 inline-block text-sm font-semibold text-rose-dark hover:underline"
                 >
                   Open in Google Maps →
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
