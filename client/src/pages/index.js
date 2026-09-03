@@ -22,5 +22,5 @@ import SignupPage from "./SignupPage/SignupPage";
 import SizeGuidePage from "./SizeGuidePage/SizeGuidePage";
 import TermsPage from "./TermsPage/TermsPage";
 import UpdateUserProfilePage from "./UpdateUserProfilePage/UpdateUserProfilePage";
-
+ 
 export {HomePage, LoginPage, SignupPage, ProductsPage, ProfilePage, CartPage, UpdateUserProfilePage, EditAndAddAddress, CheckoutPage, NotFoundPage, OrderSuccessPage, PaymentVerificationFailed, PaymentPending, OrdersPage, OrderDetailsPage, TermsPage, PrivacyPolicyPage, ReturnPolicyPage, ShippingPolicyPage, FAQPage, SizeGuidePage, ContactPage, AboutPage, DisclaimerPage}
