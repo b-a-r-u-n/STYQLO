@@ -1,4 +1,5 @@
 
-const dbName = "localkart";
+// const dbName = "localkart";
+const dbName = "STYQLO";
 
 export { dbName };
