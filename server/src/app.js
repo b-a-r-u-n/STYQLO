@@ -13,9 +13,16 @@ app.use(helmet());
 
 app.use(compression());
 
+// app.use(cors({
+//     origin: process.env.ORIGIN,
+//     credentials: true
+// }))
+
 app.use(cors({
-    origin: process.env.ORIGIN,
-    credentials: true
+  origin: process.env.ORIGIN,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }))
 
 const apiLimiter = rateLimit({

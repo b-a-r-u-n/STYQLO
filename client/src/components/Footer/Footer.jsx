@@ -132,7 +132,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3 text-sm text-[#C4A09A]">
                 <Phone size={15} className="flex-shrink-0 text-[#D4A398]" />
-                <span>+{import.meta.env.VITE_NUMBER}</span>
+                <span>+91{import.meta.env.VITE_NUMBER}</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-[#C4A09A]">
                 <Mail size={15} className="flex-shrink-0 text-[#D4A398]" />
