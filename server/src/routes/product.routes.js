@@ -11,8 +11,8 @@ router.route("/get-product/:productId").get(getSingleProduct);
 //Secure Routes
 
 router.route("/add-product").post(
-    upload.array("images", 5),
     verifyJWT,
+    upload.array("images", 5),
     addProduct
 );
 
