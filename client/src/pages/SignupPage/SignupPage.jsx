@@ -1,41 +1,73 @@
-import React, { useState } from 'react';
-import { Input } from '../../components';
-import { Button } from '../../components/Button/Button';
-import { Link, useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
-import { registerUser } from '../../features/authSlice';
-import { Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { Input } from "../../components";
+import { Button } from "../../components/Button/Button";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { registerUser } from "../../features/authSlice";
+import { Sparkles, ArrowRight, CheckCircle } from "lucide-react";
 
 const SignupPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    fullName: "", email: "", password: "", confirmPassword: ""
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.fullName.trim()) { toast.error("Full name is required"); return; }
-    if (!formData.email.trim()) { toast.error("Email is required"); return; }
-    if (!formData.password.trim()) { toast.error("Password is required"); return; }
-    if (formData.password.trim().length < 6) { toast.error("Password must be at least 6 characters"); return; }
-    if (!formData.confirmPassword.trim()) { toast.error("Please confirm your password"); return; }
-    if (formData.password.trim() !== formData.confirmPassword.trim()) { toast.error("Passwords do not match"); return; }
+    if (!formData.fullName.trim()) {
+      toast.error("Full name is required");
+      return;
+    }
+    if (!formData.email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+    if (!formData.password.trim()) {
+      toast.error("Password is required");
+      return;
+    }
+    if (formData.password.trim().length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (!formData.confirmPassword.trim()) {
+      toast.error("Please confirm your password");
+      return;
+    }
+    if (formData.password.trim() !== formData.confirmPassword.trim()) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
     setLoading(true);
     try {
       const response = await dispatch(registerUser(formData)).unwrap();
       navigate("/login");
       toast.success(response.message || "Account created successfully!");
-      setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
+      setFormData({
+        fullName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
     } catch (error) {
       toast.error(error?.message || "Sign up failed");
-      setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
+      setFormData({
+        fullName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
     } finally {
       setLoading(false);
     }
@@ -56,14 +88,21 @@ const SignupPage = () => {
         <div className="absolute bottom-1/4 -right-16 w-64 h-64 rounded-full bg-[#D4A398]/15 blur-3xl" />
 
         <div className="relative z-10 text-center max-w-sm">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center mx-auto mb-6 shadow-[0_8px_32px_rgba(231,169,162,0.3)]">
-            <Sparkles size={28} className="text-[#2C1810]" />
+          <div className="w-full h-10 flex items-center justify-center mb-3">
+            <img
+              src="/image/S_logo.png"
+              alt="STYQLO"
+              className="h-full lg:w-14 md:w-12 w-8 object-contain"
+            />
           </div>
           <h2 className="text-3xl font-medium tracking-wide text-white mb-3 leading-tight font-['Outfit']">
-            Join STYQLO<br />Today
+            Join STYQLO
+            <br />
+            Today
           </h2>
           <p className="text-[#D4A398] leading-relaxed text-sm mb-8 font-light">
-            Create your account and start exploring premium local products at the best prices.
+            Create your account and start exploring premium local products at
+            the best prices.
           </p>
 
           <div className="space-y-3 text-left">
@@ -72,7 +111,9 @@ const SignupPage = () => {
                 <div className="w-6 h-6 rounded-full bg-[#F1DBD5]/30 flex items-center justify-center flex-shrink-0">
                   <CheckCircle size={13} className="text-[#E7A9A2]" />
                 </div>
-                <span className="text-[#D4A398] text-sm font-light">{perk}</span>
+                <span className="text-[#D4A398] text-sm font-light">
+                  {perk}
+                </span>
               </div>
             ))}
           </div>
@@ -84,15 +125,23 @@ const SignupPage = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2.5 mb-8 justify-center">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-lg">
-              <Sparkles size={20} className="text-[#2C1810]" />
-            </div>
-            <span className="text-2xl font-bold tracking-wider text-[#E7A9A2] font-['Outfit']">STYQLO</span>
+            <img
+              src="/image/S_logo.png"
+              alt="STYQLO"
+              className="h-full lg:w-14 md:w-12 w-8 object-contain"
+            />
+            <span className="text-2xl font-bold tracking-wider text-[#E7A9A2] font-['Outfit']">
+              STYQLO
+            </span>
           </div>
 
           <div className="mb-8">
-            <h1 className="text-3xl font-medium tracking-wide text-[#2C1810] mb-2 font-['Outfit']">Create an Account</h1>
-            <p className="text-[#8A6B65]">Join thousands of happy shoppers today.</p>
+            <h1 className="text-3xl font-medium tracking-wide text-[#2C1810] mb-2 font-['Outfit']">
+              Create an Account
+            </h1>
+            <p className="text-[#8A6B65]">
+              Join thousands of happy shoppers today.
+            </p>
           </div>
 
           <div className="bg-white rounded-3xl border border-[#E8D4D0]/60 shadow-[0_12px_48px_rgba(44,24,16,0.04)] p-8">
@@ -141,10 +190,20 @@ const SignupPage = () => {
                   required
                 />
                 <span className="text-sm text-[#8A6B65] leading-relaxed">
-                  I agree to the{' '}
-                  <Link to="/terms" className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold">Terms of Service</Link>
-                  {' '}and{' '}
-                  <Link to="/privacy-policy" className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold">Privacy Policy</Link>
+                  I agree to the{" "}
+                  <Link
+                    to="/terms"
+                    className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold"
+                  >
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    to="/privacy-policy"
+                    className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold"
+                  >
+                    Privacy Policy
+                  </Link>
                 </span>
               </label>
 
@@ -168,8 +227,11 @@ const SignupPage = () => {
               </Button>
 
               <p className="text-center text-sm text-[#8A6B65]">
-                Already have an account?{' '}
-                <Link to="/login" className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="text-[#E7A9A2] hover:text-[#E29A8F] font-semibold"
+                >
                   Sign in
                 </Link>
               </p>
@@ -177,7 +239,10 @@ const SignupPage = () => {
           </div>
 
           <div className="mt-6 text-center">
-            <Link to="/" className="text-sm text-[#8A6B65] hover:text-[#E7A9A2] transition-colors">
+            <Link
+              to="/"
+              className="text-sm text-[#8A6B65] hover:text-[#E7A9A2] transition-colors"
+            >
               ← Back to Home
             </Link>
           </div>

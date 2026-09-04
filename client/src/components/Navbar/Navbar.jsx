@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import {
-  ShoppingCart, User, LogOut, Plus, LayoutDashboard,
-  Package, Users, Sparkles, Menu, X,
-  SparklesIcon,
-  WandSparkles,
-  Undo2,
-  ClipboardList,
-  Clock3,
-  Box,
-  PackageOpen
-} from "lucide-react";
+import { ShoppingCart, User, LogOut, Plus, LayoutDashboard, Package, Users, Sparkles, Menu, X, SparklesIcon, WandSparkles, Undo2, ClipboardList, Clock3, Box, PackageOpen } from "lucide-react";
 import { Button } from "../Button/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { logOutUser } from "../../features/authSlice";
@@ -71,13 +61,6 @@ function Navbar() {
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 group h-full">
-              {/* <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-[0_4px_12px_rgba(231,169,162,0.25)] group-hover:shadow-[0_6px_20px_rgba(231,169,162,0.4)] transition-all duration-300">
-                <Sparkles size={18} className="text-[#2C1810]" />
-              </div> */}
-              {/* <span className="text-xl font-semibold text-[#2C1810] tracking-wider font-['Outfit']">
-                STY<span className="text-[#E7A9A2] font-bold">QLO</span>
-              </span> */}
-
               <div
                 style={{ backgroundImage: "url('/image/updated_v3_logo.png')" }}
                 className="h-[80%] lg:w-48 md:w-40 w-32 bg-center bg-contain bg-no-repeat"

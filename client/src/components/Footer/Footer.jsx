@@ -1,6 +1,6 @@
-import { Mail, MapPin, Phone, Sparkles, Heart } from 'lucide-react';
-import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Mail, MapPin, Phone, Sparkles, Heart } from "lucide-react";
+import React from "react";
+import { Link, NavLink } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -10,20 +10,35 @@ const Footer = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
-        {/* <div className="flex flex-wrap justify-evenly"> */}
+          {/* <div className="flex flex-wrap justify-evenly"> */}
 
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#C8756A] to-[#D4A398] flex items-center justify-center shadow-lg flex-shrink-0">
+              {/* <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#C8756A] to-[#D4A398] flex items-center justify-center shadow-lg flex-shrink-0">
                 <Sparkles size={18} className="text-white" />
-              </div>
-              <span className="text-xl text-[#D4A398] font-bold tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>
+              </div> */}
+
+              {/* <div
+                style={{ backgroundImage: "url('image/S_logo.png')" }}
+                className="h-full lg:w-48 md:w-40 w-32 bg-center bg-contain bg-no-repeat"
+              ></div> */}
+              <img
+                src="/image/S_logo.png"
+                alt="STYQLO"
+                className="h-full lg:w-14 md:w-12 w-8 object-contain"
+              />
+
+              <span
+                className="text-xl text-[#D4A398] font-bold tracking-tight"
+                style={{ fontFamily: "Poppins, sans-serif" }}
+              >
                 STYQLO
               </span>
             </div>
             <p className="text-[#C4A09A] text-sm leading-relaxed mb-5">
-              Your curated destination for premium local products. Quality, elegance, and trust — delivered to your door.
+              Your curated destination for premium local products. Quality,
+              elegance, and trust — delivered to your door.
             </p>
             {/* Social icons using inline SVGs to avoid lucide version issues */}
             <div className="flex gap-3">
@@ -32,10 +47,25 @@ const Footer = () => {
                 aria-label="Instagram"
                 className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#C8756A] flex items-center justify-center transition-all duration-200 hover:scale-110"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                   <circle cx="12" cy="12" r="4" />
-                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                  <circle
+                    cx="17.5"
+                    cy="6.5"
+                    r="1"
+                    fill="currentColor"
+                    stroke="none"
+                  />
                 </svg>
               </a>
               <a
@@ -43,7 +73,16 @@ const Footer = () => {
                 aria-label="WhatsApp"
                 className="w-9 h-9 rounded-xl bg-white/10 hover:bg-[#C8756A] flex items-center justify-center transition-all duration-200 hover:scale-110"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                 </svg>
               </a>
@@ -63,7 +102,9 @@ const Footer = () => {
                 <li key={to}>
                   <NavLink
                     to={to}
-                    className={({isActive}) => `${isActive ? "text-white" : "text-[#C4A09A]"} hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block`}
+                    className={({ isActive }) =>
+                      `${isActive ? "text-white" : "text-[#C4A09A]"} hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block`
+                    }
                   >
                     {label}
                   </NavLink>
@@ -86,7 +127,9 @@ const Footer = () => {
                 <li key={to}>
                   <NavLink
                     to={to}
-                    className={({isActive}) => `${isActive ? "text-white" : "text-[#C4A09A]"} hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block`}
+                    className={({ isActive }) =>
+                      `${isActive ? "text-white" : "text-[#C4A09A]"} hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block`
+                    }
                   >
                     {label}
                   </NavLink>
@@ -106,12 +149,14 @@ const Footer = () => {
                 { to: "/return-policy", label: "Return & Refund Policy" },
                 { to: "/privacy-policy", label: "Privacy Policy" },
                 { to: "/terms", label: "Terms & Conditions" },
-                {to: "/disclaimer", label: "Disclaimer"}
+                { to: "/disclaimer", label: "Disclaimer" },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <NavLink
                     to={to}
-                    className={({isActive}) => `${isActive ? "text-white" : "text-[#C4A09A]"} hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block`}
+                    className={({ isActive }) =>
+                      `${isActive ? "text-white" : "text-[#C4A09A]"} hover:text-white text-sm transition-all duration-200 hover:translate-x-1 inline-block`
+                    }
                   >
                     {label}
                   </NavLink>
@@ -127,7 +172,10 @@ const Footer = () => {
             </h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-sm text-[#C4A09A]">
-                <MapPin size={15} className="mt-0.5 flex-shrink-0 text-[#D4A398]" />
+                <MapPin
+                  size={15}
+                  className="mt-0.5 flex-shrink-0 text-[#D4A398]"
+                />
                 <span>{`${import.meta.env.VITE_ADDRESS_MARKET}, ${import.meta.env.VITE_ADDRESS_CITY}, Odisha, India`}</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-[#C4A09A]">
@@ -148,8 +196,15 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} STYQLO. (Mahananda Kart)
           </p>
           <div className="flex gap-6">
-            {[{text: "Privacy Policy", to: "privacy-policy"}, {text: "Terms of Service", to: "terms"}].map((item) => (
-              <Link key={item.to} to={`/${item.to}`} className="text-xs text-[#9B7B75] hover:text-[#D4A398] transition-colors">
+            {[
+              { text: "Privacy Policy", to: "privacy-policy" },
+              { text: "Terms of Service", to: "terms" },
+            ].map((item) => (
+              <Link
+                key={item.to}
+                to={`/${item.to}`}
+                className="text-xs text-[#9B7B75] hover:text-[#D4A398] transition-colors"
+              >
                 {item.text}
               </Link>
             ))}

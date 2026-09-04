@@ -1,19 +1,30 @@
-import { ClipboardList, Clock3, LayoutDashboard, Package, PackageOpen, Plus, Sparkles, SparklesIcon, Undo2, Users, WandSparkles } from 'lucide-react';
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import {
+  ClipboardList,
+  Clock3,
+  LayoutDashboard,
+  Package,
+  PackageOpen,
+  Plus,
+  SparklesIcon,
+  Undo2,
+  Users,
+  WandSparkles,
+} from "lucide-react";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const AdminSidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/admin/add-product', label: 'Add Product', icon: Plus },
-    { path: '/admin/products', label: 'Manage Products', icon: Package },
-    { path: '/admin/users', label: 'Manage Users', icon: Users },
-    { path: '/admin/orders', label: 'All Orders', icon: ClipboardList },
-    { path: '/admin/orders/pending', label: 'Pending Orders', icon: Clock3 },
-    { path: '/admin/returns', label: 'All Returns', icon: PackageOpen  },
-    { path: '/admin/returns/pending', label: 'Pending Returns', icon: Undo2 },
+    { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/admin/add-product", label: "Add Product", icon: Plus },
+    { path: "/admin/products", label: "Manage Products", icon: Package },
+    { path: "/admin/users", label: "Manage Users", icon: Users },
+    { path: "/admin/orders", label: "All Orders", icon: ClipboardList },
+    { path: "/admin/orders/pending", label: "Pending Orders", icon: Clock3 },
+    { path: "/admin/returns", label: "All Returns", icon: PackageOpen },
+    { path: "/admin/returns/pending", label: "Pending Returns", icon: Undo2 },
   ];
 
   return (
@@ -21,19 +32,30 @@ const AdminSidebar = () => {
       {/* Brand */}
       <div className="px-6 py-6 border-b border-[#E8D4D0]/60">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-sm">
+          {/* <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-sm">
             <Sparkles size={15} className="text-[#2C1810]" />
-          </div>
+          </div> */}
+          <img
+            src="/image/S_logo.png"
+            alt="STYQLO"
+            className="h-full lg:w-14 md:w-12 w-8 object-contain"
+          />
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#8A6B65]">Admin Panel</p>
-            <p className="text-sm font-bold text-[#2C1810] font-['Outfit']">STYQLO</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#8A6B65]">
+              Admin Panel
+            </p>
+            <p className="text-sm font-bold text-[#2C1810] font-['Outfit']">
+              STYQLO
+            </p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-4 py-5 space-y-1">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[#D4A398] px-3 mb-3">Navigation</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#D4A398] px-3 mb-3">
+          Navigation
+        </p>
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -43,15 +65,17 @@ const AdminSidebar = () => {
               to={item.path}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300 group ${
                 isActive
-                  ? 'bg-[#F1DBD5]/60 text-[#2C1810] font-semibold shadow-[0_4px_12px_rgba(231,169,162,0.15)]'
-                  : 'text-[#8A6B65] hover:bg-[#FBF8F5] hover:text-[#2C1810]'
+                  ? "bg-[#F1DBD5]/60 text-[#2C1810] font-semibold shadow-[0_4px_12px_rgba(231,169,162,0.15)]"
+                  : "text-[#8A6B65] hover:bg-[#FBF8F5] hover:text-[#2C1810]"
               }`}
             >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                isActive
-                  ? 'bg-[#E7A9A2] text-[#2C1810] shadow-sm'
-                  : 'bg-[#FBF8F5] text-[#8A6B65] group-hover:bg-[#F1DBD5]/60 group-hover:text-[#E7A9A2]'
-              }`}>
+              <div
+                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                  isActive
+                    ? "bg-[#E7A9A2] text-[#2C1810] shadow-sm"
+                    : "bg-[#FBF8F5] text-[#8A6B65] group-hover:bg-[#F1DBD5]/60 group-hover:text-[#E7A9A2]"
+                }`}
+              >
                 <Icon size={16} />
               </div>
               <span className="text-sm">{item.label}</span>

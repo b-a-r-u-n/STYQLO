@@ -16,9 +16,15 @@ const NotFoundPage = () => {
 
       <div className="relative z-10 max-w-lg w-full text-center">
         {/* Icon */}
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#C8756A] to-[#D4A398] flex items-center justify-center mx-auto mb-6 shadow-[0_8px_32px_rgba(200,117,106,0.35)]">
-          <Sparkles size={32} className="text-white" />
-        </div>
+        <div
+            className="w-full lg:h-36 md:h-28 h-24 flex items-center justify-center"
+          >
+            <img
+            src="/image/S_logo.png"
+            alt="STYQLO"
+            className="h-full lg:w-36 md:w-28 w-24 object-contain"
+          />
+          </div>
 
         {/* 404 */}
         <h1 className="text-8xl md:text-[140px] font-bold leading-none mb-2"

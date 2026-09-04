@@ -99,7 +99,7 @@ const ProductsPage = () => {
                           </div>
 
                           {/* Title */}
-                          <h2 className="text-lg md:text-3xl lg:text-4xl font-semibold text-black tracking-wide leading-tight mb-2 md:mb-3 line-clamp-2 font-['Outfit']">
+                          <h2 className="text-sm w-[60%] md:w-full  md:text-3xl lg:text-4xl font-semibold text-black tracking-wide leading-tight mb-2 md:mb-3 line-clamp-1 md:line-clamp-2 font-['Outfit']">
                             {product.name}
                           </h2>
 
