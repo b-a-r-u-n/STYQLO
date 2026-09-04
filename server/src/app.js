@@ -21,15 +21,31 @@ app.use(compression());
 //     credentials: true
 // }))
 
-console.log("process.env.ORIGIN", process.env.ORIGIN);
+const allowedOrigins = JSON.parse(process.env.ORIGIN);
 
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      console.log("Incoming origin:", origin);
+      // allow non-browser requests (curl, server-to-server) with no origin
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
-app.use(cors({
-  origin: process.env.ORIGIN,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}))
+// app.use(cors({
+//   origin: process.env.ORIGIN,
+//   credentials: true,
+//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+//   allowedHeaders: ["Content-Type", "Authorization"],
+// }))
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -47,11 +63,13 @@ app.use("/api/v1", apiLimiter);
 // Register ONLY the webhook with raw body
 app.use("/api/v1/payments/webhook", express.raw({ type: "application/json" }));
 
-app.use(express.json({limit: "10mb"}));
-app.use(express.urlencoded({
+app.use(express.json({ limit: "10mb" }));
+app.use(
+  express.urlencoded({
     extended: true,
-    limit: "10mb"
-}))
+    limit: "10mb",
+  }),
+);
 app.use(cookieParser());
 
 // Routes
@@ -66,7 +84,7 @@ import checkoutRoutes from "./routes/checkout.routes.js";
 import shiprocketRoutes from "./routes/shiprocket.route.js";
 
 // webhook route(for shiprocket)
-import shiprocketWebhookRoutes from "./routes/shiprocket-webhook.routes.js"
+import shiprocketWebhookRoutes from "./routes/shiprocket-webhook.routes.js";
 
 // Sitemap route(for google)
 import sitemapRoutes from "./routes/sitemap.routes.js";
@@ -82,8 +100,7 @@ app.use("/api/v1/checkout", checkoutRoutes);
 app.use("/api/v1/shiprocket", shiprocketRoutes);
 
 // Shiprocket Webhooks
-app.use("/api/v1/webhooks", shiprocketWebhookRoutes)
-
+app.use("/api/v1/webhooks", shiprocketWebhookRoutes);
 
 // Sitemap
 app.use("/", sitemapRoutes);
@@ -117,7 +134,5 @@ app.use((err, req, res, next) => {
         : err.message,
   });
 });
-
-
 
 export default app;
