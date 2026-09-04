@@ -379,7 +379,7 @@ const ProductDetailsPage = () => {
                   ) : (
                     <>
                       <ShoppingCart size={18} />
-                      "Add to Cart"
+                      Add to Cart
                     </>
                   )}
                 </Button>
