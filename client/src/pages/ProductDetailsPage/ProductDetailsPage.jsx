@@ -90,11 +90,11 @@ const ProductDetailsPage = () => {
 
   const handleBargaining = (e) => {
     e.preventDefault();
-    if (!isLoggedIn) {
-      toast.error("Please sign in to bargain");
-      navigate("/login", { state: { from: location.pathname } });
-      return;
-    }
+    // if (!isLoggedIn) {
+    //   toast.error("Please sign in to bargain");
+    //   navigate("/login", { state: { from: location.pathname } });
+    //   return;
+    // }
     if (product?.sizes?.length > 0 && !selectedSize) {
       toast.error("Please select a size before bargaining");
       return;

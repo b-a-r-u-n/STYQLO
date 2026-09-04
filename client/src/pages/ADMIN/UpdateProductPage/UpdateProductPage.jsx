@@ -22,6 +22,7 @@ const UpdateProductPage = () => {
   const [previewImages, setPreviewImages] = useState([]);
   const [removedImages, setRemovedImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentSku, setCurrentSku] = useState("");
 
   const sizeOptions = ["S", "M", "L", "XL", "XXL"];
 
@@ -39,6 +40,8 @@ const UpdateProductPage = () => {
   useEffect(() => {
     if (product) {
       const currentData = product.sizes.filter((item) => item?.size === selectedSize)
+
+      setCurrentSku(currentData[0]?.sku);
 
       setInputData({
         name: product?.name || "",
@@ -189,7 +192,7 @@ const UpdateProductPage = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <Input label="SKU" type="text" name="sku" placeholder="e.g. STYQLO-TSHIRT-001" required value={inputData.sku}
-                onChange={handleInputChange} disabled={loading || inputData.size && inputData.sku ? true : false} className='disabled:cursor-not-allowed' />
+                onChange={handleInputChange} disabled={loading || inputData.size && currentSku ? true : false} className='disabled:cursor-not-allowed' />
               <Input label="HSN" type="number" name="hsn" placeholder="e.g. 6109" step="1" value={inputData.hsn} onChange={handleInputChange} disabled={inputData.size ? true : false} className='disabled:cursor-not-allowed' />
             </div>
 
