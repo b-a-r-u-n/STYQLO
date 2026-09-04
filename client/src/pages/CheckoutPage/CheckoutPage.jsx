@@ -355,7 +355,8 @@ const CheckoutPage = () => {
         setLoadingg(false);
         navigate("/payment/success", {
           state: {
-            from: "checkout"
+            from: "checkout",
+            paymentMethod
           }
         });
       }

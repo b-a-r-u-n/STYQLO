@@ -53,7 +53,7 @@ const LoginPage = () => {
         <div className="absolute bottom-1/4 -right-16 w-64 h-64 rounded-full bg-[#D4A398]/15 blur-3xl" />
 
         <div className="relative z-10 text-center max-w-sm">
-          <div
+          {/* <div
             className="w-full h-10 flex items-center justify-center mb-3"
           >
             <img
@@ -61,7 +61,7 @@ const LoginPage = () => {
             alt="STYQLO"
             className="h-full lg:w-14 md:w-12 w-8 object-contain"
           />
-          </div>
+          </div> */}
           <h2 className="text-3xl font-medium tracking-wide text-white mb-3 leading-tight font-['Outfit']">
             Welcome to
             <br />
@@ -108,11 +108,11 @@ const LoginPage = () => {
             {/* <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-lg">
               <Sparkles size={20} className="text-[#2C1810]" />
             </div> */}
-            <img
+            {/* <img
               src="/image/S_logo.png"
               alt="STYQLO"
               className="h-full lg:w-14 md:w-12 w-8 object-contain"
-            />
+            /> */}
             <span className="text-2xl font-bold tracking-wider text-[#E7A9A2] font-['Outfit']">
               STYQLO
             </span>

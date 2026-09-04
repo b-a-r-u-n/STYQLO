@@ -23,11 +23,11 @@ const Footer = () => {
                 style={{ backgroundImage: "url('image/S_logo.png')" }}
                 className="h-full lg:w-48 md:w-40 w-32 bg-center bg-contain bg-no-repeat"
               ></div> */}
-              <img
+              {/* <img
                 src="/image/S_logo.png"
                 alt="STYQLO"
                 className="h-full lg:w-14 md:w-12 w-8 object-contain"
-              />
+              /> */}
 
               <span
                 className="text-xl text-[#D4A398] font-bold tracking-tight"

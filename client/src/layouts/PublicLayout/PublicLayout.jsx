@@ -12,7 +12,7 @@ const PublicLayout = () => {
     return (
       <div className="min-h-screen bg-[#FBF8F5] flex items-center justify-center">
         <div className="text-center">
-          <div
+          {/* <div
             className="flex justify-center items-center mb-2"
           >
             <img
@@ -20,7 +20,7 @@ const PublicLayout = () => {
               alt="STYQLO"
               className="h-full lg:w-14 md:w-12 w-8 object-contain"
             />
-          </div>
+          </div> */}
           <div className="spinner-luxury mx-auto mb-3" />
           <p className="text-sm text-[#9B7B75] font-medium">
             Loading STYQLO...

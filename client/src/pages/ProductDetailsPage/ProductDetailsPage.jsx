@@ -140,11 +140,11 @@ const ProductDetailsPage = () => {
 
   const productTitle = product
     ? `${product.name} | STYQLO`
-    : "STYQLO — Premium Fashion";
+    : "STYQLO";
 
   const productDescription = product?.description
     ? product.description.slice(0, 160)
-    : "Shop premium fashion at STYQLO.";
+    : "Shop at STYQLO.";
 
   const productImage = product?.images?.[0]?.url;
 

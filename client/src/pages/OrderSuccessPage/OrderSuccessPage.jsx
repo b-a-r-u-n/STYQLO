@@ -61,14 +61,14 @@ const OrderSuccessPage = () => {
 
         {/* Heading */}
         <h1 className="mt-8 text-gradient text-4xl font-bold">
-          Payment Successful
+          {`${location.state.paymentMethod === "cod" ? "Order" : "Payment"} Successful`}
         </h1>
 
         {/* Description */}
         <p className="mt-5 text-muted-foreground leading-7 text-base">
           Thank you for shopping with <span className="font-semibold text-foreground">STYQLO</span>.
           <br />
-          Your payment has been verified and your order has been placed successfully.
+          {`${location.state.paymentMethod === "cod" ? "Your order has been placed successfully." : "Your payment has been verified and your order has been placed successfully."}`}
         </p>
 
         {/* Divider */}

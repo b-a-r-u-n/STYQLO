@@ -28,12 +28,12 @@ const ProductsPage = () => {
   const isHomePage = location.pathname === "/";
 
   const pageTitle = isHomePage
-    ? "STYQLO — Premium Fashion & Local Shopping"
-    : "Shop All Products | STYQLO";
+    ? "STYQLO"
+    : "STYQLO";
 
   const pageDescription = isHomePage
-    ? "Discover premium fashion and curated products at STYQLO. Shop stylish clothing with quality designs at great prices."
-    : "Explore the latest fashion collection from STYQLO. Shop premium clothing with stylish designs, quality materials and great prices.";
+    ? "Discover your style with STYQLO — fashion that fits your budget. Shop trendy and affordable clothing for men and women, from premium T-shirts, polo shirts, jeans, hoodies and track pants to dresses, tracksuits, sportswear and everyday casual wear. Explore cotton, oversized, streetwear and sustainable fashion styles designed for comfort, quality and everyday confidence. Whether you're looking for a casual outfit, gym wear, running essentials, summer dresses or winter clothing, STYQLO makes it easy to find styles you love at prices you'll appreciate. Shop fashion online and upgrade your wardrobe with STYQLO."
+    : "Discover your style with STYQLO — fashion that fits your budget. Shop trendy and affordable clothing for men and women, from premium T-shirts, polo shirts, jeans, hoodies and track pants to dresses, tracksuits, sportswear and everyday casual wear. Explore cotton, oversized, streetwear and sustainable fashion styles designed for comfort, quality and everyday confidence. Whether you're looking for a casual outfit, gym wear, running essentials, summer dresses or winter clothing, STYQLO makes it easy to find styles you love at prices you'll appreciate. Shop fashion online and upgrade your wardrobe with STYQLO.";
 
   const canonical = isHomePage
     ? "/"
