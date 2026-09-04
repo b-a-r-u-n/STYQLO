@@ -288,6 +288,18 @@ const ProductDetailsPage = () => {
               {/* Description */}
               <ReactMarkdown
                 components={{
+                  h1: ({ children }) => (
+                    <h4 className="text-lg md:text-xl font-semibold text-[#2C1810] mb-4">
+                      {children}
+                    </h4>
+                  ),
+
+                  h2: ({ children }) => (
+                    <h3 className="text-md md:text-xl text-[#2C1810] mb-4">
+                      {children}
+                    </h3>
+                  ),
+
                   h3: ({ children }) => (
                     <h3 className="text-lg md:text-xl font-semibold text-[#2C1810] mb-4">
                       {children}
