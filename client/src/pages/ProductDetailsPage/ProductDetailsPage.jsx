@@ -290,13 +290,13 @@ const ProductDetailsPage = () => {
               )}
 
               {/* Stock */}
-              <div>
+              {/* <div>
                 <Badge variant={displayStock > 0 ? 'success' : 'error'}>
                   {displayStock > 0
                     ? selectedSize ? `${displayStock} in stock` : `In Stock (${displayStock} available)`
                     : selectedSize ? `${selectedSize} — Out of Stock` : 'Out of Stock'}
                 </Badge>
-              </div>
+              </div> */}
 
               {/* Quantity + Add to Cart */}
               <div className="flex items-center gap-3">

@@ -5,13 +5,13 @@ const ProductCarousel = ({ images = [] }) => {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
 
-  useEffect(() => {
-    if (paused || images.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [paused, images.length]);
+  // useEffect(() => {
+  //   if (paused || images.length <= 1) return;
+  //   const interval = setInterval(() => {
+  //     setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  //   }, 3500);
+  //   return () => clearInterval(interval);
+  // }, [paused, images.length]);
 
   if (!images.length) return (
     <div className="bg-[#FBF8F5] rounded-3xl h-96 flex items-center justify-center text-[#8A6B65]">
