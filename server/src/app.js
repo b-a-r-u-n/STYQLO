@@ -21,6 +21,9 @@ app.use(compression());
 //     credentials: true
 // }))
 
+console.log("process.env.ORIGIN", process.env.ORIGIN);
+
+
 app.use(cors({
   origin: process.env.ORIGIN,
   credentials: true,
