@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Badge, BargainModal, ProductCarousel, SEO } from "../../components";
-import { ArrowLeft, MessageCircle, Minus, Plus, RotateCcw, Shield, ShoppingCart, Star, Truck, } from "lucide-react";
+import {
+  ArrowLeft,
+  MessageCircle,
+  Minus,
+  Plus,
+  RotateCcw,
+  Shield,
+  ShoppingCart,
+  Star,
+  Truck,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "../../components/Button/Button";
 import { useDispatch, useSelector } from "react-redux";
@@ -285,53 +295,6 @@ const ProductDetailsPage = () => {
                 )}
               </div>
 
-              {/* Description */}
-              <ReactMarkdown
-                components={{
-                  h1: ({ children }) => (
-                    <h4 className="text-lg md:text-xl font-semibold text-[#2C1810] mb-4">
-                      {children}
-                    </h4>
-                  ),
-
-                  h2: ({ children }) => (
-                    <h3 className="text-md md:text-xl text-[#2C1810] mb-4">
-                      {children}
-                    </h3>
-                  ),
-
-                  h3: ({ children }) => (
-                    <h3 className="text-lg md:text-xl font-semibold text-[#2C1810] mb-4">
-                      {children}
-                    </h3>
-                  ),
-
-                  p: ({ children }) => (
-                    <p className="text-[#6E3F39] leading-relaxed text-sm md:text-base font-light mb-4">
-                      {children}
-                    </p>
-                  ),
-
-                  ul: ({ children }) => (
-                    <ul className="list-disc pl-5 space-y-2 text-[#6E3F39] text-sm md:text-base font-light mb-5">
-                      {children}
-                    </ul>
-                  ),
-
-                  li: ({ children }) => (
-                    <li className="leading-relaxed">{children}</li>
-                  ),
-
-                  strong: ({ children }) => (
-                    <strong className="font-semibold text-[#2C1810]">
-                      {children}
-                    </strong>
-                  ),
-                }}
-              >
-                {product?.description}
-              </ReactMarkdown>
-
               {/* Sizes */}
               {product?.sizes?.length > 0 && (
                 <div>
@@ -443,6 +406,53 @@ const ProductDetailsPage = () => {
                 <MessageCircle size={18} />
                 Make an Offer (Bargain)
               </button>
+
+              {/* Description */}
+              <ReactMarkdown
+                components={{
+                  h1: ({ children }) => (
+                    <h4 className="text-lg md:text-xl font-semibold text-[#2C1810] mb-4">
+                      {children}
+                    </h4>
+                  ),
+
+                  h2: ({ children }) => (
+                    <h3 className="text-md md:text-xl text-[#2C1810] mb-4">
+                      {children}
+                    </h3>
+                  ),
+
+                  h3: ({ children }) => (
+                    <h3 className="text-lg md:text-xl font-semibold text-[#2C1810] mb-4">
+                      {children}
+                    </h3>
+                  ),
+
+                  p: ({ children }) => (
+                    <p className="text-[#6E3F39] leading-relaxed text-sm md:text-base font-light mb-4">
+                      {children}
+                    </p>
+                  ),
+
+                  ul: ({ children }) => (
+                    <ul className="list-disc pl-5 space-y-2 text-[#6E3F39] text-sm md:text-base font-light mb-5">
+                      {children}
+                    </ul>
+                  ),
+
+                  li: ({ children }) => (
+                    <li className="leading-relaxed">{children}</li>
+                  ),
+
+                  strong: ({ children }) => (
+                    <strong className="font-semibold text-[#2C1810]">
+                      {children}
+                    </strong>
+                  ),
+                }}
+              >
+                {product?.description}
+              </ReactMarkdown>
 
               {product && (
                 <BargainModal

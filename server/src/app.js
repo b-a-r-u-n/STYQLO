@@ -26,7 +26,6 @@ const allowedOrigins = JSON.parse(process.env.ORIGIN);
 app.use(
   cors({
     origin: function (origin, callback) {
-      console.log("Incoming origin:", origin);
       // allow non-browser requests (curl, server-to-server) with no origin
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
