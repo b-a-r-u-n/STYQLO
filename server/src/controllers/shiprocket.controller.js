@@ -159,6 +159,11 @@ const getCourierDetails = asyncHandler(async (req, res) => {
     if (!serviceability)
         throw new apiError(500, "Error while checking courier serviceability");
 
+    console.log("serviceability", serviceability);
+    console.log(serviceability?.data?.available_courier_companies);
+    
+    
+
     res
         .status(200)
         .json(
