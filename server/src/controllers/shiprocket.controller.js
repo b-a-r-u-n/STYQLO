@@ -96,9 +96,9 @@ const createShipmentOrder = asyncHandler(async (req, res) => {
     console.log("shiprocketResponse", shiprocketResponse.data);
 
     order.shiprocket = {
-        orderId: String(shiprocketResponse.order_id),
-        shipmentId: String(shiprocketResponse.shipment_id),
-        status: shiprocketResponse.status
+        orderId: String(shiprocketResponse.order_id) || null,
+        shipmentId: String(shiprocketResponse.shipment_id) || null,
+        status: shiprocketResponse.status || null
     }
 
     await order.save();
