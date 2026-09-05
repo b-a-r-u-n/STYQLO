@@ -184,7 +184,7 @@ const generateAWB = asyncHandler(async (req, res) => {
         awbCode: order?.shiprocket?.awbCode,
         shipmentId: order.shiprocket.shipmentId
     }
-    res
+    return res
     .status(200)
     .json(new apiResponse(200, "AWB already assigned", data));
   }
