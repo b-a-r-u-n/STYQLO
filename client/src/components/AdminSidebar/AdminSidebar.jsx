@@ -35,11 +35,11 @@ const AdminSidebar = () => {
           {/* <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#E7A9A2] to-[#D4A398] flex items-center justify-center shadow-sm">
             <Sparkles size={15} className="text-[#2C1810]" />
           </div> */}
-          <img
+          {/* <img
             src="/image/S_logo.png"
             alt="STYQLO"
             className="h-full lg:w-14 md:w-12 w-8 object-contain"
-          />
+          /> */}
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#8A6B65]">
               Admin Panel

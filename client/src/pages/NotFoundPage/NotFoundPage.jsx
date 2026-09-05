@@ -16,7 +16,7 @@ const NotFoundPage = () => {
 
       <div className="relative z-10 max-w-lg w-full text-center">
         {/* Icon */}
-        <div
+        {/* <div
             className="w-full lg:h-36 md:h-28 h-24 flex items-center justify-center"
           >
             <img
@@ -24,7 +24,7 @@ const NotFoundPage = () => {
             alt="STYQLO"
             className="h-full lg:w-36 md:w-28 w-24 object-contain"
           />
-          </div>
+          </div> */}
 
         {/* 404 */}
         <h1 className="text-8xl md:text-[140px] font-bold leading-none mb-2"
