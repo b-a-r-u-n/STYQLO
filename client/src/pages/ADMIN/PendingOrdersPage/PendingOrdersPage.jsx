@@ -63,7 +63,7 @@ const PendingOrdersPage = () => {
 
         const response = await getCourierDetails(orderId);
 
-        // console.log(response.data);
+        console.log(response.data);
         setCouriers(response?.data || response || []);
         setSelectedOrderId(orderId);
         setShowCourierModal(true);
