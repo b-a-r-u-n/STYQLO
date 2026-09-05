@@ -57,7 +57,8 @@ const PendingOrdersPage = () => {
       // console.log(order);
 
       if (string === "accepted") {
-
+        console.log(!order?.shiprocket?.shipmentId);
+        
         if(!order?.shiprocket?.shipmentId)
           await createShiprocketOrder(orderId);
 
