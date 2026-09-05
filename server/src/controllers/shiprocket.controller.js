@@ -74,6 +74,8 @@ const createShipmentOrder = asyncHandler(async (req, res) => {
             message: "Order payment is not completed"
         });
     }
+    console.log("order.shiprocket?.shipmentId", order.shiprocket?.shipmentId);
+    
 
     if (order.shiprocket?.shipmentId) {
         return res.status(400).json({
