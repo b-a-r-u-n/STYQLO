@@ -52,7 +52,7 @@ const parseScanDate = (value) => {
 };
 
 const createShipmentOrder = asyncHandler(async (req, res) => {
-
+    console.log("createShipmentOrder called");
     const { orderId } = req.params;
 
     await getShiprocketToken();
