@@ -58,14 +58,17 @@ const PendingOrdersPage = () => {
       // console.log(order);
 
       if (string === "accepted") {
-        console.log("order?.shiprocket?.shipmentId", order?.shiprocket?.shipmentId);
+        // console.log("order?.shiprocket?.shipmentId", order?.shiprocket?.shipmentId);
         
-        const shipmentId = order?.shiprocket?.shipmentId;
+        // const shipmentId = order?.shiprocket?.shipmentId;
 
-        console.log("shipmentId:", shipmentId);
-        console.log("shipmentId exists:", !!shipmentId);
+        // console.log("shipmentId:", shipmentId);
+        // console.log("shipmentId exists:", !!shipmentId);
+
+        console.log(order);
         
-        if(order?.shiprocket?.shipmentId === undefined){
+        
+        if(!order?.shiprocket?.shipmentId){
           console.log("Creating Shiprocket order for orderId:", orderId);
           await createShiprocketOrder(orderId);
         }
