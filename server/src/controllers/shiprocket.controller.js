@@ -50,7 +50,7 @@ const parseScanDate = (value) => {
 };
 
 const createShipmentOrder = asyncHandler(async (req, res) => {
-  console.log("createShipmentOrder called");
+//   console.log("createShipmentOrder called");
   const { orderId } = req.params;
 
   await getShiprocketToken();
@@ -72,7 +72,7 @@ const createShipmentOrder = asyncHandler(async (req, res) => {
       message: "Order payment is not completed",
     });
   }
-  console.log("order.shiprocket?.shipmentId", order.shiprocket?.shipmentId);
+//   console.log("order.shiprocket?.shipmentId", order.shiprocket?.shipmentId);
 
   if (order.shiprocket?.shipmentId) {
     return res.status(400).json({
@@ -88,8 +88,8 @@ const createShipmentOrder = asyncHandler(async (req, res) => {
   if (!shiprocketResponse)
     throw new apiError(500, "Error while creating Shiprocket shipment");
 
-  console.log("shiprocketResponse", shiprocketResponse);
-  console.log("shiprocketResponse", shiprocketResponse.data);
+//   console.log("shiprocketResponse", shiprocketResponse);
+//   console.log("shiprocketResponse", shiprocketResponse.data);
 
   order.shiprocket = {
     orderId: String(shiprocketResponse.order_id) || null,
@@ -149,8 +149,8 @@ const getCourierDetails = asyncHandler(async (req, res) => {
   if (!serviceability)
     throw new apiError(500, "Error while checking courier serviceability");
 
-  console.log("serviceability", serviceability);
-  console.log(serviceability?.data?.available_courier_companies);
+//   console.log("serviceability", serviceability);
+//   console.log(serviceability?.data?.available_courier_companies);
 
   res
     .status(200)
@@ -195,7 +195,7 @@ const generateAWB = asyncHandler(async (req, res) => {
     courierId,
   });
 
-  console.log("awbResponse", awbResponse);
+//   console.log("awbResponse", awbResponse);
 
   if (awbResponse?.awb_assign_status !== 1)
     throw new apiError(
@@ -301,8 +301,8 @@ const generateShipmentLabelAndInvoice = asyncHandler(async (req, res) => {
   const invoice = await generateInvoice([Number(order?.shiprocket?.orderId)]);
   const label = await generateLabel([Number(order?.shiprocket?.shipmentId)]);
 
-  console.log("Shiprocket Label Response:", label);
-  console.log("Shiprocket Invoice Response:", invoice);
+//   console.log("Shiprocket Label Response:", label);
+//   console.log("Shiprocket Invoice Response:", invoice);
 
   if (!invoice || !invoice?.invoice_url)
     throw new apiError(400, "Failed to generate invoice.");
@@ -351,7 +351,7 @@ const requestPickup = asyncHandler(async (req, res) => {
 
   const result = await requestShipmentPickup(shipmentId);
 
-  console.log("Shiprocket Pickup Response:", result);
+//   console.log("Shiprocket Pickup Response:", result);
 
   if (!result || result?.pickup_status !== 1) {
     order.shiprocket.pickupStatus = "FAILED";
