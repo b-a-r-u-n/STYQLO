@@ -646,7 +646,7 @@ const PendingOrdersPage = () => {
 
             setShipmentStep("manifest-generated");
 
-            const res = await dispatch(updateOrder({ orderId, url: urlContent })).unwrap();
+            const res = await dispatch(updateOrder({ orderId: selectedOrderId, url: urlContent })).unwrap();
 
             toast.success(`Order accepted successfully`);
             fetchData();

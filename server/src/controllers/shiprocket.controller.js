@@ -177,7 +177,7 @@ const generateAWB = asyncHandler(async (req, res) => {
   if (!order.shiprocket?.orderId)
     throw new apiError(400, "Shiprocket order has not been created");
 
-  if(order.shiprocket.awbCode){
+  if(order?.shiprocket?.awbCode){
     const data = {
         courierName: order?.shiprocket?.courierName,
         courierCompanyId: order?.shiprocket?.courierCompanyId,
