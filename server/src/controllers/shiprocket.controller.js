@@ -92,7 +92,7 @@ const createShipmentOrder = asyncHandler(async (req, res) => {
     if (!shiprocketResponse)
         throw new apiError(500, "Error while creating Shiprocket shipment");
 
-    console.log("shiprocketResponse", shiprocketResponse);
+    console.log("shiprocketResponse", shiprocketResponse.data);
 
     order.shiprocket = {
         orderId: String(shiprocketResponse.order_id),
