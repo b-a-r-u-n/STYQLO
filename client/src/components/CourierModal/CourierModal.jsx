@@ -66,7 +66,7 @@ const CourierModal = ({
             </div>
           ) : (
             <div className="space-y-3">
-              {couriers?.map((courier) => {
+              {couriers.length > 0 && couriers?.map((courier) => {
                 const courierId =
                   courier.courier_company_id ||
                   courier.id ||

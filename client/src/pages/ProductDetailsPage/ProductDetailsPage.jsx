@@ -32,7 +32,7 @@ const ProductDetailsPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  const sizeOrder = ["S", "M", "L", "XL", "XXL"];
+  const sizeOrder = ["S", "M", "L", "XL", "XXL", "XXXL"];
   // const [rating] = useState((Math.random() * 1.5 + 3.5).toFixed(1));
 
   // console.log(product);
