@@ -86,7 +86,7 @@ const createShiprocketOrder = async (order) => {
         order_date: new Date(order.updatedAt)
             .toISOString()
             .split("T")[0],
-        pickup_location: "Primary",
+        pickup_location: "Home",
         invoice_number: order.invoiceNumber,
         billing_customer_name: order.shippingAddress.fullName,
         billing_last_name: "",
