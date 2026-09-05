@@ -42,6 +42,7 @@ const PendingOrdersPage = () => {
   const [pickupData, setPickupData] = useState(null);
   const [manifestData, setManifestData] = useState(null);
   const [packedData, setPackedData] = useState(null);
+  const [urlContent, setUrlContent] = useState(null);
 
   const handleAcceptAndReject = async (orderId, string, order) => {
     let url = "";
@@ -53,7 +54,7 @@ const PendingOrdersPage = () => {
     setCurrentPageLoading(true);
 
     try {
-      const res = await dispatch(updateOrder({ orderId, url })).unwrap();
+      setUrlContent(url);
       // console.log(order);
 
       if (string === "accepted") {
@@ -645,6 +646,8 @@ const PendingOrdersPage = () => {
             setManifestData(response?.data);
 
             setShipmentStep("manifest-generated");
+
+            const res = await dispatch(updateOrder({ orderId, url: urlContent })).unwrap();
 
             toast.success(`Order accepted successfully`);
             fetchData();
