@@ -62,6 +62,7 @@ const PendingReturnsPage = () => {
   const [shipmentStep, setShipmentStep] = useState(null);
   const [awbData, setAwbData] = useState(null);
   const [pickupData, setPickupData] = useState(null);
+  const [urlContent, setUrlContent] = useState("");
 
 
   // ==================================================
@@ -86,7 +87,7 @@ const PendingReturnsPage = () => {
 
     try {
 
-      await dispatch(updateReturn({ returnId, url })).unwrap();
+      setUrlContent(url);
 
       if (action === "approved") {
 
@@ -102,8 +103,8 @@ const PendingReturnsPage = () => {
 
       } else if (action === "rejected") {
 
-        await fetchData();
         toast.success(`Return ${action} successfully`);
+        fetchData();
 
       }
 
@@ -848,7 +849,12 @@ const PendingReturnsPage = () => {
 
             setAwbData(response?.data || response);
 
+            await dispatch(updateReturn({ returnId: selectedReturnId, url: urlContent })).unwrap();
+
             setShipmentStep("awb-generated");
+
+            toast.success(`Return accepted successfully`);
+            fetchData();
 
           } catch (error) {
             console.error(error);

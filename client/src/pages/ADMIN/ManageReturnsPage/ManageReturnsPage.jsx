@@ -92,30 +92,30 @@ const ManageReturnsPage = () => {
   // HANDLE APPROVE / REJECT
   // ==================================================
 
-  const handleApproveReject = async (returnId, action) => {
+  // const handleApproveReject = async (returnId, action) => {
 
-    let url = "";
+  //   let url = "";
 
-    if (action === "approved") {
-      url = "?returnStatus=Approved&approvedAt";
+  //   if (action === "approved") {
+  //     url = "?returnStatus=Approved&approvedAt";
 
-    } else if (action === "rejected") {
-      url = "?returnStatus=Rejected&rejectedAt=Date.now()";
-    }
+  //   } else if (action === "rejected") {
+  //     url = "?returnStatus=Rejected&rejectedAt=Date.now()";
+  //   }
 
-    try {
-      await dispatch(updateReturn({ returnId, url })).unwrap();
+  //   try {
+  //     await dispatch(updateReturn({ returnId, url })).unwrap();
 
-      await fetchData();
+  //     await fetchData();
 
-      toast.success(`Return ${action} successfully`);
+  //     toast.success(`Return ${action} successfully`);
 
-    } catch (error) {
+  //   } catch (error) {
 
-      toast.error(error?.message || error?.data?.message || "Failed to update return");
+  //     toast.error(error?.message || error?.data?.message || "Failed to update return");
 
-    }
-  };
+  //   }
+  // };
 
 
   // ==================================================
@@ -852,7 +852,7 @@ const ManageReturnsPage = () => {
 
                             {/* APPROVE / REJECT */}
 
-                            {returnItem.returnStatus ===
+                            {/* {returnItem.returnStatus ===
                               "Pending" && (
 
                                 <>
@@ -900,7 +900,7 @@ const ManageReturnsPage = () => {
 
                                 </>
 
-                              )}
+                              )} */}
 
 
                             {/* VIEW DETAILS */}

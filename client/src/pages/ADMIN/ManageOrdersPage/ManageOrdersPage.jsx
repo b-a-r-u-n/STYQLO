@@ -56,24 +56,24 @@ const ManageOrdersPage = () => {
   // HANDLE ACCEPT AND REJECT BUTTON
   // ==================================================
 
-  const handleAcceptAndReject = async (orderId, string) => {
-    let url = "";
-    if (string === "accepted")
-      url = "?orderStatus=Confirmed";
-    else if (string === "rejected")
-      url = "?orderStatus=Rejected";
+  // const handleAcceptAndReject = async (orderId, string) => {
+  //   let url = "";
+  //   if (string === "accepted")
+  //     url = "?orderStatus=Confirmed";
+  //   else if (string === "rejected")
+  //     url = "?orderStatus=Rejected";
 
-    try {
-      const res = await dispatch(updateOrder({ orderId, url })).unwrap();
-      fetchData();
-      // console.log(res);
+  //   try {
+  //     const res = await dispatch(updateOrder({ orderId, url })).unwrap();
+  //     fetchData();
+  //     // console.log(res);
 
-      toast.success(`Order ${string} successfully`);
-    } catch (error) {
-      // console.error(error);
-      toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
-    }
-  }
+  //     toast.success(`Order ${string} successfully`);
+  //   } catch (error) {
+  //     // console.error(error);
+  //     toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+  //   }
+  // }
 
   // ==================================================
   // HANDLE SEARCH BUTTON
@@ -677,7 +677,7 @@ const ManageOrdersPage = () => {
 
                         <div className="flex flex-col gap-2">
 
-                          {order.orderStatus ===
+                          {/* {order.orderStatus ===
                             "Pending" && (
 
                               <>
@@ -709,7 +709,7 @@ const ManageOrdersPage = () => {
                                 </button>
                               </>
 
-                            )}
+                            )} */}
 
 
                           <button

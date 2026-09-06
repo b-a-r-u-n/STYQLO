@@ -197,7 +197,7 @@ const PendingOrdersPage = () => {
                           <div className="flex flex-wrap items-center gap-3">
 
                             <h2 className="text-lg font-bold text-foreground">
-                              #{order._id}
+                              #{order?.orderId || order._id}
                             </h2>
 
                             <span className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
@@ -644,9 +644,10 @@ const PendingOrdersPage = () => {
 
             setManifestData(response?.data);
 
+            await dispatch(updateOrder({ orderId: selectedOrderId, url: urlContent })).unwrap();
+
             setShipmentStep("manifest-generated");
 
-            const res = await dispatch(updateOrder({ orderId: selectedOrderId, url: urlContent })).unwrap();
 
             toast.success(`Order accepted successfully`);
             fetchData();

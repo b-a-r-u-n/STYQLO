@@ -33,38 +33,38 @@ const AdminOrderDetailsPage = () => {
     fetchData();
   }, [])
 
-  const handleAcceptAndReject = async (string) => {
-      let url = "";
-      if (string === "accepted")
-        url = "?orderStatus=Confirmed";
-      else if (string === "rejected")
-        url = "?orderStatus=Rejected";
+  // const handleAcceptAndReject = async (string) => {
+  //     let url = "";
+  //     if (string === "accepted")
+  //       url = "?orderStatus=Confirmed";
+  //     else if (string === "rejected")
+  //       url = "?orderStatus=Rejected";
   
-      try {
-        const res = await dispatch(updateOrder({orderId, url})).unwrap();
-        fetchData();
-        // console.log(res);
+  //     try {
+  //       const res = await dispatch(updateOrder({orderId, url})).unwrap();
+  //       fetchData();
+  //       // console.log(res);
         
-        toast.success(`Order ${string} successfully`);
-      } catch (error) {
-        // console.error(error);
-        toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
-      }
-    }
+  //       toast.success(`Order ${string} successfully`);
+  //     } catch (error) {
+  //       // console.error(error);
+  //       toast.error(error?.message || error?.data?.message || "Failed to fetch orders");
+  //     }
+  //   }
 
   
   
-  const handleStatusChange = async (status) => {
-    try {
-      // await updateOrderStatus(order.id, status);
+  // const handleStatusChange = async (status) => {
+  //   try {
+  //     // await updateOrderStatus(order.id, status);
       
-      setOrderStatus(status);
+  //     setOrderStatus(status);
       
-      toast.success(`Order marked as ${status}`);
-    } catch (error) {
-      toast.error("Failed to update order status");
-    }
-  };
+  //     toast.success(`Order marked as ${status}`);
+  //   } catch (error) {
+  //     toast.error("Failed to update order status");
+  //   }
+  // };
   
   const statusSteps = [
     {
@@ -295,7 +295,7 @@ const AdminOrderDetailsPage = () => {
 
           <div className="mt-8 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row">
 
-            {orderData?.orderStatus === "Pending" && (
+            {/* {orderData?.orderStatus === "Pending" && (
               <>
                 <button
                   onClick={() => {
@@ -347,7 +347,7 @@ const AdminOrderDetailsPage = () => {
                 <CheckCircle2 size={18} />
                 Mark as Delivered
               </button>
-            )}
+            )} */}
 
             {orderData?.orderStatus === "Delivered" && (
               <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-50 py-3.5 font-semibold text-green-700">
