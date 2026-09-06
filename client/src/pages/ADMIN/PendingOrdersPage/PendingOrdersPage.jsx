@@ -543,6 +543,8 @@ const PendingOrdersPage = () => {
 
             setShipmentStep("awb-generated");
 
+            await dispatch(updateOrder({ orderId: selectedOrderId, url: urlContent })).unwrap();
+
           } catch (error) {
             // console.error(error);
             toast.error(error.response?.data?.message || error?.message || "Failed to generate AWB");
@@ -644,7 +646,7 @@ const PendingOrdersPage = () => {
 
             setManifestData(response?.data);
 
-            await dispatch(updateOrder({ orderId: selectedOrderId, url: urlContent })).unwrap();
+            await dispatch(updateOrder({ orderId: selectedOrderId, url: "?orderStatus=Packed" })).unwrap();
 
             setShipmentStep("manifest-generated");
 

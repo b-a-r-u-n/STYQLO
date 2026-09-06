@@ -91,6 +91,8 @@ const PendingReturnsPage = () => {
 
       if (action === "approved") {
 
+        await dispatch(updateReturn({ returnId, url })).unwrap();
+        
         if (!returnData?.shiprocket?.shipmentId)
           await createReturnShipment(returnId);
 
@@ -849,7 +851,7 @@ const PendingReturnsPage = () => {
 
             setAwbData(response?.data || response);
 
-            await dispatch(updateReturn({ returnId: selectedReturnId, url: urlContent })).unwrap();
+            await dispatch(updateReturn({ returnId: selectedReturnId, url: "?orderStatus=Packed" })).unwrap();
 
             setShipmentStep("awb-generated");
 
